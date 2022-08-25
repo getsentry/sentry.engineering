@@ -1,14 +1,13 @@
 module.exports = {
   siteMetadata: {
-    title: `Gatsby Starter Blog`,
+    title: `sentry.engineering`,
     author: {
-      name: `Kyle Mathews`,
-      summary: `who lives and works in San Francisco building useful things.`,
+      name: `Sentry`,
     },
-    description: `A starter blog demonstrating what Gatsby can do.`,
-    siteUrl: `https://gatsbystarterblogsource.gatsbyjs.io/`,
+    description: `A blog from Sentry R&D.`,
+    siteUrl: `https://sentry.engineering/`,
     social: {
-      twitter: `kylemathews`,
+      twitter: `getsentry`,
     },
   },
   plugins: [
@@ -25,6 +24,20 @@ module.exports = {
       options: {
         name: `images`,
         path: `${__dirname}/src/images`,
+      },
+    },
+    {
+      resolve: `gatsby-source-rss-feed`,
+      options: {
+        name: `Vanguard`,
+        url: `http://localhost:3000/feeds/cl79kcnoz0438m6pu33lj4dao.xml`,
+        // url: `https://vanguard.getsentry.net/feeds/cl79m83l401640ls6baxw909c.xml`,
+        parserOption: {
+          customFields: {
+            // feed: ["siteTitle", "siteUrl", "headshot", "about"],
+            item: ["content:encoded", "description"],
+          },
+        },
       },
     },
     {

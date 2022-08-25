@@ -246,10 +246,6 @@ a:focus {
   padding: var(--spacing-10) var(--spacing-5);
 }
 
-.global-wrapper[data-is-root-path="true"] .bio {
-  margin-bottom: var(--spacing-20);
-}
-
 .global-header {
   margin-bottom: var(--spacing-12);
 }
@@ -284,22 +280,6 @@ a:focus {
   font-family: var(--font-heading);
   text-decoration: none;
   font-size: var(--fontSize-2);
-}
-
-.bio {
-  display: flex;
-  margin-bottom: var(--spacing-16);
-}
-
-.bio p {
-  margin-bottom: var(--spacing-0);
-}
-
-.bio-avatar {
-  margin-right: var(--spacing-4);
-  margin-bottom: var(--spacing-0);
-  min-width: 50px;
-  border-radius: 100%;
 }
 
 .blog-post header h1 {
