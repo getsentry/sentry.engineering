@@ -1,13 +1,33 @@
 const path = require(`path`)
 const { createFilePath } = require(`gatsby-source-filesystem`)
 
+function string_to_slug(str) {
+  str = str.replace(/^\s+|\s+$/g, "") // trim
+  str = str.toLowerCase()
+
+  // remove accents, swap ñ for n, etc
+  var from = "àáãäâèéëêìíïîòóöôùúüûñç·/_,:;"
+  var to = "aaaaaeeeeiiiioooouuuunc------"
+
+  for (var i = 0, l = from.length; i < l; i++) {
+    str = str.replace(new RegExp(from.charAt(i), "g"), to.charAt(i))
+  }
+
+  str = str
+    .replace(/[^a-z0-9 -]/g, "") // remove invalid chars
+    .replace(/\s+/g, "-") // collapse whitespace and replace by -
+    .replace(/-+/g, "-") // collapse dashes
+
+  return str
+}
+
 exports.createPages = async ({ graphql, actions, reporter }) => {
   const { createPage } = actions
 
-  // Define a template for blog post
-  const blogPost = path.resolve(`./src/templates/blog-post.js`)
-
   const createPagesFromContent = async () => {
+    // Define a template for blog post
+    const blogPost = path.resolve(`./src/templates/blog-post.js`)
+
     // Get all markdown blog posts sorted by date
     const result = await graphql(
       `
@@ -69,12 +89,16 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
   }
 
   const createPagesFromVanguard = async () => {
+    // Define a template for blog post
+    const template = path.resolve(`./src/templates/syndicated-post.js`)
+
     const result = await graphql(
       `
         {
           allFeedVanguard {
             edges {
               node {
+                id
                 title
                 pubDate
                 description
@@ -110,7 +134,7 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
 
         createPage({
           path: node.fields.slug,
-          component: blogPost,
+          component: template,
           context: {
             id: node.id,
             previousPostId,
@@ -136,7 +160,7 @@ exports.onCreateNode = ({ node, actions, getNode }) => {
       node,
       name: "slug",
       // TODO: improve parsing
-      value: node.link.split(".net")[1],
+      value: `syn/${node.guid}-${string_to_slug(node.title)}`,
     })
   } else if (node.internal.type === `MarkdownRemark`) {
     const value = createFilePath({ node, getNode })
