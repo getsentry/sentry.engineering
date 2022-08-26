@@ -30,8 +30,7 @@ module.exports = {
       resolve: `gatsby-source-rss-feed`,
       options: {
         name: `Vanguard`,
-        url: `http://localhost:3000/feeds/cl79kcnoz0438m6pu33lj4dao.xml`,
-        // url: `https://vanguard.getsentry.net/feeds/cl79m83l401640ls6baxw909c.xml`,
+        url: `https://vanguard.getsentry.net/feeds/cl79m83l401640ls6baxw909c.xml`,
         parserOption: {
           customFields: {
             // feed: ["siteTitle", "siteUrl", "headshot", "about"],
