@@ -135,7 +135,8 @@ exports.onCreateNode = ({ node, actions, getNode }) => {
     createNodeField({
       node,
       name: "slug",
-      value: node.link.split("http://localhost:3000/")[1],
+      // TODO: improve parsing
+      value: node.link.split(".net")[1],
     })
   } else if (node.internal.type === `MarkdownRemark`) {
     const value = createFilePath({ node, getNode })
