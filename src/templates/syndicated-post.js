@@ -18,6 +18,7 @@ const SyndicatedPostTemplate = ({ data, location }) => {
       >
         <header>
           <h1 itemProp="headline">{post.title}</h1>
+          <h2>{post.author}</h2>
           <p>{post.pubDate}</p>
         </header>
         <section
@@ -79,6 +80,7 @@ export const pageQuery = graphql`
       content {
         encoded
       }
+      author
       description
       title
       pubDate

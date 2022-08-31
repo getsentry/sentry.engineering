@@ -42,6 +42,7 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
                 title
                 date
                 description
+                author
               }
               fields {
                 slug
@@ -102,6 +103,7 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
                 title
                 pubDate
                 description
+                author
                 fields {
                   slug
                 }
@@ -198,12 +200,26 @@ exports.createSchemaCustomization = ({ actions }) => {
       twitter: String
     }
 
+    type FeedContent {
+      encoded: String
+    }
+
+    type FeedVanguard implements Node {
+      title: String
+      pubDate: String
+      description: String
+      content: FeedContent
+      author: String
+      fields: Fields
+    }
+
     type MarkdownRemark implements Node {
       frontmatter: Frontmatter
       fields: Fields
     }
 
     type Frontmatter {
+      author: String
       title: String
       description: String
       date: Date @dateformat
