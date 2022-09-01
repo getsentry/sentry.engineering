@@ -12,6 +12,7 @@ module.exports = {
   },
   plugins: [
     `gatsby-plugin-image`,
+    `gatsby-plugin-feed`,
     {
       resolve: `gatsby-source-filesystem`,
       options: {
@@ -129,6 +130,9 @@ module.exports = {
         display: `minimal-ui`,
         icon: `src/images/favicon.svg`, // This path is relative to the root of the site.
       },
+    },
+    {
+
     },
   ],
 }
