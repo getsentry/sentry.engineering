@@ -18,8 +18,9 @@ const SyndicatedPostTemplate = ({ data, location }) => {
       >
         <header>
           <h1 itemProp="headline">{post.title}</h1>
-          <h2>{post.author}</h2>
-          <p>{post.pubDate}</p>
+          <p>
+            {post.author} / {post.pubDate}
+          </p>
         </header>
         <section
           dangerouslySetInnerHTML={{ __html: post.content.encoded }}
