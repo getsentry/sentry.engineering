@@ -18,33 +18,29 @@ const BlogIndex = ({ data, location }) => {
 
   return (
     <Layout location={location} title={siteTitle}>
-      <ol style={{ listStyle: `none` }}>
+      <ol class="post-list">
         {posts.map(({ node }) => {
           const title = node.pageContext.title
 
           return (
-            <li key={node.path}>
-              <article
-                className="post-list-item"
-                itemScope
-                itemType="http://schema.org/Article"
-              >
-                <header>
-                  <h2>
-                    <Link to={node.path} itemProp="url">
+            <li className="post-list-item" key={node.path}>
+              <article itemScope itemType="http://schema.org/Article">
+                <Link to={node.path} itemProp="url">
+                  <header>
+                    <h2>
                       <span itemProp="headline">{title}</span>
-                    </Link>
-                  </h2>
-                  <small>{node.pageContext.date}</small>
-                </header>
-                <section>
-                  <p
-                    dangerouslySetInnerHTML={{
-                      __html: node.pageContext.description,
-                    }}
-                    itemProp="description"
-                  />
-                </section>
+                    </h2>
+                    <small>{node.pageContext.date}</small>
+                  </header>
+                  <section>
+                    <p
+                      dangerouslySetInnerHTML={{
+                        __html: node.pageContext.description,
+                      }}
+                      itemProp="description"
+                    />
+                  </section>
+                </Link>
               </article>
             </li>
           )
