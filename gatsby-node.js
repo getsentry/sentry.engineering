@@ -81,8 +81,8 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
             previousPostId,
             nextPostId,
             title: post.frontmatter.title,
-            description: node.frontmatter.description,
-            date: node.frontmatter.date,
+            description: post.frontmatter.description,
+            date: post.frontmatter.date,
           },
         })
       })
@@ -162,7 +162,7 @@ exports.onCreateNode = ({ node, actions, getNode }) => {
       node,
       name: "slug",
       // TODO: improve parsing
-      value: `syn/${node.guid}-${string_to_slug(node.title)}`,
+      value: `${string_to_slug(node.title)}`,
     })
   } else if (node.internal.type === `MarkdownRemark`) {
     const value = createFilePath({ node, getNode })
