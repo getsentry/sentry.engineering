@@ -1,5 +1,5 @@
 {
-  "name": "gatsby-starter-blog",
+  "name": "sentry-engineering-blog",
   "private": true,
   "description": "A starter for a blog powered by Gatsby and Markdown",
   "version": "0.1.0",
@@ -8,6 +8,7 @@
     "url": "https://github.com/gatsbyjs/gatsby/issues"
   },
   "dependencies": {
+    "date-fns": "^2.29.3",
     "gatsby": "^4.25.4",
     "gatsby-plugin-feed": "^4.21.0",
     "gatsby-plugin-image": "^2.21.0",
@@ -47,6 +48,7 @@
     "start": "gatsby develop",
     "serve": "gatsby serve",
     "clean": "gatsby clean",
-    "test": "echo \"Write tests! -> https://gatsby.dev/unit-testing\" && exit 1"
+    "test": "echo \"Write tests! -> https://gatsby.dev/unit-testing\" && exit 1",
+    "createPost": "node ./scripts/createPost.js"
   }
 }
