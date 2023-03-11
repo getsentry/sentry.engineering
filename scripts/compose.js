@@ -63,7 +63,7 @@ inquirer
       name: 'extension',
       message: 'Choose post extension:',
       type: 'list',
-      choices: ['mdx', 'md'],
+      choices: ['md', 'mdx'],
     },
     {
       name: 'authors',
