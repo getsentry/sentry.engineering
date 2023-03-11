@@ -10,7 +10,7 @@ canonicalUrl: https://blog.sentry.io/2023/02/15/getting-started-with-jetpack-com
 authors: ['lazarnikolov']
 ---
 
-Recently, we wrote about the [demonstrative move to declarative UI](https://blog.sentry.io/2022/12/07/mobile-the-future-is-declarative/). With [Jetpack Compose](http://d.android.com/compose), Android is joining the declarative trends.
+Recently, we wrote about the [demonstrative move to declarative UI](/blog/mobile-the-future-is-declarative/). With [Jetpack Compose](http://d.android.com/compose), Android is joining the declarative trends.
 
 Jetpack Compose, a new declarative UI toolkit by Google made for building native Android apps, is rapidly gaining traction. In fact, as announced at the [Android Dev Summit](https://www.youtube.com/watch?t=1069&v=Awi4J5-tbW4&feature=youtu.be) last year last year, 160 of the top 1,000 Android apps already use Jetpack Compose. In contrast to the traditional XML Views, Jetpack Compose allows you to build UIs using composable functions that describe how the UI should look and behave.
 
