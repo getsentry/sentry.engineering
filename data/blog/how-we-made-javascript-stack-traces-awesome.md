@@ -1,6 +1,6 @@
 ---
 title: "How We Made JavaScript Stack Traces Awesome"
-date: '2023-03-11'
+date: '2022-11-30'
 tags: ['javascript','errors','stack traces']
 draft: false
 summary: Sentry helps every developer diagnose, fix, and optimize the performance of their code, and we need to deliver high quality stack traces in order to do so. In this blog post, we want to explain why source maps are insufficient for solving this problem, the challenges we faced, and how we eventually pulled it off by parsing JavaScript.
