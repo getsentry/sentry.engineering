@@ -21,7 +21,7 @@ To start, we decided upon a bundle size reduction goal of 30% in the minified CD
 
 Figuring out what to measure to track bundle size can be a challenge as it is dependent on your application type and usage of the Sentry SDK. To make sure we had an objective and consistent measurement, we chose to track the size of our minified CDN bundle using the size-limit library by Andrey Sitnik. Using size-limit meant we could calculate the bundle size on every PR, allowing developers to see the impact of the changes they were making on bundle size.
 
-![Github report on the size of Sentry's JS SDK](/images/javascript-sdk-package-size-is-massive-so-we-reduced-it-by-29/sdk-size.png)
+![Github report on the size of Sentry's JS SDK](/images/javascript-sdk-package-reduced/sdk-size.png)
 
 We chose to track the minified CDN bundle over the gzipped + minified CDN bundle because the minified bundle is more representative of the bundle executed at runtime. The bundle size at runtime has a direct relationship with parse and execution time, so minimizing the minified bundle would minimize the time Sentry blocked the main thread. It’s much easier to track the impact individual changes had against the minified bundle size versus the total gzipped + minified bundle size.
 

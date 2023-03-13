@@ -16,7 +16,7 @@ Here we define **transpilation** as the process of converting source code of one
 
 Understanding how your code is being transpiled and downcompiled is important, because your bundle size is affected by your **final generated JavaScript**.
 
-This was what helped us [reduce the size of our JavaScript SDK by 29%](https://blog.sentry.io/2022/07/19/javascript-sdk-package-reduced/) in v7 of the [Sentry JavaScript SDK](https://github.com/getsentry/sentry-javascript). This post is all about the technical prep work needed to ship a 0 bug reported major issue.
+This was what helped us [reduce the size of our JavaScript SDK by 29%](/blog/javascript-sdk-package-reduced/) in v7 of the [Sentry JavaScript SDK](https://github.com/getsentry/sentry-javascript). This post is all about the technical prep work needed to ship a 0 bug reported major issue.
 
 ## Maintaining release stability before refactoring
 The JavaScript SDKs are the largest set of SDKs at Sentry, with thousands of organizations relying on them to instrument their applications. As such, we need to make sure that the changes we make to the SDK do not introduce behavior regressions or crashes in user code.
@@ -450,7 +450,7 @@ One way to address this is to convert the class into functions + objects. The pu
 Although we ended up [converting some more internal classes](https://github.com/getsentry/sentry-javascript/pull/4283) to use a more functional style to save on bytes, we couldn’t convert the biggest classes in the Sentry SDK, the Client and the Hub. This was because many users were manually importing and using these classes, so converting them would make it difficult for those users to upgrade.
 
 ## How to minify your code
-There are major package size benefits to reducing the amount of generated JavaScript your package is creating. As part of our larger [Javascript SDK package reduction](https://blog.sentry.io/2022/07/19/javascript-sdk-package-reduced/), we spent a considerable effort to minify as much of our code as possible. If you’re looking to do the same, here are six improvements to consider:
+There are major package size benefits to reducing the amount of generated JavaScript your package is creating. As part of our larger [Javascript SDK package reduction](/blog/javascript-sdk-package-reduced/), we spent a considerable effort to minify as much of our code as possible. If you’re looking to do the same, here are six improvements to consider:
 
 1. Remove optional chaining
 2. Switch from TypeScript enums to const and string enums
