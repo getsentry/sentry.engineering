@@ -37,7 +37,7 @@ const genFrontMatter = (answers) => {
   date: '${date}'
   tags: [${answers.tags ? tags : ''}]
   draft: ${answers.draft === 'yes' ? true : false}
-  summary: ${answers.summary ? answers.summary : ' '}
+  summary: "${answers.summary ? answers.summary : ' '}"
   images: []
   layout: ${answers.layout}
   canonicalUrl: ${answers.canonicalUrl}
