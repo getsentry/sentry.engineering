@@ -1,6 +1,6 @@
 ---
 title: "How we run our Python tests in hundreds of environments really fast"
-date: '2023-03-13'
+date: '2022-11-14'
 tags: ['python','sdk','testing']
 draft: false
 summary: One of Sentries core company values is “for every developer”. We want to support every developer out there with our tools. But not every developer uses the newest or widely adopted tech stack, so we also try to support older versions of libraries and frameworks. To make sure that our SDK works correctly we have around 450 automated tests in our test suite that run for each change we make to the SDK.
