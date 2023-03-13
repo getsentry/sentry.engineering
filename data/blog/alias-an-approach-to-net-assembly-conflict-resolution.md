@@ -3,7 +3,7 @@ title: "Alias: An approach to .NET Assembly Conflict Resolution"
 date: '2023-03-13'
 tags: ['.net','sdk']
 draft: false
-summary: Most plugin based models load all assemblies into a single shared context. This is a common approach because it has better memory usage and startup performance. The history and rules of assembly loading in .NET is convoluted; its current status makes it difficult (and sometimes impossible) to load multiple different versions of the same assembly into a shared context. Instead of trying to struggle with existing options we decided to build a new tool: Alias.
+summary: "Most plugin based models load all assemblies into a single shared context. This is a common approach because it has better memory usage and startup performance. The history and rules of assembly loading in .NET is convoluted; its current status makes it difficult (and sometimes impossible) to load multiple different versions of the same assembly into a shared context. Instead of trying to struggle with existing options we decided to build a new tool: Alias."
 images: []
 layout: PostLayout
 canonicalUrl: https://blog.sentry.io/2022/02/24/alias-an-approach-to-net-assembly-conflict-resolution/
