@@ -1,6 +1,6 @@
 ---
 title: "Understanding the Performance Impact of Generated JavaScript"
-date: '2023-03-13'
+date: '2022-07-22'
 tags: ['javascript','performance','sdk']
 draft: false
 summary: In the modern web, the JavaScript you write is often down-compiled using a compiler like Babel to make sure your JavaScript is compatible with older browsers or environments. In addition, if you are using TypeScript (like the Sentry SDK’s do) or something similar, you’ll have to transpile your TypeScript to JavaScript. Understanding how your code is being transpiled and downcompiled is important, because your bundle size is affected by your final generated JavaScript. This post is all about the technical prep work needed to ship a 0 bug reported major issue.
