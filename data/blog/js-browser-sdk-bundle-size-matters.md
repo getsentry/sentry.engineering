@@ -73,11 +73,12 @@ Now that we’ve put the foundation in place with release stability confidence a
 
 After we ship the major, there are a variety of next steps we can consider.
 
-Optimize hubs and scopes, allowing us to reduce bundle size and better support micro-frontend application
-Go further with tree-shaking support
-Expand on async loading, making it easier to selectively load parts of the SDK
-Refactor the internals even more, maybe even adopting a hook system?
-Refactor the Node SDK to use async hooks instead of domains
+* Optimize hubs and scopes, allowing us to reduce bundle size and better support micro-frontend application
+* Go further with tree-shaking support
+* Expand on async loading, making it easier to selectively load parts of the SDK
+* Refactor the internals even more, maybe even [adopting a hook system](https://gist.github.com/mitsuhiko/deb73a83f1d2acea330b766cece435c6)?
+* Refactor the Node SDK to use async hooks instead of domains
+
 All of these are not equal in value nor in feasibility. Nevertheless, they’re on our list of what we would like to do (PRs are welcome.)
 
-Finally, please give us your feedback—anyone and everyone. Drop us a line on GitHub, Twitter, or our Discord. And if you’re new to Sentry, you can try it for free today or write to sales@sentry.io to get started.
+Finally, please give us your feedback—anyone and everyone. Drop us a line on [GitHub](https://github.com/getsentry/sentry-javascript), [Twitter](https://twitter.com/getsentry), or our [Discord](https://discord.com/invite/sentry). And if you’re new to Sentry, you can try it for [free](https://sentry.io/orgredirect/try-business/) today or write to sales@sentry.io to get started.

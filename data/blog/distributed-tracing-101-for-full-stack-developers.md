@@ -14,9 +14,11 @@ In the early days of the web, writing web applications was simple. Developers ge
 
 In today’s modern web stack it’s anything but. Full stack developers are expected to write JavaScript executing in the browser, interop with multiple database technologies, and deploy server side code on different server architectures (e.g. serverless). Without the right tools, understanding how a user interaction in the browser cascades into a 500 server error deep in your server stack is nigh-impossible. Enter: distributed tracing.
 
-![tracing meme](/images/distributed-tracing-101-for-full-stack-developers/pepesilvia.gif)
+<p align="center">
+  <img src="/images/distributed-tracing-101-for-full-stack-developers/pepesilvia.gif" alt="Tracing meme"/>
+  _Me trying to explain a bottleneck in my web stack in 2021._
+</p>
 
-_Me trying to explain a bottleneck in my web stack in 2021._
 
 *Distributed tracing* is a monitoring technique that links the operations and requests occurring between multiple services. This allows developers to “trace” the path of an end-to-end request as it moves from one service to another, letting them pinpoint errors or performance bottlenecks in individual services that are negatively affecting the overall system.
 
