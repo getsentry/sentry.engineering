@@ -1,25 +1,32 @@
 import Link from '@/components/Link'
 import { PageSEO } from '@/components/SEO'
 import Tag from '@/components/Tag'
+import Image from '@/components/Image'
 import siteMetadata from '@/data/siteMetadata'
+//import { getAllFilesFrontMatter  } from '@/lib/mdx'
 import { getAllFilesFrontMatter } from '@/lib/mdx'
 import formatDate from '@/lib/utils/formatDate'
 
 import NewsletterForm from '@/components/NewsletterForm'
 
-const MAX_DISPLAY = 5
+const MAX_DISPLAY = 10
+
+function trimString(string, length=400) {
+  return string.length > length ? string.substring(0, length - 3) + "..." : string;
+}
 
 export async function getStaticProps() {
   const posts = await getAllFilesFrontMatter('blog')
+  const authorDetails = await getAllFilesFrontMatter('authors')
 
-  return { props: { posts } }
+  return { props: { posts, authorDetails } }
 }
 
-export default function Home({ posts }) {
+export default function Home({ posts, authorDetails }) {
   return (
     <>
       <PageSEO title={siteMetadata.title} description={siteMetadata.description} />
-      <div className="divide-y divide-gray-200 dark:divide-gray-700">
+      <div className="divide-y divide-gray-200 dark:divide-gray-700 border-none">
         <div className="space-y-2 pt-6 pb-8 md:space-y-5">
           <h1 className="text-3xl font-extrabold leading-9 tracking-tight text-gray-900 dark:text-gray-100 sm:text-4xl sm:leading-10 md:text-6xl md:leading-14">
             Latest
@@ -28,9 +35,79 @@ export default function Home({ posts }) {
             {siteMetadata.description}
           </p>
         </div>
-        <ul className="divide-y divide-gray-200 dark:divide-gray-700">
-          {!posts.length && 'No posts found.'}
-          {posts.slice(0, MAX_DISPLAY).map((frontMatter) => {
+
+        {!posts.length && 'No posts found.'}
+        <div class="grid grid-cols-3 border-none">
+          {posts.slice(0, 3).map((frontMatter) => {
+            const { slug, date, title, summary, tags, authors, images } = frontMatter
+            let postAuthors = authorDetails.filter(author => authors.includes(author.slug))
+            return (
+              <div class="max-w-sm rounded overflow-hidden shadow-lg mr-8">
+                <Link
+                  href={`/blog/${slug}`}
+                  className="text-gray-900 dark:text-gray-100"
+                >
+                  <img class="w-full h-32" src={images} alt="Post hero image" />
+                </Link>
+                <div class="px-6 py-4">
+                  <div class="font-bold text-xl mb-2">
+                    <Link
+                      href={`/blog/${slug}`}
+                      className="text-gray-900 dark:text-gray-100"
+                    >
+                      {title}
+                    </Link>
+                  </div>
+                  <p class="text-base text-gray-500 dark:text-gray-400">
+                    {trimString(summary)}&nbsp;
+                    <Link
+                      href={`/blog/${slug}`}
+                      className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"
+                      aria-label={`Read "${title}"`}
+                    >
+                      Read more &rarr;
+                    </Link>
+                  </p>
+                </div>
+                <div class="px-6 pt-4 pb-2">
+                  {postAuthors.map(author => {
+                    return (
+                      <li className="flex items-center space-x-2" key={author.name}>
+                        {author.avatar && (
+                          <Image
+                            src={author.avatar}
+                            width="38px"
+                            height="38px"
+                            alt="avatar"
+                            className="h-10 w-10 rounded-full"
+                          />
+                        )}
+                        <dl className="whitespace-nowrap text-sm font-medium leading-5">
+                          <dt className="sr-only">Name</dt>
+                          <dd className="text-gray-900 dark:text-gray-100">{author.name}</dd>
+                          <dt className="sr-only">Twitter</dt>
+                          <dd>
+                            {author.twitter && (
+                              <Link
+                                href={author.twitter}
+                                className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"
+                              >
+                                {author.twitter.replace('https://twitter.com/', '@')}
+                              </Link>
+                            )}
+                          </dd>
+                        </dl>
+                      </li>
+                    )
+                  })}
+                </div>
+              </div>
+
+            )
+          })}
+        </div>
+        <ul className="divide-y divide-gray-200 dark:divide-gray-700 border-none">
+          {posts.slice(3, MAX_DISPLAY).map((frontMatter) => {
             const { slug, date, title, summary, tags } = frontMatter
             return (
               <li key={slug} className="py-12">
@@ -83,11 +160,11 @@ export default function Home({ posts }) {
       {posts.length > MAX_DISPLAY && (
         <div className="flex justify-end text-base font-medium leading-6">
           <Link
-            href="/blog"
+            href="/blog/page/2"
             className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"
             aria-label="all posts"
           >
-            All Posts &rarr;
+            Next Page &rarr;
           </Link>
         </div>
       )}

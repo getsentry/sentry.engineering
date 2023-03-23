@@ -4,7 +4,7 @@ date: '2022-12-07'
 tags: ['mobile','declarative ui','react native','flutter']
 draft: false
 summary: The mobile development ecosystem has always been very diverse, arguably more diverse than the web development ecosystem. Both React Native and Flutter have a declarative approach from the start, but with Android and iOS now joining the declarative bandwagon, we can see that the future of mobile development is declarative.
-images: []
+images: [/images/mobile-the-future-is-declarative/hero.jpeg]
 layout: PostLayout
 canonicalUrl: https://blog.sentry.io/2022/12/07/mobile-the-future-is-declarative/
 authors: ['lazarnikolov']
