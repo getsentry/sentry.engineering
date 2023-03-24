@@ -11,8 +11,8 @@ import NewsletterForm from '@/components/NewsletterForm'
 
 const MAX_DISPLAY = 10
 
-function trimString(string, length=400) {
-  return string.length > length ? string.substring(0, length - 3) + "..." : string;
+function trimString(string, length = 400) {
+  return string.length > length ? string.substring(0, length - 3) + '...' : string
 }
 
 export async function getStaticProps() {
@@ -26,7 +26,7 @@ export default function Home({ posts, authorDetails }) {
   return (
     <>
       <PageSEO title={siteMetadata.title} description={siteMetadata.description} />
-      <div className="divide-y divide-gray-200 dark:divide-gray-700 border-none">
+      <div className="divide-y divide-gray-200 border-none dark:divide-gray-700">
         <div className="space-y-2 pt-6 pb-8 md:space-y-5">
           <h1 className="text-3xl font-extrabold leading-9 tracking-tight text-gray-900 dark:text-gray-100 sm:text-4xl sm:leading-10 md:text-6xl md:leading-14">
             Latest
@@ -37,28 +37,22 @@ export default function Home({ posts, authorDetails }) {
         </div>
 
         {!posts.length && 'No posts found.'}
-        <div class="grid grid-cols-3 border-none">
+        <div className="grid grid-cols-3 border-none">
           {posts.slice(0, 3).map((frontMatter) => {
             const { slug, date, title, summary, tags, authors, images } = frontMatter
-            let postAuthors = authorDetails.filter(author => authors.includes(author.slug))
+            let postAuthors = authorDetails.filter((author) => authors.includes(author.slug))
             return (
-              <div class="max-w-sm rounded overflow-hidden shadow-lg mr-8">
-                <Link
-                  href={`/blog/${slug}`}
-                  className="text-gray-900 dark:text-gray-100"
-                >
-                  <img class="w-full h-32" src={images} alt="Post hero image" />
+              <div key={slug} className="mr-8 max-w-sm overflow-hidden rounded shadow-lg">
+                <Link href={`/blog/${slug}`} className="text-gray-900 dark:text-gray-100">
+                  <Image src={images} alt="Post heor image" className="h-32 w-full" />
                 </Link>
-                <div class="px-6 py-4">
-                  <div class="font-bold text-xl mb-2">
-                    <Link
-                      href={`/blog/${slug}`}
-                      className="text-gray-900 dark:text-gray-100"
-                    >
+                <div className="px-6 py-4">
+                  <div className="mb-2 text-xl font-bold">
+                    <Link href={`/blog/${slug}`} className="text-gray-900 dark:text-gray-100">
                       {title}
                     </Link>
                   </div>
-                  <p class="text-base text-gray-500 dark:text-gray-400">
+                  <p className="text-base text-gray-500 dark:text-gray-400">
                     {trimString(summary)}&nbsp;
                     <Link
                       href={`/blog/${slug}`}
@@ -69,8 +63,8 @@ export default function Home({ posts, authorDetails }) {
                     </Link>
                   </p>
                 </div>
-                <div class="px-6 pt-4 pb-2">
-                  {postAuthors.map(author => {
+                <div className="px-6 pt-4 pb-2">
+                  {postAuthors.map((author) => {
                     return (
                       <li className="flex items-center space-x-2" key={author.name}>
                         {author.avatar && (
@@ -102,11 +96,10 @@ export default function Home({ posts, authorDetails }) {
                   })}
                 </div>
               </div>
-
             )
           })}
         </div>
-        <ul className="divide-y divide-gray-200 dark:divide-gray-700 border-none">
+        <ul className="divide-y divide-gray-200 border-none dark:divide-gray-700">
           {posts.slice(3, MAX_DISPLAY).map((frontMatter) => {
             const { slug, date, title, summary, tags } = frontMatter
             return (
