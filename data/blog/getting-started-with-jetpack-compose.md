@@ -4,7 +4,7 @@ date: '2023-02-15'
 tags: ['mobile','jetpack compose','android']
 draft: false
 summary: Jetpack Compose, a new declarative UI toolkit by Google made for building native Android apps, is rapidly gaining traction. The main advantage of using Jetpack Compose is that it allows you to write UI code that is more concise and easier to understand. This leads to improved maintainability and reduced development time. The main advantage of using Jetpack Compose is that it allows you to write UI code that is more concise and easier to understand. This leads to improved maintainability and reduced development time.
-images: []
+images: [/images/getting-started-with-jetpack-compose/jetpackcompose-hero.jpg]
 layout: PostLayout
 canonicalUrl: https://blog.sentry.io/2023/02/15/getting-started-with-jetpack-compose/
 authors: ['lazarnikolov']

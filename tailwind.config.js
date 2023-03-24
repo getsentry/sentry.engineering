@@ -25,10 +25,10 @@ module.exports = {
         14: '3.5rem',
       },
       fontFamily: {
-        sans: ['InterVariable', ...defaultTheme.fontFamily.sans],
+        sans: ['Rubik','-apple-system','BlinkMacSystemFont','Segoe UI','Helvetica','Arial', ...defaultTheme.fontFamily.sans],
       },
       colors: {
-        primary: colors.teal,
+        primary: colors.purple,
         gray: colors.neutral,
       },
       typography: (theme) => ({
