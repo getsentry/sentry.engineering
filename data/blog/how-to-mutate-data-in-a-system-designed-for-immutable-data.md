@@ -10,7 +10,7 @@ canonicalUrl: https://blog.sentry.io/2019/10/25/how-to-mutate-data-in-a-system-d
 authors: ['filippopacifici','jamescunningham','tedkaemming']
 ---
 
-*Welcome to our series of blog posts about things Sentry does that perhaps we shouldn’t do. Don’t get us wrong — we don’t regret our decisions. We’re sharing our notes in case you also choose the path less traveled. In this post, we look at how decisions made around prioritizing — or, as in our case, deprioritizing — mutability and consistency (in an [ACID](https://en.wikipedia.org/wiki/ACID) sense) affect database performance and how we deal with the fact that our data is mostly — but not totally — immutable.*
+*Welcome to our series of blog posts about things [Sentry does that perhaps we shouldn’t do](/tags/building-sentry). Don’t get us wrong — we don’t regret our decisions. We’re sharing our notes in case you also choose the path less traveled. In this post, we look at how decisions made around prioritizing — or, as in our case, deprioritizing — mutability and consistency (in an [ACID](https://en.wikipedia.org/wiki/ACID) sense) affect database performance and how we deal with the fact that our data is mostly — but not totally — immutable.*
 
 In [another post published here earlier this year](/blog/introducing-snuba-sentrys-new-search-infrastructure), we described some of the decision making that went into the design and architecture of Snuba, the primary storage and query service for Sentry’s event data. This project started out of necessity; months earlier, we discovered that the time and effort required to continuously scale our existing PostgreSQL-based solution for indexing event data was becoming an unsustainable burden.
 
