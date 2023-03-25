@@ -37,7 +37,7 @@ export default function Home({ posts, authorDetails }) {
         </div>
 
         {!posts.length && 'No posts found.'}
-        <div className="grid grid-cols-3 border-none">
+        <div className="grid lg:grid-cols-3 border-none">
           {posts.slice(0, 3).map((frontMatter) => {
             const { slug, date, title, summary, tags, authors, images } = frontMatter
             let postAuthors = authorDetails.filter((author) => authors.includes(author.slug))
