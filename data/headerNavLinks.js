@@ -1,8 +1,9 @@
 const headerNavLinks = [
   { href: '/tags/web', title: 'Web' },
   { href: '/tags/infrastructure', title: 'Infrastructure' },
-  { href: '/tags/open-source', title: 'Open Source' },
+  { href: '/tags/building-sentry', title: 'Building Sentry'},
   { href: '/tags', title: 'Tags' },
+  { href: 'https://open.sentry.io/', title: 'Open Source' },
   { href: 'https://sentry.io/changelog/', title: 'Changelog' },
 ]
 

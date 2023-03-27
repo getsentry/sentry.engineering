@@ -10,7 +10,7 @@ const siteMetadata = {
   siteLogo: '/static/images/logo.png',
   image: '/static/images/avatar.png',
   socialBanner: '/static/images/twitter-card.png',
-  email: 'engineering@sentry.io',
+  email: '',
   github: 'https://github.com/getsentry/sentry',
   twitter: 'https://twitter.com/getsentry',
   youtube: 'https://www.youtube.com/channel/UCP_sweTJ0DQmMlpvNSOpEJg',
