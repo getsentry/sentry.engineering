@@ -23,7 +23,6 @@ public/sitemap.xml
 # misc
 .cache
 .DS_Store
-.husky
 
 # debug
 *.log
