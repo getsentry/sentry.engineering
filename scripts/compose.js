@@ -52,7 +52,7 @@ const genFrontMatter = (answers) => {
   return frontMatter
 }
 
-inquirer.registerPrompt('checkbox-autocomplete', require('inquirer-checkbox-autocomplete-prompt'));
+inquirer.registerPrompt('checkbox-autocomplete', require('inquirer-checkbox-autocomplete-prompt'))
 
 inquirer
   .prompt([
