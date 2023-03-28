@@ -52,6 +52,8 @@ const genFrontMatter = (answers) => {
   return frontMatter
 }
 
+inquirer.registerPrompt('checkbox-autocomplete', require('inquirer-checkbox-autocomplete-prompt'));
+
 inquirer
   .prompt([
     {
@@ -68,7 +70,7 @@ inquirer
     {
       name: 'authors',
       message: 'Choose authors:',
-      type: 'checkbox',
+      type: 'checkbox-autocomplete',
       choices: getAuthors,
     },
     {
