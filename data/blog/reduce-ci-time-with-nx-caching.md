@@ -1,7 +1,7 @@
 ---
 title: 'Reduce CI Time with Nx Caching'
 date: '2023-03-31'
-tags: ['sdk', 'ci', 'javascript', 'js', 'nx', 'caching']
+tags: ['sdk', 'ci', 'javascript', 'building-sentry']
 draft: false
 summary: 'By updating to Lerna 6 with Nx caching, we were able to reduce our CI run times by about 35%. '
 images: [/images/reduce-ci-time-with-nx-caching/hero.jpg]
