@@ -1,9 +1,9 @@
 ---
-title: 'How we reduced CI time by 25% with Nx Caching'
+title: 'How we reduced CI time by 35% with Nx Caching'
 date: '2023-03-31'
 tags: ['sdk', 'ci', 'javascript', 'building-sentry']
 draft: false
-summary: 'By updating to Lerna 6 with Nx caching, we were able to reduce our CI run times by about 35%. '
+summary: 'Sentry is a very fast-moving company. In just one month we merged 165 pull requests from 19 authors and changed over 800 files, with a total of over 22,000 additions and almost 10,000 deletions. By updating to Lerna 6 with Nx caching, we were able to reduce our CI run times by about 35%. '
 images: [/images/reduce-ci-time-with-nx-caching/hero.jpg]
 layout: PostLayout
 canonicalUrl: https://sentry.engineering/blog/reduce-ci-time-with-nx-caching
