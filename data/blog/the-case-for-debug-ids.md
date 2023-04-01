@@ -40,9 +40,9 @@ important in practice.
 
 Given a minified JavaScript file today, there is often (though, unfortunately,
 not always) a URL reference to the source map included. This practice resembles
-the example of printing the manual's URL onto the minified file. In contrast, a
-compiled executable typically contains a build or debug ID. This approach is
-more akin to printing the model number on the widget.
+the example of putting a sticker with the manual's URL onto the minified file.
+In contrast, a compiled executable typically contains a build or debug ID. This
+approach is more akin to printing the model number on the widget.
 
 Now let's talk about two very important properties when it comes to widgets
 and manuals or build outputs.
@@ -90,7 +90,7 @@ item without requiring external information.
 
 Imagine if our widget factory were to spit out widgets resembling small black
 pills that appear identical. How can we distinguish them? We could place
-them in labelled boxe, but once removed from the box, identification would be
+them in labelled box, but once removed from the box, identification would be
 impossible. A better approach would be to laser engrave the model number
 directly onto the widget. This means by just looking at the widget we can tell
 determine it's precise nature.
