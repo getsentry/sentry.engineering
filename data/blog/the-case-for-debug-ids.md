@@ -100,7 +100,7 @@ manuals is to print the model number onto them. As long as the page with the
 model number stays infact, one can at all times tell what widget the manual
 belongs to. This property is essential when dealing with files on a large scale.
 
-A less efficent and error prone approach involes on relying on external
+A less efficient and error prone approach involes on relying on external
 organisation such as labelled folders with dividers. If anyone were to remove
 that manual and not put it back properly it would be (almost) impossible to
 identify the associated widget.
@@ -144,7 +144,7 @@ with a post-it on it identifying the name. The scans of the manuals are then
 placed in a computer system identified by shipment number and manual name. In
 this scenario the machine can now only process one widget at the time because
 it cannot tell widgets apart. When the human operator takes out a widget, they
-read the shipment number on the basket and the manual name on the at the basket
+read the shipment number on the basket and the manual name on the basket
 it's placed in and looks at the shipment number as well as the sticker on the
 widget with the name of the manual. Then again, depending on the test result,
 stickers are placed on it.
@@ -177,7 +177,7 @@ Here is our proposal:
    loaded JavaScript file (basically a function that maps a loaded JavaScript URL
    to its Debug ID).
 
-And preferrably source maps get a JSON schema and refer to that schema by
+And preferably source maps get a JSON schema and refer to that schema by
 `$schema` so they can be told apart from other JSON files.
 
 We are currently in the process of rolling this out as for our own uses as a
