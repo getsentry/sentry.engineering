@@ -117,7 +117,7 @@ huge folder, we would encounter duplicates.
 
 ## Practical Problems
 
-Imagine you are an outsourcing company responsibel for ensuring that the widgets
+Imagine you are an outsourcing company responsible for ensuring that the widgets
 conform to specification. 1% of all widgets produced are sent to you in
 massive containers, and you want to start checking them against their
 specifications. Ideally you would simply send the containers of widgets to be
