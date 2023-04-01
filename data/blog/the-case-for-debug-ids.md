@@ -89,7 +89,7 @@ The second property, which is even more crucial, is the ability to identify an
 item without requiring external information.
 
 Imagine if our widget factory were to spit out widgets resembling small black
-pills thaty appear identical. How can we distinguish them? We could place
+pills that appear identical. How can we distinguish them? We could place
 them in labelled boxe, but once removed from the box, identification would be
 impossible. A better approach would be to laser engrave the model number
 directly onto the widget. This means by just looking at the widget we can tell
@@ -179,3 +179,9 @@ Here is our proposal:
 
 And preferrably source maps get a JSON schema and refer to that schema by
 `$schema` so they can be told apart from other JSON files.
+
+We are currently in the process of rolling this out as for our own uses as a
+lot of this can be emulated even without the wider ecosystem not yet adopting
+it. [For more information see our internal
+RFC](https://github.com/getsentry/rfcs/pull/81). We are however interested in
+establishing this as a web standard.
