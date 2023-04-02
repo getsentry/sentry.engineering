@@ -27,7 +27,7 @@ const twitterPostContent = (summary, postUrl) => {
       ? `${summary.slice(0, summary.lastIndexOf(' ', TWITTER_MAX_SUMMARY_LENGTH - 3))}...`
       : summary
 
-  return `${twitterSummary} ${postUrl}`
+  return `${twitterSummary} ${siteMetadata.siteUrl}/blog/${postUrl}`
 }
 
 const postDateTemplate = {
@@ -142,7 +142,7 @@ export default function PostLayout({ frontMatter, authorDetails, next, prev, chi
                         kind="twitter"
                         href={`https://twitter.com/intent/tweet?text=${twitterPostContent(
                           summary,
-                          siteMetadata.siteUrl
+                          slug
                         )}`}
                         size="6"
                       />
