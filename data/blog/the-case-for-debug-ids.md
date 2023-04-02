@@ -17,7 +17,7 @@ us to propose a solution to this issue: the implementation of globally unique
 Debug IDs.
 
 Imagine working in a widget factory where a new widget is created every 15
-seconds. This factory specializes in producing a variety of widget types, and
+seconds. This factory specializes in producing a variety of widget types and
 in some cases minor modifications being made on a weekly basis. To assist with
 the operation of these widgets, a dedicated machine produces comprehensive
 manuals. Some widgets are exclusive prototypes designed for internal testing
