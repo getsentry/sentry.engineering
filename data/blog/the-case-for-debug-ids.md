@@ -6,7 +6,6 @@ draft: false
 summary: 'What is a self identifying file, what are debug IDs and why do we want a fundamental change in the web ecosystem for source maps.'
 images: [/images/building-sentry-source-maps-and-their-problems/sourcemaps.gif]
 layout: PostLayout
-canonicalUrl: https://blog.sentry.io/2019/07/16/building-sentry-source-maps-and-their-problems/
 authors: ['arminronacher']
 ---
 
