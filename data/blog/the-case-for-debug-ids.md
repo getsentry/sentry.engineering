@@ -52,7 +52,7 @@ and manuals or build outputs.
 The first property we care about is the ability to distinguish between widgets
 and manuals. That might seem obvious if we only have widgets and manuals,
 but let's imagine that there are different types of manuals such as
-service manuals, end user manuals, and certificate of conformance. Being
+service manuals, end user manuals, and certificates of conformance. Being
 self-describing means that by simply looking at the document, one can tell
 the type of manual (and confirm that it's not a widget itself). Most things
 are _self-describing_ in one form or another, but not all, particularly when
