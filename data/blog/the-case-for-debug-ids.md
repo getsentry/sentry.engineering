@@ -25,7 +25,7 @@ and future product development, but even these come with accompanying manuals
 to ensure that the testers understand their functionality.
 
 To ensure that the correct manual accompanies each widget, they could be
-packaged together in a box. However, in order to minimize paper usage, it may
+packaged together in a box. However, to minimize paper usage, it may
 be more practical to offer users the option to download the manual from a
 website whenever needed. That would also allow for the convenient reprinting
 of a manual for a specific widget if required.
@@ -51,7 +51,7 @@ and manuals or build outputs.
 
 The first property we care about is the ability to distinguish between widgets
 and manuals. That might seem obvious if we only have widgets and manuals,
-but let's imagine that there are actually different types of manuals such as
+but let's imagine that there are different types of manuals such as
 service manuals, end user manuals, and certificate of conformance. Being
 self-describing means that by simply looking at the document, one can tell
 the type of manual (and confirm that it's not a widget itself). Most things
@@ -60,14 +60,14 @@ they are boxed up and we need to tell these boxes apart.
 
 Consider a scenario where our documents are placed inside unmarked envelopes.
 To determine the contents one would have to open the envelope to see what's
-inside. We could sort them into different folder and label the folders which
+inside. We could sort them into different folders and label the folders which
 would certainly help, but if someone throws all the envelopes into a large
 container, we would have to open up all envelopes to sort them apart.
 
 This situation is somewhat analogous to what happens with source maps today.
-A source map is information contained a "box": a JSON file. We can take an
+A source map is information contained in a "box": a JSON file. We can take an
 educated guess that it's a source map because of the presence of keys such as
-`version`, `file`, one `mappings`, but it's a guess. There is in fact no
+`version`, `file`, one `mappings`, but it's a guess. There is no
 guarantee that we can tell a source map apart from something that merely
 appears similar. As a result source maps do not meet the criteria of a
 self-describing file.
@@ -75,12 +75,12 @@ self-describing file.
 When placing widgets into unmarked boxes and relying solely on proper sorting,
 we face difficulties if someone mixes them all together in a container. In
 such cases having labelled boxes becomes crucial, or else we would need to
-open up each box to identify it's contents. It gets even more challenging when
+open up each box to identify its contents. It gets even more challenging when
 the widgets in the boxes are very hard to tell apart reliably. This is exactly
-the problem we have with JavaScript files today. They really come in two
+the problem we have with JavaScript files today. They come in two
 varieties: minified and non-minified. We have [heuristics to tell them
 apart](https://github.com/mitsuhiko/might-be-minified) but they are often
-inaccurate. Alas there are situations where we it comes in very handy to
+inaccurate. Alas, there are situations where it comes in very handy to
 be able to discern between these.
 
 ## Self-Identifying
@@ -90,17 +90,17 @@ item without requiring external information.
 
 Imagine if our widget factory were to spit out widgets resembling small black
 pills that appear identical. How can we distinguish them? We could place
-them in labelled box, but once removed from the box, identification would be
+them in a labelled box, but once removed from the box, identification would be
 impossible. A better approach would be to laser engrave the model number
 directly onto the widget. This means by just looking at the widget we can tell
-determine it's precise nature.
+determine its precise nature.
 
 The same concept applies to the manuals. An effective way to manage the
 manuals is to print the model number onto them. As long as the page with the
-model number stays infact, one can at all times tell what widget the manual
+model number stays in fact, one can at all times tell what widget the manual
 belongs to. This property is essential when dealing with files on a large scale.
 
-A less efficient and error prone approach involes on relying on external
+A less efficient and error prone approach involves relying on an external
 organisation such as labelled folders with dividers. If anyone were to remove
 that manual and not put it back properly it would be (almost) impossible to
 identify the associated widget.
@@ -109,8 +109,7 @@ This property is known as _self-identifying_. We do not need any additional
 information to be able to say "this widget is X" or "this manual belongs to
 widget X".
 
-Today, neither source maps nor minified JavaScript files are self identifying
-today. We rely heavily on the _filename_ of the file. In many operations the
+Today, neither source maps nor minified JavaScript files are self-identifying. We rely heavily on the _filename_ of the file. In many operations, the
 filename is lost and even if it's retained, the filename is not globally
 unique. This means if we throw all our source maps and minified files into a
 huge folder, we would encounter duplicates.
@@ -118,15 +117,15 @@ huge folder, we would encounter duplicates.
 ## Practical Problems
 
 Imagine you are an outsourcing company responsible for ensuring that the widgets
-conform to specification. 1% of all widgets produced are sent to you in
+conform to the specification. 1% of all widgets produced are sent to you in
 massive containers, and you want to start checking them against their
-specifications. Ideally you would simply send the containers of widgets to be
-loaded onto a conveyor belt where machines would sort them by model number
+specifications. Ideally, you would simply send the containers of widgets to be
+loaded onto a conveyor belt where machines would sort them by a model number
 after scanning each widget. After the widgets have been sorted by model number,
 a human operator puts the model number into a computer, which downloads the
 necessary specification document by the model number from the canonical source.
 It then displays the information to the person conducting the test. Depending
-on weather the widgets pass or fail the test, a sticker is placed on it and
+on whether the widgets pass or fail the test, a sticker is placed on it, and
 sent back.
 
 This is the desired scenario for source maps. However, the current source map
