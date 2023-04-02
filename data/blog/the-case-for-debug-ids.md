@@ -129,11 +129,11 @@ on whether the widgets pass or fail the test, a sticker is placed on it, and
 sent back.
 
 This is the desired scenario for source maps. However, the current source map
-experience is far more complicated and error prone:
+experience is far more complicated and error-prone:
 
 Widgets lack model numbers. Instead, all the widgets that are sent in the
 containers are boxed up into large packages marked with a shipment number.
-Before unloading the widgets onto the converyor belt, they must be placed in
+Before unloading the widgets onto the conveyor belt, they must be placed in
 small baskets labelled with the shipment number. Each widget has a small
 sticker in addition containing the name of the manual. While this is taking
 place, a parcel containing various folders with documents is sent to
@@ -141,7 +141,7 @@ another office for scanning and sorting. Each folder is labelled with a
 shipment number. The folders themselves contain the different manuals, all
 with a post-it on it identifying the name. The scans of the manuals are then
 placed in a computer system identified by shipment number and manual name. In
-this scenario the machine can now only process one widget at the time because
+this scenario, the machine can now only process one widget at a time because
 it cannot tell widgets apart. When the human operator takes out a widget, they
 read the shipment number on the basket and the manual name on the basket
 it's placed in and looks at the shipment number as well as the sticker on the
@@ -151,7 +151,7 @@ stickers are placed on it.
 Many issues can arise in this process. Shipment numbers can be mislabeled on
 either the widget or the parcel containing the manual. Sorting must happen
 shipment by shipment, as placing everything on a conveyor belt at once would
-result in losing the association to the shipment. The names of the manuals
+result in losing the association with the shipment. The names of the manuals
 can be incorrectly entered when sorting the manuals or when reading the sticker
 on the widget.
 
@@ -166,7 +166,7 @@ And mistakes happen. All the time.
 
 Here is our proposal:
 
-1. Bundlers, transpilers and everything create a globally unique (ideally a
+1. Bundlers, transpilers, and everything create a globally unique (ideally
    deterministic) Debug ID (a UUID).
 2. All minified JavaScript files get a `//# debugId=DEBUG_ID` comment at the end
    embedding the Debug ID.
@@ -179,8 +179,8 @@ Here is our proposal:
 And preferably source maps get a JSON schema and refer to that schema by
 `$schema` so they can be told apart from other JSON files.
 
-We are currently in the process of rolling this out as for our own uses as a
-lot of this can be emulated even without the wider ecosystem not yet adopting
+We are currently in the process of rolling this out for our own uses as a
+lot of this can be emulated even without the wider ecosystem adopting
 it. [For more information see our internal
 RFC](https://github.com/getsentry/rfcs/pull/81). We are however interested in
 establishing this as a web standard.
