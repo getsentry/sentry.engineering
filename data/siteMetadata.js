@@ -1,6 +1,6 @@
 const siteMetadata = {
   title: 'Sentry Engineering',
-  author: 'Sentry Engineers',
+  author: 'Sentry',
   headerTitle: 'Sentry Engineering',
   description: '',
   language: 'en-us',
