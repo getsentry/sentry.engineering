@@ -18,7 +18,7 @@ Debug IDs.
 
 Imagine working in a widget factory where a new widget is created every 15
 seconds. This factory specializes in producing a variety of widget types and
-in some cases minor modifications being made on a weekly basis. To assist with
+in some cases minor modifications are made on a weekly basis. To assist with
 the operation of these widgets, a dedicated machine produces comprehensive
 manuals. Some widgets are exclusive prototypes designed for internal testing
 and future product development, but even these come with accompanying manuals
