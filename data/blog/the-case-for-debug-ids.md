@@ -1,6 +1,6 @@
 ---
 title: 'Self Identifying JavaScript Source Maps: The Case for Debug IDs'
-date: '2023-04-02'
+date: '2023-04-03'
 tags: ['source maps', 'debugging', 'building sentry']
 draft: false
 summary: 'What is a self identifying file, what are debug IDs and why do we want a fundamental change in the web ecosystem for source maps.'
@@ -10,8 +10,8 @@ canonicalUrl: https://blog.sentry.io/2019/07/16/building-sentry-source-maps-and-
 authors: ['arminronacher']
 ---
 
-At Sentry, we handle a significant number of stack traces, which requires
-access to debug information files such as PDBs, DWARF files, or source maps.
+At Sentry, we handle a significant number of stack traces, which require
+access to debug information files such as PDBs, DWARF, or source maps.
 Regrettably, the user experience surrounding source maps is subpar, prompting
 us to propose a solution to this issue: the implementation of globally unique
 Debug IDs.
