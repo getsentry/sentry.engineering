@@ -1,9 +1,9 @@
 ---
-title: 'Reduce CI Time with Nx Caching'
+title: 'How we reduced CI time by 35% with Nx Caching'
 date: '2023-03-31'
 tags: ['sdk', 'ci', 'javascript', 'building-sentry']
 draft: false
-summary: 'By updating to Lerna 6 with Nx caching, we were able to reduce our CI run times by about 35%. '
+summary: 'Sentry is a very fast-moving company. In just one month we merged 165 pull requests from 19 authors and changed over 800 files, with a total of over 22,000 additions and almost 10,000 deletions. By updating to Lerna 6 with Nx caching, we were able to reduce our CI run times by about 35%. '
 images: [/images/reduce-ci-time-with-nx-caching/hero.jpg]
 layout: PostLayout
 canonicalUrl: https://sentry.engineering/blog/reduce-ci-time-with-nx-caching
@@ -14,7 +14,7 @@ Sentry is a very fast-moving company. In just one month we merged 165 pull reque
 
 This high speed of development and impact on build times isn't unique to Sentry. So we took the opportunity to find a way to improve build times with the Nx task runner on our [Sentry JavaScript SDK](https://github.com/getsentry/sentry-javascript) monorepo managed with Lerna.
 
-Read below how we made an 87.5% improvement to our minimum build time and 25% improvement to our average build time, and check out our build script, linked at the bottom, to see how we achieved these improvements.
+Read below how we made an 87.5% improvement to our minimum build time and 25% improvement to our average build time, and check out our [build script](https://github.com/getsentry/sentry-javascript/blob/6227e441e046216e127085fcb1e5b3f94b4a9903/.github/workflows/build.yml#L198) to see how we achieved these improvements.
 
 ## sentry-javascript and Lerna
 
@@ -22,7 +22,7 @@ The [Sentry JavaScript SDK](https://github.com/getsentry/sentry-javascript) is a
 
 The way the Lerna monorepo was working was that on **each** CI run, we first installed the npm dependencies, and then built all our packages. While we were already leveraging caching to speed up dependency installation as much as possible, we still used to build each and every package from scratch, on every single CI run. But, with Lerna 6 and Nx, it is now possible to cache any script tasks from our monorepo packages.
 
-Our focus after updating to Lerna 6 was on our build related tasks, which is also the focus of this post, but we have since also added Lerna’s caching for linting and unit tests. Luckily, extending our improvements beyond the build tasks was not too hard because the Lerna task runner doesn’t actually differentiate across names like build, test, or lint or what exactly they do. If a task, which is deterministic when it runs, exists - we can benefit from caching.
+Our focus after updating to Lerna 6 was on our build-related tasks, which is also the focus of this post, but we have since also added Lerna’s caching for linting and unit tests. Luckily, extending our improvements beyond the build tasks was not too hard because the Lerna task runner doesn’t actually differentiate across names like build, test, or lint or what exactly they do. If a task, which is deterministic when it runs, exists - we can benefit from caching.
 
 With the clear technical benefits, and a coincidental nudge from the community, we started working on these caching improvements and updating the dev flow to make contributing easier:
 
@@ -30,7 +30,7 @@ With the clear technical benefits, and a coincidental nudge from the community, 
 
 ## Improvements we made by caching
 
-Before we dive into the concrete changes we implemented, let’s have a look on the outcomes we were able to achieve by our improved caching strategy from just the changes to build tasks:
+Before we dive into the concrete changes we implemented, let’s have a look at the outcomes we were able to achieve through our improved caching strategy from just the changes to build tasks:
 
 |                    | Time before caching | Time after caching | Time saving | % Saving |
 | ------------------ | ------------------- | ------------------ | ----------- | -------- |
@@ -60,7 +60,7 @@ With this definition, we were able to define dependencies between scripts as fol
 - <code>build:bundle:</code> depends on build:transpile
 - <code>build:transpile:</code> depends on on build:transpile:uncached
 
-When focused on only these build steps (not yet linting or unit testing) we created an nx.json like this (slightly simplified for clarity):
+When focused on only these build steps (not yet linting or unit testing) we created a nx.json like this (slightly simplified for clarity):
 
 ```json
 {
@@ -95,7 +95,7 @@ When focused on only these build steps (not yet linting or unit testing) we crea
 
 ## Configuring task inputs
 
-By default, a package cache will be considered invalid when any file inside of the package folder is changed. In order to prevent unnecessary cache misses, we need to tell the task runner about relevant inputs to our tasks.
+By default, a package cache will be considered invalid when any file inside of the package folder is changed. To prevent unnecessary cache misses, we need to tell the task runner about relevant inputs to our tasks.
 
 To replicate the default behavior, we could set up an input to a task, such as `build:types`, which references all the project’s files as inputs like so:
 
@@ -152,7 +152,7 @@ Now what we have is a `namedInput` called “default” (this is just a name we 
 
 ## Scoping cache invalidation further
 
-We can take this optimization as far as we want, for example we could decide that changes to documentation and test files can’t possibly affect our build tasks. So we could set up another `namedInput` called “production” (meant to imply the code that actually gets run by our users) and exclude the .md and test files from our default set:
+We can take this optimization as far as we want, for example, we could decide that changes to documentation and test files can’t possibly affect our build tasks. So we could set up another `namedInput` called “production” (meant to imply the code that actually gets run by our users) and exclude the .md and test files from our default set:
 
 ```json
 {
@@ -187,10 +187,8 @@ For all the possibilities available for `inputs` and `namedInputs` check out the
 
 ## Defensive vs. Fast
 
-With caching, there is always a tradeoff between being as fast as possible, and accidentally hiding or even breaking something because of incorrect caching. We decided to generally err on the side of safe & defensive, and rather have more “unnecessary” cache invalidations than to miss an actual change. This is something to keep an eye on, and which we may adjust in the future based on further insights.
+With caching, there is always a tradeoff between being as fast as possible, and accidentally hiding or even breaking something because of incorrect caching. We decided to generally err on the side of safe & defensive, and rather have more “unnecessary” cache invalidations than miss an actual change. This is something to keep an eye on, and which we may adjust in the future based on further insights.
 
-Furthermore, we also set up our CI to ensure we never use cache when running on release branches, as well as adding a nightly job that also runs CI without cache. This way, we at least have some safety net to ensure incorrect caching would remain undetected for too long - for example, if something goes wrong with restoring the correct cache in Github Actions.
+Furthermore, we also set up our CI to ensure we never use cache when running on release branches, as well as adding a nightly job that also runs CI without cache. This way, we at least have some safety net to ensure incorrect caching would remain undetected for too long - for example, if something goes wrong with restoring the correct cache in GitHub Actions.
 
 You can check out our [build workflow](https://github.com/getsentry/sentry-javascript/blob/6227e441e046216e127085fcb1e5b3f94b4a9903/.github/workflows/build.yml#L198) to see how we achieved this.
-
-And if you’re new to Sentry, you can [try it for free](https://sentry.io/signup) today or [request a demo](https://sentry.io/demo) to get started.
