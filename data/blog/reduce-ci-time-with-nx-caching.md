@@ -191,4 +191,4 @@ With caching, there is always a tradeoff between being as fast as possible, and 
 
 Furthermore, we also set up our CI to ensure we never use cache when running on release branches, as well as adding a nightly job that also runs CI without cache. This way, we at least have some safety net to ensure incorrect caching would remain undetected for too long - for example, if something goes wrong with restoring the correct cache in GitHub Actions.
 
-You can check out our [build workflow]() to see how we achieved this.
+You can check out our [build workflow](https://github.com/getsentry/sentry-javascript/blob/6227e441e046216e127085fcb1e5b3f94b4a9903/.github/workflows/build.yml#L198) to see how we achieved this.
