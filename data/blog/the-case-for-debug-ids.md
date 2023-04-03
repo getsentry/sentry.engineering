@@ -182,4 +182,6 @@ We are currently in the process of rolling this out for our own uses as a
 lot of this can be emulated even without the wider ecosystem adopting
 it. [For more information see our internal
 RFC](https://github.com/getsentry/rfcs/pull/81). We are however interested in
-establishing this as a web standard.
+establishing this as a web standard, and the first step that we already took,
+is to fill an [official RFC](https://github.com/source-map/source-map-rfc/pull/20),
+which you can read in its human-friendly form [here](https://github.com/mitsuhiko/source-map-rfc/blob/proposals/debug-id/proposals/debug-id.md).
