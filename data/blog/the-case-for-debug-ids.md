@@ -91,7 +91,7 @@ Imagine if our widget factory were to spit out widgets resembling small black
 pills that appear identical. How can we distinguish them? We could place
 them in a labelled box, but once removed from the box, identification would be
 impossible. A better approach would be to laser engrave the model number
-directly onto the widget. This means by just looking at the widget we can tell
+directly onto the widget. This means by just looking at the widget we can still
 determine its precise nature.
 
 The same concept applies to the manuals. An effective way to manage the
