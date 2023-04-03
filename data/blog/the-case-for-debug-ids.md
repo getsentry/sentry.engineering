@@ -51,7 +51,7 @@ and manuals or build outputs.
 The first property we care about is the ability to distinguish between widgets
 and manuals. That might seem obvious if we only have widgets and manuals,
 but let's imagine that there are different types of manuals such as
-service manuals, end user manuals, and certificates of conformance. Being
+service manuals, end-user manuals, and certificates of conformance. Being
 self-describing means that by simply looking at the document, one can tell
 the type of manual (and confirm that it's not a widget itself). Most things
 are _self-describing_ in one form or another, but not all, particularly when
@@ -59,14 +59,14 @@ they are boxed up and we need to tell these boxes apart.
 
 Consider a scenario where our documents are placed inside unmarked envelopes.
 To determine the contents one would have to open the envelope to see what's
-inside. We could sort them into different folders and label the folders which
+inside. We could sort them into a different folder and label the folders which
 would certainly help, but if someone throws all the envelopes into a large
 container, we would have to open up all envelopes to sort them apart.
 
 This situation is somewhat analogous to what happens with source maps today.
 A source map is information contained in a "box": a JSON file. We can take an
 educated guess that it's a source map because of the presence of keys such as
-`version`, `file`, one `mappings`, but it's a guess. There is no
+`version`, `file`, and `mappings`, but it's a guess. There is in fact no
 guarantee that we can tell a source map apart from something that merely
 appears similar. As a result source maps do not meet the criteria of a
 self-describing file.
@@ -99,8 +99,8 @@ manuals is to print the model number onto them. As long as the page with the
 model number stays in fact, one can at all times tell what widget the manual
 belongs to. This property is essential when dealing with files on a large scale.
 
-A less efficient and error prone approach involves relying on an external
-organisation such as labelled folders with dividers. If anyone were to remove
+A less efficient and error-prone approach involves relying on an external
+organization such as labelled folders with dividers. If anyone were to remove
 that manual and not put it back properly it would be (almost) impossible to
 identify the associated widget.
 
