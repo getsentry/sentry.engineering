@@ -18,6 +18,7 @@ const siteMetadata = {
   linkedin: 'https://www.linkedin.com/company/getsentry/',
   locale: 'en-US',
   analytics: {
+    plausibleDataDomain: 'sentry.engineering',
     googleAnalyticsId: 'G-CB33F2CE47', // e.g. UA-000000-2 or G-XXXXXXX
   },
   newsletter: {
