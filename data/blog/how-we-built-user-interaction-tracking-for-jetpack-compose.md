@@ -22,7 +22,7 @@ In the Jetpack Compose [getting started guide](https://bit.ly/jetpack-at-sentry-
 
 The final outcome: Automatically turning clicks into breadcrumbs
 
-## **Our Requirements for Declarative Programming Support**
+## Our Requirements for Declarative Programming Support
 
 [Our Android SDK](https://docs.sentry.io/platforms/android/) gives developers deep context, like device details, threading information, and screenshots, that makes it easier to investigate an issue. It also provides breadcrumbs of user interactions (clicks, scrolls, or swipes) to fully understand what led up to a crash. And, like all of our other SDKs, our Android SDK is designed to provide this valuable information out-of-the-box without cluttering your code with Sentry SDK calls.
 
