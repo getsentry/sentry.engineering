@@ -16,7 +16,7 @@ Continuing our series of articles that began with our [getting started guide](ht
 
 ## Jetpack Compose and Monitoring
 
-In the Jetpack Compose [getting started guide][(https://bit.ly/jetpack-at-sentry-blog-14](https://sentry.engineering/blog/getting-started-with-jetpack-compose)) that we released earlier this year, one of the tips was to use an error and performance monitoring tool like Sentry to reduce the learning curve and ensure that your app is bug-free. In this post, we detail how we implemented the user interaction tracking feature for Jetpack Compose, which is available as part of our Android SDK.
+In the Jetpack Compose [getting started guide](https://sentry.engineering/blog/getting-started-with-jetpack-compose) that we released earlier this year, one of the tips was to use an error and performance monitoring tool like Sentry to reduce the learning curve and ensure that your app is bug-free. In this post, we detail how we implemented the user interaction tracking feature for Jetpack Compose, which is available as part of our Android SDK.
 
 ![](/images/how-we-built-user-interaction-tracking-for-jetpack-compose/compose.png)
 
