@@ -3,7 +3,7 @@ title: 'How we built user interaction tracking for Jetpack Compose'
 date: '2023-04-21'
 tags: ['Android', 'Jetpack Compose', 'Kotlin', 'Mobile']
 draft: false
-summary: "Tracking user interactions for mobile can be tricky, but sentry's got you covered."
+summary: 'Knowing the user interactions which happened in your app right before it crashed is crucial context information for fixing errors. Tracking interactions like click and swipes manually can be tedious, so we at sentry looked into ways on how to do that automatically for your Jetpack Compose enabled Android app. Learn how you can intercept any touch event, how to determine Composable identifiers and ultimately how our sentry Android SDK ties it all together.'
 images: [/images/how-we-built-user-interaction-tracking-for-jetpack-compose/compose_hero.jpg]
 layout: PostLayout
 canonicalUrl: https://proandroiddev.com/how-we-built-user-interaction-tracking-for-jetpack-compose-e3b1dd24f0ae
@@ -263,18 +263,4 @@ Currently, the feature is still opt-in, so it needs to be enabled via `AndroidMa
 </application>
 ```
 
-But after enabling it, it just works. Granted, it still requires you to provide a `Modifier.testTag(…)`, but that should already exist if you’re writing UI tests. 😉 [Check out our docs to get started](https://docs.sentry.io/platforms/android/configuration/integrations/jetpack-compose/).
-
-## Next Steps
-
-In a [fireside chat with Riot and Nextdoor](https://bit.ly/building-mobile-fireside-14), the topic of [Jetpack Compose and declarative programming came up](https://bit.ly/moving-to-jetpack-fireside-14), as we discussed the critical shift in the mobile space. Now is the time to get started with Jetpack Compose, and when you do, don’t forget Sentry’s got your monitoring needs. Checkout the list of resources below and let us know what you think in our [Discord](https://bit.ly/sentry-discord-14) or in our [GitHub Discussions](https://bit.ly/sentry-java-sdk-discussion-14).
-
-## Jetpack Compose + Sentry Resources
-
-- **Blog Post**: [Mobile: The Future is Declarative](https://bit.ly/sentry-future-declarative-14)
-- **Blog Post**: [Jetpack Compose: Getting started](https://bit.ly/jetpack-at-sentry-blog-14)
-- **Short Video**: [Mobile: The Future is Declarative](https://bit.ly/future-declarative-video-14)
-- **Live AMA Recording**: [Jetpack Compose best practices](https://bit.ly/jetpack-at-sentry-ama-14)
-- **Live Fireside Chat Recording**: [Building better mobile experiences with Nextdoor and Riot Games](https://bit.ly/building-mobile-fireside-14)
-- **Sentry’s Jetpack Compose Docs**: [Jetpack Compose integration](https://bit.ly/jetpack-at-sentry-docs-14)
-- **Sentry’s GitHub Discussions for Android SDK**: [https://bit.ly/sentry-java-sdk-discussion-14](https://bit.ly/sentry-java-sdk-discussion-14)
+But after enabling it, it just works. Granted, it still requires you to provide a `Modifier.testTag(…)`, but that should already exist if you’re writing UI tests. 😉 [Check out our docs to get started](https://docs.sentry.io/platforms/android/configuration/integrations/jetpack-compose/)!
