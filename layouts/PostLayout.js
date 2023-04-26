@@ -9,11 +9,26 @@ import Comments from '@/components/comments'
 import ScrollTopAndComment from '@/components/ScrollTopAndComment'
 import SocialIcon from '@/components/social-icons'
 
-const editUrl = (fileName) => `${siteMetadata.siteRepo}/blob/master/data/blog/${fileName}`
+const editUrl = (fileName) => `${siteMetadata.siteRepo}/blob/main/data/blog/${fileName}`
 const discussUrl = (slug) =>
   `https://mobile.twitter.com/search?q=${encodeURIComponent(
     `${siteMetadata.siteUrl}/blog/${slug}`
   )}`
+
+const twitterPostContent = (summary, postUrl) => {
+  // Max characters limit - link (it's always 23, no matter what) - space
+  const TWITTER_MAX_SUMMARY_LENGTH = 280 - 23 - 1
+
+  // If it fits within the character allowance, leave it alone.
+  // If not, trim it down to the the last occurance of the space
+  // that fits within the bounds, and add ellipsis at the end.
+  const twitterSummary =
+    summary.length > TWITTER_MAX_SUMMARY_LENGTH
+      ? `${summary.slice(0, summary.lastIndexOf(' ', TWITTER_MAX_SUMMARY_LENGTH - 3))}...`
+      : summary
+
+  return `${twitterSummary} ${siteMetadata.siteUrl}/blog/${postUrl}`
+}
 
 const postDateTemplate = {
   weekday: 'long',
@@ -93,7 +108,7 @@ export default function PostLayout({ frontMatter, authorDetails, next, prev, chi
               </dd>
             </dl>
             <div className="divide-y divide-gray-200 dark:divide-gray-700 xl:col-span-3 xl:row-span-2 xl:pb-0">
-              <div className="prose max-w-none pt-10 pb-8 dark:prose-dark">{children}</div>
+              <div className="prose prose-lg max-w-none pt-10 pb-8 dark:prose-dark">{children}</div>
               <div className="pt-6 pb-6 text-sm text-gray-700 dark:text-gray-300">
                 <Link href={discussUrl(slug)} rel="nofollow">
                   {'Discuss on Twitter'}
@@ -125,7 +140,10 @@ export default function PostLayout({ frontMatter, authorDetails, next, prev, chi
                     <div className="flex flex-wrap">
                       <SocialIcon
                         kind="twitter"
-                        href={`https://twitter.com/intent/tweet?text=${summary}`}
+                        href={`https://twitter.com/intent/tweet?text=${twitterPostContent(
+                          summary,
+                          slug
+                        )}`}
                         size="6"
                       />
                       <SocialIcon

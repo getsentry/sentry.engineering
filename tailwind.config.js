@@ -18,6 +18,12 @@ module.exports = {
       spacing: {
         '9/16': '56.25%',
       },
+      fontSize: {
+        sm: ['14px', '20px'],
+        base: ['16px', '24px'],
+        lg: ['20px', '28px'],
+        xl: ['24px', '32px'],
+      },
       lineHeight: {
         11: '2.75rem',
         12: '3rem',
@@ -25,7 +31,15 @@ module.exports = {
         14: '3.5rem',
       },
       fontFamily: {
-        sans: ['Rubik','-apple-system','BlinkMacSystemFont','Segoe UI','Helvetica','Arial', ...defaultTheme.fontFamily.sans],
+        sans: [
+          'Rubik',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          'Segoe UI',
+          'Helvetica',
+          'Arial',
+          ...defaultTheme.fontFamily.sans,
+        ],
       },
       colors: {
         primary: colors.purple,

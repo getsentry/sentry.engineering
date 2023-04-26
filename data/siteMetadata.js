@@ -1,15 +1,16 @@
 const siteMetadata = {
   title: 'Sentry Engineering',
-  author: 'Sentry Engineers',
+  author: 'Sentry',
   headerTitle: 'Sentry Engineering',
-  description: '',
+  description:
+    "Learn about Sentry's engineering efforts, company culture, product developments and more.",
   language: 'en-us',
   theme: 'system', // system, dark or light
   siteUrl: 'https://sentry.engineering',
   siteRepo: '',
-  siteLogo: '/static/images/logo.png',
-  image: '/static/images/avatar.png',
-  socialBanner: '/static/images/twitter-card.png',
+  siteLogo: '',
+  image: '/images/sentry-engineering.png',
+  socialBanner: '/images/sentry-engineering.png',
   email: '',
   github: 'https://github.com/getsentry/sentry',
   twitter: 'https://twitter.com/getsentry',
@@ -17,14 +18,8 @@ const siteMetadata = {
   linkedin: 'https://www.linkedin.com/company/getsentry/',
   locale: 'en-US',
   analytics: {
-    // If you want to use an analytics provider you have to add it to the
-    // content security policy in the `next.config.js` file.
-    // supports plausible, simpleAnalytics, umami or googleAnalytics
-    plausibleDataDomain: '', // e.g. tailwind-nextjs-starter-blog.vercel.app
-    simpleAnalytics: false, // true or false
-    umamiWebsiteId: '', // e.g. 123e4567-e89b-12d3-a456-426614174000
-    googleAnalyticsId: '', // e.g. UA-000000-2 or G-XXXXXXX
-    posthogAnalyticsId: '', // posthog.init e.g. phc_5yXvArzvRdqtZIsHkEm3Fkkhm3d0bEYUXCaFISzqPSQ
+    plausibleDataDomain: 'sentry.engineering',
+    googleAnalyticsId: 'G-CB33F2CE47', // e.g. UA-000000-2 or G-XXXXXXX
   },
   newsletter: {
     // supports mailchimp, buttondown, convertkit, klaviyo, revue, emailoctopus
