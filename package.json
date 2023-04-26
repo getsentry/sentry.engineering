@@ -25,7 +25,7 @@
     "gray-matter": "^4.0.2",
     "image-size": "1.0.0",
     "inquirer-checkbox-autocomplete-prompt": "^0.2.0",
-    "mdx-bundler": "^8.0.0",
+    "mdx-bundler": "^9.2.1",
     "next": "^13.2.4",
     "next-themes": "^0.0.14",
     "postcss": "^8.4.5",
