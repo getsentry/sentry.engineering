@@ -1,7 +1,7 @@
 import Link from '@/components/Link'
 import { PageSEO } from '@/components/SEO'
 import Tag from '@/components/Tag'
-import Image from '@/components/Image'
+import Image from 'next/image'
 import siteMetadata from '@/data/siteMetadata'
 //import { getAllFilesFrontMatter  } from '@/lib/mdx'
 import { getAllFilesFrontMatter } from '@/lib/mdx'
@@ -70,8 +70,8 @@ export default function Home({ posts, authorDetails }) {
                         {author.avatar && (
                           <Image
                             src={author.avatar}
-                            width="38px"
-                            height="38px"
+                            width="38"
+                            height="38"
                             alt="avatar"
                             className="h-10 w-10 rounded-full"
                           />

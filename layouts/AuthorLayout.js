@@ -1,5 +1,5 @@
 import SocialIcon from '@/components/social-icons'
-import Image from '@/components/Image'
+import Image from 'next/image'
 import { PageSEO } from '@/components/SEO'
 
 export default function AuthorLayout({ children, frontMatter }) {
