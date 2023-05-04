@@ -16,7 +16,7 @@ const ContentSecurityPolicy = `
   frame-src youtube.com www.youtube.com;
   worker-src 'self' blob:;
   child-src 'self' blob:;
-`
+  `
 
 const securityHeaders = [
   // https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP
@@ -88,16 +88,6 @@ module.exports = withSentryConfig(
         test: /\.svg$/,
         use: ['@svgr/webpack'],
       })
-
-      if (!dev && !isServer) {
-        // Replace React with Preact only in client production build
-        Object.assign(config.resolve.alias, {
-          'react/jsx-runtime.js': 'preact/compat/jsx-runtime',
-          react: 'preact/compat',
-          'react-dom/test-utils': 'preact/test-utils',
-          'react-dom': 'preact/compat',
-        })
-      }
 
       return config
     },
