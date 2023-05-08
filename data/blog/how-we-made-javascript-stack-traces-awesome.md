@@ -48,7 +48,7 @@ function callTheCrashingThing() {
 }
 ```
 
-After minification, it turns into an absolute mess. For simplicity reasons, let’s assume the compiler renames the first function, `thisLovesToCrash`, to a and the second function, `callTheCrashingThing`, to `b`.
+After minification, it turns into an absolute mess. For simplicity reasons, let’s assume the compiler renames the first function, `thisLovesToCrash`, to `a` and the second function, `callTheCrashingThing`, to `b`.
 
 ```js
 function a(){b()}
