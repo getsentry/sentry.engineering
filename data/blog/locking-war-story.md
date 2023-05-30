@@ -13,8 +13,8 @@ authors: ['arpadborsos']
 We recently migrated the JavaScript and SourceMap processing from Python code over to Rust code, more specifically our
 _Symbolicator_ service that is a powerhouse aimed at heavy processing.
 
-However the first few days of pushing 100% of JavaScript events through this service kept our teams awake for far too
-long. Processing some of those events did not go as smooth as it should, and we were battling low throughput and
+However, the first few days of pushing 100% of JavaScript events through this service kept our teams awake for far too
+long. Processing some of those events did not go as smoothly as it should have, and we were battling low throughput and
 increasing backlogs in our processing infrastructure.
 
 In the end, I tracked the root cause of that problem down to a lock contention issue that I originally analyzed
@@ -53,9 +53,9 @@ so I won’t go into more details.
 
 # Being too Smart for our own Good
 
-The primary driver of moving more parts of the processing to Rust was to be able to better reuse repeated computations.
+The primary driver for moving more parts of the processing to Rust was to be able to better reuse repeated computations.
 Our SourceMap processing infers function / scope names by parsing the minified source, and it builds a fast lookup
-index that is meant to be reused. Although the python code never did that. The stateful Rust service however has a variety
+index that is meant to be reused. Although the Python code never did that. The stateful Rust service however has a variety
 of in-memory and on-disk caches to avoid expensive computations for each event that needs to be processed.
 
 One of the more expensive computations that I wanted to avoid was opening up the zip archive and parsing the manifest
@@ -72,21 +72,21 @@ The problem with `Read + Seek` is that it indeed needs to maintain some internal
 cursor position. If it were not synchronized using a `&mut` and a `Mutex`, it would mean that concurrent readers could
 potentially read garbage, or worse. So thank you Rust for the strict guarantees that avoided that :-)
 
-The solution in the end was to give each reader its own (still `Mutex`-locked) copy of the `ZipArchive`. According to
+The solution, in the end, was to give each reader it's own (still `Mutex`-locked) copy of the `ZipArchive`. According to
 its docs, it is a cheap to clone if its generic reader is, which is the case for `Cursor`. Rolling out this fix indeed
 fixed the contention problem for us, and our production systems are now much happier. Although they are still doing way
 too much unzipping, but later on that.
 
 # Can we do better?
 
-The mutable state fundamentally comes from usage of `Read` which implicitly updates a cursor position, and `Seek` which
-does so explicitly. And this is a reasonable choice for `ZipArchive`, as I believe if is most frequently used in
+The mutable state fundamentally comes from the usage of `Read` which implicitly updates a cursor position, and `Seek` which
+does so explicitly. And this is a reasonable choice for `ZipArchive`, as I believe it is most frequently used in
 combination with a `std::io::BufReader<std::fs::File>`. However, I believe there are a few crates out there that
 abstract over the reader as well. For example, both `object::ReadRef` / `object::ReadCache` and `scroll::Pread` work
 with shared references, and require an explicit `offset` for each of the read methods, instead of maintaining the offset
 internally via `Seek`.
 
-In our case we have a memory-mapped `&[u8]`, and reading from that is a trivial memory access. I cannot overstate how
+In our case, we have a memory-mapped `&[u8]`, and reading from that is a trivial memory access. I cannot overstate how
 much of a productivity and sanity boost `mmap` is. Sure, one might argue that `Read` gives more explicit control, and
 it is very obvious and explicit when a syscall and context switch to the kernel happens, whereas with `mmap` that is
 done implicitly via page faults. Maybe in some very extreme situations, deep control over this might be beneficial, but
