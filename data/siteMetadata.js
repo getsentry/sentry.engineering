@@ -19,7 +19,6 @@ const siteMetadata = {
   locale: 'en-US',
   analytics: {
     plausibleDataDomain: 'sentry.engineering',
-    googleAnalyticsId: 'G-CB33F2CE47', // e.g. UA-000000-2 or G-XXXXXXX
   },
   newsletter: {
     // supports mailchimp, buttondown, convertkit, klaviyo, revue, emailoctopus
