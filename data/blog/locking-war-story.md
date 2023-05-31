@@ -3,8 +3,8 @@ title: 'A locking war story'
 date: '2023-05-16'
 tags: ['processing', 'symbolicator', 'rust']
 draft: false
-summary: 'We were hitting a lock contention problem in our processing infrastructure. Why, and how did we solve it?'
-images: []
+summary: 'We recently migrated JavaScript/SourceMap processing to Rust where we were hitting a lock contention problem in our processing infrastructure that kept people up for a few days. What happened, why and how did we solve it?'
+images: ['/images/locking-war-story-title.png']
 layout: PostLayout
 canonicalUrl: https://swatinem.de/blog/locking-war-story/
 authors: ['arpadborsos']
@@ -17,10 +17,7 @@ However, the first few days of pushing 100% of JavaScript events through this se
 long. Processing some of those events did not go as smoothly as it should have, and we were battling low throughput and
 increasing backlogs in our processing infrastructure.
 
-In the end, I tracked the root cause of that problem down to a lock contention issue that I originally analyzed
-[over at my personal blog](https://swatinem.de/blog/locking-war-story/), but you can also read the whole story here as well:
-
----
+In the end, I tracked the root cause of that problem down to a lock contention issue.
 
 An alternative clickbait title for this could be: “`Read + Seek` considered dangerous”.
 
