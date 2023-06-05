@@ -1,6 +1,6 @@
 ---
 name: Ryan Albrecht
-avatar: /static/avatars/default.png
+avatar: /static/avatars/ryanalbrecht.jpg
 occupation: Senior Software Engineer
 ---
 

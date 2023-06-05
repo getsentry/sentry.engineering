@@ -4,7 +4,7 @@ date: '2023-06-05'
 tags: ['web', 'javascript', 'sdk', 'session replay', 'privacy']
 draft: false
 summary: 'TODO TODO TODO TODO TODO'
-images: ['/images/unmasking-session-replay/ryanalbrecht.jpg']
+images: ['/images/unmasking-session-replay/thumb.png']
 layout: PostLayout
 canonicalUrl:
 authors: ['ryanalbrecht']
