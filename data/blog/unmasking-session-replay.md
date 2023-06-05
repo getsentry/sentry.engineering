@@ -28,7 +28,7 @@ You might recognize this as a page on sentry.io. You might also recognize that t
 
 Masking everything is nice and safe, but it can be hard to debug issues when everything is a series of `*`. So it's useful to unmask text and images if you know it doesn't contain any user data.
 
-For example, our example webpage includes a list of navigation links on the left side. It can be helpful to see what item is selected so you can make sure it matches with the url. It's a basic example, but lets look at some different approaches to unmasking that sidebar. Here's the React file that renders the sidebar html: https://github.com/getsentry/sentry/blob/75833f69cea56d4d0f7c7dbde6b8026b1110376f/static/app/components/sidebar/index.tsx#L376-L498
+For example, our example webpage includes a list of navigation links on the left side. It can be helpful to see what item is selected so you can make sure it matches with the url. It's a basic example, but lets look at some different approaches to unmasking that sidebar. The React file that renders the sidebar html is on github, it's called [`components/sidebar/index.tsx`](https://github.com/getsentry/sentry/blob/75833f69cea56d4d0f7c7dbde6b8026b1110376f/static/app/components/sidebar/index.tsx#L376-L498).
 
 Our goals are to be safe and maintainable. We want to be as specific as possible so nothing slips through the cracks, but also not have to revisit this or think about it every time we make a change in the future.
 
