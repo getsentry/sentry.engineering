@@ -4,7 +4,7 @@ date: '2023-06-05'
 tags: ['web', 'javascript', 'sdk', 'session replay', 'privacy']
 draft: false
 summary: 'TODO TODO TODO TODO TODO'
-images: ['/images/unmasking-session-replay/ryanalbredcht.jpg']
+images: ['/images/unmasking-session-replay/ryanalbrecht.jpg']
 layout: PostLayout
 canonicalUrl:
 authors: ['ryanalbrecht']
@@ -16,19 +16,19 @@ The most visible place where people see our privacy controls in action is when w
 
 A replay recording will be created whenever your customer visits your website and the Replay SDK decides to [sample](https://docs.sentry.io/platforms/javascript/session-replay/#sampling) the session. The SDK listens for changes to the rendered HTML whenever any HTML tag like a `<div>` or `<button>` is inserted, modified or removed. For inserts or modifications the SDK will serialize the changes using the [mask, unmask block or unblock settings](https://docs.sentry.io/platforms/javascript/session-replay/privacy/). The serialized data will be re-inserted into the DOM later when you're watching the saved replay.
 
-The privacy settings will, by default, mask all text by replacing letters and numbers with `*`. Also it'll block all images, so you only see a blank space. If you're more of a visual person checkout the [docs](https://docs.sentry.io/platforms/javascript/session-replay/privacy/#masking) for some nice graphics showing the before/after.
+The privacy settings will, by default, mask all text by replacing letters and numbers with `*`. Also it'll block all images, so you only see a blank space. If you're more of a visual person check out the [docs](https://docs.sentry.io/platforms/javascript/session-replay/privacy/#masking) for some nice graphics showing the before/after.
 
 Here's an example webpage captured with the default (full!) privacy configuration enabled:
 
 ![a web page where all text is replaced by * and images are completly removed](/images/unmasking-session-replay/full-masking.png)
 
-You might recognize this as a page on sentry.io. You might also recognize that the user is looking at a table of data. They have clicked into the search textbox which has opened up it's own flyout on top.
+You might recognize this as a page on sentry.io. You might also recognize that the user is looking at a table of data. They have clicked into the search textbox which has opened up its own flyout on top.
 
 # Three Approaches
 
 Masking everything is nice and safe, but it can be hard to debug issues when everything is a series of `*`. So it's useful to unmask text and images if you know it doesn't contain any user data.
 
-For example, our example webpage includes a list of navigation links on the left side. It can be helpful to see what item is selected so you can make sure it matches with the url. It's a basic example, but lets look at some different approaches to unmasking that sidebar. The React file that renders the sidebar html is on github, it's called [`components/sidebar/index.tsx`](https://github.com/getsentry/sentry/blob/75833f69cea56d4d0f7c7dbde6b8026b1110376f/static/app/components/sidebar/index.tsx#L376-L498).
+For example, our example webpage includes a list of navigation links on the left side. It can be helpful to see what item is selected so you can make sure it matches with the URL. It's a basic example, but let's look at some different approaches to unmasking that sidebar. The React file that renders the sidebar HMTL is on GitHub, it's called [`components/sidebar/index.tsx`](https://github.com/getsentry/sentry/blob/75833f69cea56d4d0f7c7dbde6b8026b1110376f/static/app/components/sidebar/index.tsx#L376-L498).
 
 Our goals are to be safe and maintainable. We want to be as specific as possible so nothing slips through the cracks, but also not have to revisit this or think about it every time we make a change in the future.
 
@@ -45,7 +45,7 @@ By default everything is masked because `mask:true` is set. But if we use this 
 
 That means we want to put `class="sentry-unmask"` or `data-sentry-unmask` somewhere, but where?
 
-Looking at our sidebar component there's something called the `<SidebarDropdown>` which includes the `user={config.user}` props. This component renders PII, the full name of our user, so we can't apply the class to that node. Instead we can apply the class, or `data-*` attribute to the sibling nodes:
+Looking at our sidebar component there's something called the `<SidebarDropdown>` which includes the `user={config.user}` props. This component renders PII, the full name of our user, so we can't apply the class to that node. Instead, we can apply the class or `data-*` attribute to the sibling nodes:
 
 ```diff
   <SidebarWrapper aria-label={t('Primary Navigation')} collapsed={collapsed}>
@@ -81,7 +81,7 @@ Or if we used the `data-*` attribute:
 + <SidebarSectionGroup data-sentry-unmask>
 ```
 
-This could work. By going around our codebase we can explicitly mark, right in the code, what gets unmasked. On the other hand it's really easy for someone to unmask `<SidebarWrapper>` , and not notice that `<SidebarDropdown>` includes some PII. Or maybe SidebarDropdown doesn't have PII today, but tomorrow it could be added.
+This could work. By going around our codebase we can explicitly mark, right in the code, what gets unmasked. On the other hand, it's really easy for someone to unmask `<SidebarWrapper>`, and not notice that `<SidebarDropdown>` includes some PII. Or maybe SidebarDropdown doesn't have PII today, but tomorrow it could be added.
 
 The problem is this strategy isn't specific enough. It would be better to add `class="sentry-unmask"` to each `<SidebarItem>`. But that's a much larger code commit, especially if we start going into more parts of the app.
 
@@ -103,9 +103,9 @@ So what if we made a list of specific classes that we should unmask? We could up
   });
 ```
 
-After we're doing looking at the whole app that could be a lot of classes to list out. And in the case of sentry.io we have a CSS build process, so class names look like `<a class="app-8s4it8 e88zkai5">` and will randomly change. Very bad for maintenance.
+After we're done looking at the whole app that could be a lot of classes to list out. And in the case of sentry.io we have a CSS build process, so class names look like `<a class="app-8s4it8 e88zkai5">` and will randomly change. Very bad for maintenance.
 
-This appraoch can work, but it can be a maintenance headache. When new features get built you have to remember to come back and update the list. It's also hard to know what should be removed from the list if a feature has been changed or removed.
+This approach can work, but it can be a maintenance headache. When new features get built you have to remember to come back and update the list. It's also hard to know what should be removed from the list if a feature has been changed or removed.
 
 But it is safer, because you can be really specific about what to unmask, while leaving everything else masked for privacy.
 
