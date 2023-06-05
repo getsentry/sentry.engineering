@@ -10,13 +10,13 @@ canonicalUrl:
 authors: ['ryanalbrecht']
 ---
 
-User privacy is a major consideration in everything we build at Sentry. That's why, very early when we started building [Session Replay](https://sentry.io/for/session-replay), we made the decision that scrubbing PII (Personal Identifiable Information) would be the default mode. It would be opt-out instead of opt-in. We put the burden on web developers to unmask or unblock data only when it's safe to do so.
+User privacy is a major consideration in everything we build at Sentry. That's why, very early when we started building [Session Replay](https://sentry.io/for/session-replay), we made the decision that scrubbing PII (Personal Identifiable Information) would be the default mode. It would be opt-out instead of opt-in. We removed the burden on web developers to keep their user's information private, giving them controls to unmask or unblock data only when it's safe to do so.
 
 The most visible place where people see our privacy controls in action is when watching a replay recording. I've heard a few questions about these privacy configs lately so I spent some time exploring some different approaches, and wanted to share what I found!
 
-A replay recording will be created whenever your customer visits your website and the Replay SDK decides to [sample](https://docs.sentry.io/platforms/javascript/session-replay/#sampling) the session. The SDK listens for changes to the rendered HTML whenever any HTML tag like a `<div>` or `<button>` is inserted, modified or removed. For inserts or modifications the SDK will serialize the changes using the [mask, unmask block or unblock settings](https://docs.sentry.io/platforms/javascript/session-replay/privacy/). The serialized data will be re-inserted into the DOM later when you're watching the saved replay.
+A replay recording is created whenever your customer visits your website and the Replay SDK decides to [sample](https://docs.sentry.io/platforms/javascript/session-replay/#sampling) the session. The SDK listens for changes to the rendered HTML whenever any HTML tag like a `<div>` or `<button>` is inserted, modified or removed. For inserts or modifications the SDK will serialize the changes using the [mask, unmask block or unblock settings](https://docs.sentry.io/platforms/javascript/session-replay/privacy/). The serialized data will be re-inserted into the DOM later when you're watching the saved replay.
 
-The privacy settings will, by default, mask all text by replacing letters and numbers with `*`. Also it'll block all images, so you only see a blank space. If you're more of a visual person check out the [docs](https://docs.sentry.io/platforms/javascript/session-replay/privacy/#masking) for some nice graphics showing the before/after.
+The privacy settings will, by default, mask all text by replacing letters and numbers with `*`. It'll also block all images, so you only see a blank space. If you're more of a visual person check out the [docs](https://docs.sentry.io/platforms/javascript/session-replay/privacy/#masking) for some nice graphics showing the before/after.
 
 Here's an example webpage captured with the default (full!) privacy configuration enabled:
 
