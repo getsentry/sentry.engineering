@@ -34,7 +34,7 @@ Our goals are to be safe and maintainable. We want to be as specific as possible
 
 I'm going to refer to some [Privacy Configuration](https://docs.sentry.io/platforms/javascript/session-replay/privacy/#privacy-configuration) options as we go. Don't worry if you're not yet familiar with them, we'll take it slow together!
 
-# Apply the default class into your app
+# 1. Use default classes
 
 If you're looking at the docs for the first time, you might notice a few options that seem to work together:
 
@@ -85,7 +85,7 @@ This could work. By going around our codebase we can explicitly mark, right in t
 
 The problem is this strategy isn't specific enough. It would be better to add `class="sentry-unmask"` to each `<SidebarItem>`. But that's a much larger code commit, especially if we start going into more parts of the app.
 
-# List allowed classes
+# 2. List allowed classes
 
 So what if we made a list of specific classes that we should unmask? We could update the config to include that `mask` list:
 
@@ -109,7 +109,7 @@ This appraoch can work, but it can be a maintenance headache. When new features 
 
 But it is safer, because you can be really specific about what to unmask, while leaving everything else masked for privacy.
 
-# Leverage i18n translations
+# 3. Leverage i18n translations
 
 On sentry.io we have a React based app and there is a translation, or i18n, layer (i18n is short for "internationalization"). Using another [privacy configuration](https://docs.sentry.io/platforms/javascript/session-replay/privacy/#privacy-configuration) option we can leverage the i18n layer for unmasking:
 
