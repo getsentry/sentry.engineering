@@ -4,7 +4,7 @@ date: '2023-06-05'
 tags: ['web', 'javascript', 'sdk', 'session replay', 'privacy']
 draft: false
 summary: 'TODO TODO TODO TODO TODO'
-images: ['/images/unmasking-session-replay/thumb.png']
+images: ['/images/unmasking-session-replay/ryanalbredcht.jpg']
 layout: PostLayout
 canonicalUrl:
 authors: ['ryanalbrecht']
@@ -12,9 +12,9 @@ authors: ['ryanalbrecht']
 
 User privacy is a major consideration in everything we build at Sentry. That's why, very early when we started building [Session Replay](https://sentry.io/for/session-replay), we made the decision that scrubbing PII (Personal Identifiable Information) would be the default mode. It would be opt-out instead of opt-in. We put the burden on web developers to unmask or unblock data only when it's safe to do so.
 
-The most visible place where people see our privacy controls in action is when watching a replay recording. I've heard a few questions about this privacy configs lately so I spent some time exploring some different approaches, and wanted to share what I found!
+The most visible place where people see our privacy controls in action is when watching a replay recording. I've heard a few questions about these privacy configs lately so I spent some time exploring some different approaches, and wanted to share what I found!
 
-A replay recording will be created whenever your customer visits your website and the Replay SDK decides to [sample](https://docs.sentry.io/platforms/javascript/session-replay/#sampling) the session. The SDK listens for changes to the rendered HTML whenever any HTML tag like a `<div>` or `<button>` is inserted, modified or removed. For inserts or modifications the SDK will serialize the changes using the [mask, unmask block or unblock settings](https://docs.sentry.io/platforms/javascript/session-replay/privacy/). The serialized data will be re-inserted into the DOM later, when you're watching the saved replay.
+A replay recording will be created whenever your customer visits your website and the Replay SDK decides to [sample](https://docs.sentry.io/platforms/javascript/session-replay/#sampling) the session. The SDK listens for changes to the rendered HTML whenever any HTML tag like a `<div>` or `<button>` is inserted, modified or removed. For inserts or modifications the SDK will serialize the changes using the [mask, unmask block or unblock settings](https://docs.sentry.io/platforms/javascript/session-replay/privacy/). The serialized data will be re-inserted into the DOM later when you're watching the saved replay.
 
 The privacy settings will, by default, mask all text by replacing letters and numbers with `*`. Also it'll block all images, so you only see a blank space. If you're more of a visual person checkout the [docs](https://docs.sentry.io/platforms/javascript/session-replay/privacy/#masking) for some nice graphics showing the before/after.
 
@@ -124,7 +124,7 @@ How can we leverage i18n calls? There are two primary methods for making text tr
 
 Of course any values from the database, like your username, won't be passed through any translation function at all.
 
-With the knowledge that any static string will not contain PII, we can hook into the `t()` method and diable masking for any text returned by `t()`!
+With the knowledge that any static string will not contain PII, we can hook into the `t()` method and disable masking for any text returned by `t()`!
 
 Here's a simplified version of the [real](https://github.com/getsentry/sentry/blob/75833f69cea56d4d0f7c7dbde6b8026b1110376f/static/app/locale.tsx#L325-L345) [code](https://github.com/getsentry/sentry/blob/75833f69cea56d4d0f7c7dbde6b8026b1110376f/static/app/locale.tsx#L84-L90):
 
@@ -160,9 +160,9 @@ What's happening is:
 And here's what the results look like:
 ![](/images/unmasking-session-replay/i18n-masking.png)
 
-Maintenance of this approach is fantastic, since it leverages the existing i18n system.
+Maintenance of this approach is fantastic since it leverages the existing i18n system.
 
-Unfortunatly there are some gotchas with this approach too. It's possible that your static text might match some user-input, in which case the user-input would be revealed. Also the `Set` could grow to contain all translatable strings inside it, which might be problematic.
+Unfortunately, there are some gotchas with this approach too. It's possible that your static text might match some user-input, in which case the user-input would be revealed. Also the `Set` could grow to contain all translatable strings inside it, which might be problematic.
 
 # Conclusion
 
@@ -170,7 +170,7 @@ Those are just a few ideas for how to peel back the defaults. Thinking about you
 
 ### Bonus Cases
 
-You could implement a `maskFn` where only specific strings are blocked. For example a banking website could mask any numerical value, and then use a `mask` class for the few places that show your full name and address:
+You could implement a `maskFn` where only specific strings are blocked. For example, a banking website could mask any numerical value, and then use a `mask` class for the few places that show your full name and address:
 
 ```javascript
 const isNumber = require('is-number')
@@ -187,7 +187,7 @@ Sentry.init({
 })
 ```
 
-Or your maskFn could look at the current url to enable/disable masking. A shopping website might want all product pages to be left alone, but the checkout experience is fully masked:
+Or your maskFn could look at the current URL to enable/disable masking. A shopping website might want all product pages to be left alone, but the checkout experience is fully masked:
 
 ```javascript
 function isCheckoutPath(path) {
