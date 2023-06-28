@@ -46,10 +46,8 @@ Using the [Playwright API](https://playwright.dev/docs/api/class-playwright) we 
 
 Below is an example snippet of code that opens up a browser, navigates to Sentry, clicks the “Pricing” link in the top navigation bar, and closes the browser after 5 seconds:
 
-```jsx
-const { chromium } = require('playwright')
-
-;(async () => {
+```javascript
+const { chromium } = require('playwright')(async () => {
   const browser = await chromium.launch({ headless: false })
   const context = await browser.newContext()
   const page = await context.newPage()
@@ -116,7 +114,7 @@ When the code gets changed to use the Playwright Library API, copy the code star
 
 Create a new file (for example: `myscenarios.mjs`, note only ESM is supported right now) and export a class with a descriptive name that contains a `run()` method that has 2 parameters: `browser` and `page` and with the code that you copied from the Playwright generator as the method contents. You can export multiple classes, if you have different states of your application (for example, an environment without Sentry, with Sentry, and with Sentry & Session Replay). Otherwise if you are testing locally, you will need to re-run the overhead script after you update your local environment.
 
-```jsx
+```javascript
 export class MyBaseScenario {
   async run(browser, page) {
     await page.goto('https://sentry.io/welcome/')
@@ -138,7 +136,7 @@ export class StagingWithReplayScenario {
 
 Re-run the overhead script but on your newly created scenario
 
-```jsx
+```bash
 npx @sentry-internal/overhead -f myscenario.mjs
 ```
 
