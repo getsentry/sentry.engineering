@@ -10,8 +10,6 @@ canonicalUrl:
 authors: ['billyvong']
 ---
 
-# Measuring Session Replay Overhead
-
 A very common question that we receive regarding Session Replay is, “what is the overhead”? Overhead can mean different things for different companies. Every company has their own performance budgets: a large consumer product will be different than a SaaS start-up, a marketing page will be different than an authenticated single-page application. The best way to figure out how overhead impacts you, is to measure it yourself. Follow along as we show you how we went about measuring overhead on Sentry and how you can measure it on your own applications.
 
 ## Metrics
@@ -100,13 +98,9 @@ Two windows should open: a Chromium (browser) window that loads the URL you inpu
 
 ![Example image of Playwright Inspector from Playwright docs](/images/measuring-session-replay-overhead/playwright-inspector.png)
 
-Example image is from the Playwright docs
-
 From here, you can interact with the browser window and create a scenario that you will run multiple times to record many sets of measurements. The corresponding code will be generated in the Playwright Inspector window. When you are finished, in the Inspector window, change the “Target” dropdown from “Test Runner” to “Library” (Node.js).
 
 ![In the Playwright Inspector window, change “Target” from Node.js “Test Runner” to “Library”](/images/measuring-session-replay-overhead/playwright-inspector-change-target.png)
-
-In the Playwright Inspector window, change “Target” from Node.js “Test Runner” to “Library”
 
 When the code gets changed to use the Playwright Library API, copy the code starting from `page.goto`, until the commented line.
 
