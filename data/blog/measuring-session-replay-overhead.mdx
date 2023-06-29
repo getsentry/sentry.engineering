@@ -63,7 +63,7 @@ In addition to the Performance API, we can also connect to the [Chrome DevTools 
 
 ## Measuring Your Application
 
-We packaged together the above ideas into a [package](https://github.com/getsentry/overhead-metrics) to measure performance overhead in any web application. Follow along as we show you how to use it.
+We packaged together the above ideas into a [package](https://github.com/getsentry/web-benchmark) to measure performance overhead in any web application. Follow along as we show you how to use it.
 
 We have setup a small bootstrap repo to help you get started quickly. First make sure that you have [Node.js](https://nodejs.org/en) ≥ 18 and `git` installed and then clone the following repository and run `npm install`.
 
@@ -72,10 +72,10 @@ git clone https://github.com/getsentry/overhead-demo && cd overhead-demo
 npm install
 ```
 
-Verify that everything is working by running the overhead tool on our demo scenario:
+Verify that everything is working by running the benchmarking tool on our demo scenario:
 
 ```bash
-npx @sentry-internal/overhead -f demo.mjs
+npx @sentry-internal/web-benchmark -f demo.mjs
 ```
 
 A Chromium window should open and navigate to https://sentry.io. After a short period, your terminal should have output resembling the following:
@@ -106,7 +106,7 @@ When the code gets changed to use the Playwright Library API, copy the code star
 
 ![Code snippet that should be copied](/images/measuring-session-replay-overhead/generated-code-to-copy.png)
 
-Create a new file (for example: `myscenarios.mjs`, note only ESM is supported right now) and export a class with a descriptive name that contains a `run()` method that has 2 parameters: `browser` and `page` and with the code that you copied from the Playwright generator as the method contents. You can export multiple classes, if you have different states of your application (for example, an environment without Sentry, with Sentry, and with Sentry & Session Replay). Otherwise if you are testing locally, you will need to re-run the overhead script after you update your local environment.
+Create a new file (for example: `myscenarios.mjs`, note only ESM is supported right now) and export a class with a descriptive name that contains a `run()` method that has 2 parameters: `browser` and `page` and with the code that you copied from the Playwright generator as the method contents. You can export multiple classes, if you have different states of your application (for example, an environment without Sentry, with Sentry, and with Sentry & Session Replay). Otherwise if you are testing locally, you will need to re-run the benchmarking script after you update your local environment.
 
 ```javascript
 export class MyBaseScenario {
@@ -128,14 +128,14 @@ export class StagingWithReplayScenario {
 }
 ```
 
-Re-run the overhead script but on your newly created scenario
+Re-run the benchmarking script but on your newly created scenario
 
 ```bash
-npx @sentry-internal/overhead -f myscenario.mjs
+npx @sentry-internal/web-benchmark -f myscenario.mjs
 ```
 
 If you have multiple scenarios defined, you will see a combined table of the results, otherwise you will see output similar to the above screenshot.
 
 ![Terminal output for multiple scenarios](/images/measuring-session-replay-overhead/multiple-scenarios-output.png)
 
-As you can see in the screenshot above with multiple scenarios, it is easy to see the baseline metrics for you application and how the Sentry SDKs affect them. We wanted to give you a tool that gives you _actual_ numbers on _your own_ application, instead of some hand-wavy words and we hope that this post helps accomplish that. If you have further questions, feel free to open an issue at https://github.com/getsentry/overhead-metrics.
+As you can see in the screenshot above with multiple scenarios, it is easy to see the baseline metrics for you application and how the Sentry SDKs affect them. We wanted to give you a tool that gives you _actual_ numbers on _your own_ application, instead of some hand-wavy words and we hope that this post helps accomplish that. If you have further questions, feel free to open an issue at https://github.com/getsentry/web-benchmark.
