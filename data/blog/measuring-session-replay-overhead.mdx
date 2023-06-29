@@ -68,14 +68,14 @@ We packaged together the above ideas into a [package](https://github.com/getsent
 We have setup a small bootstrap repo to help you get started quickly. First make sure that you have [Node.js](https://nodejs.org/en) ≥ 18 and `git` installed and then clone the following repository and run `npm install`.
 
 ```bash
-git clone https://github.com/getsentry/overhead-demo && cd overhead-demo
+git clone https://github.com/getsentry/web-benchmark-demo && cd web-benchmark-demo
 npm install
 ```
 
 Verify that everything is working by running the benchmarking tool on our demo scenario:
 
 ```bash
-npx @sentry-internal/web-benchmark -f demo.mjs
+npx @sentry-internal/web-benchmark -f demo.mjs -c 5
 ```
 
 A Chromium window should open and navigate to https://sentry.io. After a short period, your terminal should have output resembling the following:
