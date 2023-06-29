@@ -1,20 +1,20 @@
 ---
 title: 'Measuring Session Replay Overhead'
 date: '2023-06-28'
-tags: ['session-replay replay web javascript sdk performance']
+tags: ['session replay', 'replay', 'web', 'javascript', 'sdk', 'performance']
 draft: false
-summary: 'The best way to figure out how overhead impacts you, is to measure it yourself. Follow along as we show you how we went about measuring overhead on Sentry and how you can measure it on your own applications.'
+summary: 'The best way to figure out how overhead impacts you is to measure it yourself. Follow along as we show you how we went about measuring overhead on Sentry and how you can measure it on your own applications.'
 images: []
 layout: PostSimple
 canonicalUrl:
 authors: ['billyvong']
 ---
 
-A very common question that we receive regarding Session Replay is, “what is the overhead?”. Overhead can mean different things for different companies. Every company has their own performance budgets: a large consumer product will be different than a SaaS start-up, and a marketing page will be different than an authenticated single-page application. The best way to figure out how overhead impacts you, is to measure it yourself. Follow along as we show you how we went about measuring overhead on Sentry and how you can measure it on your own applications, or [skip ahead to learn how to measure your application](#measuring-your-application).
+A very common question that we receive regarding Session Replay is, “what is the overhead?”. Overhead can mean different things for different companies. Every company has their own performance budgets: a large consumer product will be different than a SaaS start-up, and a marketing page will be different than an authenticated single-page application. The best way to figure out how overhead impacts you is to measure it yourself. Follow along as we show you how we went about measuring overhead on Sentry and how you can measure it on your applications, or [skip ahead to learn how to measure your application](#measuring-your-application).
 
 ## Metrics
 
-In order to measure overhead, we first need to determine what metrics to measure. We will be capturing a combination of “traditional” system resources, as well as more modern, web-focused metrics in [Web Vitals](https://docs.sentry.io/product/performance/web-vitals/).
+In order to measure overhead, we first need to determine what metrics to measure. We will be capturing a combination of “traditional” system resources as well as more modern, web-focused metrics in [Web Vitals](https://docs.sentry.io/product/performance/web-vitals/).
 
 ### Processing
 
@@ -22,9 +22,9 @@ As a refresher, [Session Replay](https://docs.sentry.io/product/session-replay/)
 
 ### Memory
 
-Google presents [three common memory problems](https://developer.chrome.com/docs/devtools/memory-problems/) and its effects on page performance. An increase in memory consumption does not necessarily mean it will negatively impact your application, but knowing how much it increases is helpful in the evaluation process. It’s more important that there are no memory leaks where memory can grow unbounded over time.
+Google presents [three common memory problems](https://developer.chrome.com/docs/devtools/memory-problems/) and their effects on page performance. An increase in memory consumption does not necessarily mean it will negatively impact your application, but knowing how much it increases is helpful in the evaluation process. It’s more important that there are no memory leaks where memory can grow unbounded over time.
 
-With Session Replay, we have [two sampling modes](https://docs.sentry.io/platforms/javascript/session-replay/understanding-sessions/?#default-session-initialization) that differ in memory usage due to the amount of event buffering required. Entire session replays only buffer a few seconds worth of data as it is constantly uploading to Sentry. However, replays that record only _on error_ need to buffer for longer periods as we want to give you enough context before the error happens, to make the replay useful. This buffer is reset on an interval so that it does not grow infinitely.
+With Session Replay, we have [two sampling modes](https://docs.sentry.io/platforms/javascript/session-replay/understanding-sessions/?#default-session-initialization) that differ in memory usage due to the amount of event buffering required. Entire session replays only buffer a few seconds worth of data as it is constantly uploading to Sentry. However, replays that record only _on error_ need to buffer for longer periods as we want to give you enough context before the error happens to make the replay useful. This buffer is reset on an interval so that it does not grow infinitely.
 
 ### Network
 
@@ -32,11 +32,11 @@ The amount of network traffic used is not an issue for those at home or work wit
 
 ### Web Vitals
 
-We also included Google’s [Core Web Vitals](https://web.dev/vitals/) as they are a some-what accepted standard for the industry. These metrics help track the user experience across different stages of the application: loading, interactivity, and visual stability. Sentry also [captures these metrics](https://sentry.io/for/web-vitals/) in Performance monitoring. If you are already a Sentry Performance customer, you can enable Replay and see if it affects your application negatively.
+We also included Google’s [Core Web Vitals](https://web.dev/vitals/) as they are a somewhat accepted standard for the industry. These metrics help track the user experience across different stages of the application: loading, interactivity, and visual stability. Sentry also [captures these metrics](https://sentry.io/for/web-vitals/) in Performance monitoring. If you are already a Sentry Performance customer, you can enable Replay and see if it affects your application negatively.
 
 ## Automation
 
-Having established the set of metrics that need to be collected, now the question is how do we go about collecting them. Ideally this collection happens in a browser environment to simulate conditions that more closely represent a real user. Additionally, we’ll want to be able to programmatically control the browser so that the process is automated and we can collect a larger number of samples, for better data precision. Fortunately there are [many](https://www.selenium.dev/) [tools](https://pptr.dev/) that can accomplish this for us, however, the one we’ll be using is [Playwright](https://playwright.dev/) as it has some additional tooling that is helpful to get started quickly.
+Having established the set of metrics that need to be collected, now the question is how do we go about collecting them? Ideally, this collection happens in a browser environment to simulate conditions that more closely represent a real user. Additionally, we’ll want to be able to programmatically control the browser so that the process is automated and we can collect a larger number of samples, for better data precision. Fortunately, there are [many](https://www.selenium.dev/) [tools](https://pptr.dev/) that can accomplish this for us; however, the one we’ll be using is [Playwright](https://playwright.dev/) as it has some additional tooling that is helpful to get started quickly.
 
 ### Creating a Test Scenario
 
@@ -65,7 +65,7 @@ In addition to the Performance API, we can also connect to the [Chrome DevTools 
 
 We packaged together the above ideas into a [package](https://github.com/getsentry/web-benchmark) to measure performance overhead in any web application. Follow along as we show you how to use it.
 
-We have setup a small bootstrap repo to help you get started quickly. First make sure that you have [Node.js](https://nodejs.org/en) ≥ 18 and `git` installed and then clone the following repository and run `npm install`.
+We have setup a small bootstrap repo to help you get started quickly. First, make sure that you have [Node.js](https://nodejs.org/en) ≥ 18 and `git` installed and then clone the following repository and run `npm install`.
 
 ```bash
 git clone https://github.com/getsentry/web-benchmark-demo && cd web-benchmark-demo
@@ -106,7 +106,7 @@ When the code gets changed to use the Playwright Library API, copy the code star
 
 ![Code snippet that should be copied](/images/measuring-session-replay-overhead/generated-code-to-copy.png)
 
-Create a new file (for example: `myscenarios.mjs`, note only ESM is supported right now) and export a class with a descriptive name that contains a `run()` method that has 2 parameters: `browser` and `page` and with the code that you copied from the Playwright generator as the method contents. You can export multiple classes, if you have different states of your application (for example, an environment without Sentry, with Sentry, and with Sentry & Session Replay). Otherwise if you are testing locally, you will need to re-run the benchmarking script after you update your local environment.
+Create a new file (for example: `myscenarios.mjs`, note only ESM is supported right now) and export a class with a descriptive name that contains a `run()` method that has two parameters: `browser` and `page` and with the code that you copied from the Playwright generator as the method contents. You can export multiple classes if you have different states of your application (for example, an environment without Sentry, with Sentry, and with Sentry & Session Replay). Otherwise, if you are testing locally, you will need to re-run the benchmarking script after you update your local environment.
 
 ```javascript
 export class MyBaseScenario {
@@ -138,4 +138,4 @@ If you have multiple scenarios defined, you will see a combined table of the res
 
 ![Terminal output for multiple scenarios](/images/measuring-session-replay-overhead/multiple-scenarios-output.png)
 
-As you can see in the screenshot above with multiple scenarios, it is easy to see the baseline metrics for you application and how the Sentry SDKs affect them. We wanted to give you a tool that gives you _actual_ numbers on _your own_ application, instead of some hand-wavy words and we hope that this post helps accomplish that. If you have further questions, feel free to open an issue at https://github.com/getsentry/web-benchmark.
+As you can see in the screenshot above with multiple scenarios, it is easy to see the baseline metrics for your application and how the Sentry SDKs affect them. We wanted to give you a tool that gives you _actual_ numbers on _your own_ application, instead of some hand-wavy words and we hope that this post helps accomplish that. If you have further questions, feel free to open an issue at https://github.com/getsentry/web-benchmark.
