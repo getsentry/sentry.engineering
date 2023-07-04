@@ -10,7 +10,13 @@ canonicalUrl:
 authors: ['billyvong']
 ---
 
-A very common question that we receive regarding Session Replay is, “what is the overhead?”. Overhead can mean different things for different companies. Every company has their own performance budgets: a large consumer product will be different than a SaaS start-up, and a marketing page will be different than an authenticated single-page application. The best way to figure out how overhead impacts you is to measure it yourself. Follow along as we show you how we went about measuring overhead on Sentry and how you can measure it on your applications, or [skip ahead to learn how to measure your application](#measuring-your-application).
+A very common question that we receive regarding [Session Replay](https://sentry.io/for/session-replay) is, “what is the overhead?”. 
+
+Overhead can mean different things for different companies. Every company has their own performance budgets: a large consumer product will be different than a SaaS start-up, and a marketing page will be different than an authenticated single-page application. The best way to figure out how overhead impacts you is to measure it yourself. 
+
+We've built a web benchmark package to demonstrate the overhead of Session Replay on Sentry *and* on your own application too.
+
+Follow along as we show you how we measure overhead on Sentry and how you can measure it on your applications, or [skip ahead to learn how to measure your application](#measuring-your-application).
 
 ## Metrics
 
@@ -18,7 +24,12 @@ In order to measure overhead, we first need to determine what metrics to measure
 
 ### Processing
 
-As a refresher, [Session Replay](https://docs.sentry.io/product/session-replay/) works by recording a snapshot of the browser’s DOM state and the incremental mutations to the DOM. Our SDK needs to perform tasks such as: serialization so that it can later be played back and determining if the element’s text contents [need to be masked](https://docs.sentry.io/product/session-replay/protecting-user-privacy/). Finishing these tasks faster means less blocking of the browser’s [main thread](https://developer.mozilla.org/en-US/docs/Glossary/Main_thread), which ultimately means a better experience for your users. Note that Sentry performs [CPU intensive tasks like compression](https://docs.sentry.io/product/session-replay/performance-overhead/) on a [web worker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API), which does not run on the main thread.
+As a refresher, [Session Replay](https://docs.sentry.io/product/session-replay/) works by recording a snapshot of the browser’s DOM state and the incremental mutations to the DOM. Our SDK needs to perform tasks such as:
+
+ 1. Serialization so that user interactions can later be played back, and
+ 2. Determine if the element’s text contents [need to be masked](https://docs.sentry.io/product/session-replay/protecting-user-privacy/). 
+ 
+ Finishing these tasks faster means less blocking of the browser’s [main thread](https://developer.mozilla.org/en-US/docs/Glossary/Main_thread), which ultimately means a better experience for your users. Even better, Sentry performs [CPU intensive tasks like compression](https://docs.sentry.io/product/session-replay/performance-overhead/) on a [web worker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API), which does not run on the main thread.
 
 ### Memory
 
@@ -28,7 +39,7 @@ With Session Replay, we have [two sampling modes](https://docs.sentry.io/platfor
 
 ### Network
 
-The amount of network traffic used is not an issue for those at home or work with fast network connections, but can be more of a factor for mobile users with slower data access. Session Replay generally uploads more data than other Sentry SDK features as it needs to essentially record a clone of your HTML/CSS, as well as any updates to it. By default, the Session Replay SDK compresses the recording payloads before uploading to reduce the amount of data sent. The amount of data depends on the size of your application, how much the user is interacting with it, and how much the DOM changes. If the user is using up their available bandwidth to upload a replay, it means they won’t have any to fetch updates on your application.
+The amount of network traffic used is not an issue for those with fast network connections, but can a factor for mobile users with slower data access. Session Replay generally uploads more data than other Sentry SDK features as it needs to essentially record a clone of your HTML/CSS, as well as any updates to it. By default, the Session Replay SDK compresses the recording payloads before uploading to reduce the amount of data sent. The amount of data depends on the size of your application, how much the user is interacting with it, and how much the DOM changes. If the user is using up their available bandwidth to upload a replay, it means they won’t have any to fetch updates on your application.
 
 ### Web Vitals
 
