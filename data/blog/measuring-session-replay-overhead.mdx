@@ -1,6 +1,6 @@
 ---
 title: 'Measuring Session Replay Overhead'
-date: '2023-06-28'
+date: '2023-07-05'
 tags: ['session replay', 'replay', 'web', 'javascript', 'sdk', 'performance']
 draft: false
 summary: 'The best way to figure out how overhead impacts you is to measure it yourself. Follow along as we show you how we went about measuring overhead on Sentry and how you can measure it on your own applications.'
@@ -10,11 +10,11 @@ canonicalUrl:
 authors: ['billyvong']
 ---
 
-A very common question that we receive regarding [Session Replay](https://sentry.io/for/session-replay) is, “what is the overhead?”. 
+A very common question that we receive regarding [Session Replay](https://sentry.io/for/session-replay) is, “what is the overhead?”.
 
-Overhead can mean different things for different companies. Every company has their own performance budgets: a large consumer product will be different than a SaaS start-up, and a marketing page will be different than an authenticated single-page application. The best way to figure out how overhead impacts you is to measure it yourself. 
+Overhead can mean different things for different companies. Every company has their own performance budgets: a large consumer product will be different than a SaaS start-up, and a marketing page will be different than an authenticated single-page application. The best way to figure out how overhead impacts you is to measure it yourself.
 
-We've built a web benchmark package to demonstrate the overhead of Session Replay on Sentry *and* on your own application too.
+We've built a web benchmark package to demonstrate the overhead of Session Replay on Sentry _and_ on your own application too.
 
 Follow along as we show you how we measure overhead on Sentry and how you can measure it on your applications, or [skip ahead to learn how to measure your application](#measuring-your-application).
 
@@ -26,10 +26,10 @@ In order to measure overhead, we first need to determine what metrics to measure
 
 As a refresher, [Session Replay](https://docs.sentry.io/product/session-replay/) works by recording a snapshot of the browser’s DOM state and the incremental mutations to the DOM. Our SDK needs to perform tasks such as:
 
- 1. Serialization so that user interactions can later be played back, and
- 2. Determine if the element’s text contents [need to be masked](https://docs.sentry.io/product/session-replay/protecting-user-privacy/). 
- 
- Finishing these tasks faster means less blocking of the browser’s [main thread](https://developer.mozilla.org/en-US/docs/Glossary/Main_thread), which ultimately means a better experience for your users. Even better, Sentry performs [CPU intensive tasks like compression](https://docs.sentry.io/product/session-replay/performance-overhead/) on a [web worker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API), which does not run on the main thread.
+1.  Serialization so that user interactions can later be played back, and
+2.  Determine if the element’s text contents [need to be masked](https://docs.sentry.io/product/session-replay/protecting-user-privacy/).
+
+Finishing these tasks faster means less blocking of the browser’s [main thread](https://developer.mozilla.org/en-US/docs/Glossary/Main_thread), which ultimately means a better experience for your users. Even better, Sentry performs [CPU intensive tasks like compression](https://docs.sentry.io/product/session-replay/performance-overhead/) on a [web worker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API), which does not run on the main thread.
 
 ### Memory
 
