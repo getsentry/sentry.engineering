@@ -46,6 +46,7 @@ export default function Home({ posts, authorDetails }) {
                 <Link href={`/blog/${slug}`} className="text-gray-900 dark:text-gray-100">
                   <Image
                     className="h-32 w-full"
+                    priority={true}
                     height={1550}
                     width={640}
                     src={images[0]}
