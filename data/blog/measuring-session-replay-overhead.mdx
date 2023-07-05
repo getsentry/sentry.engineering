@@ -39,7 +39,7 @@ With Session Replay, we have [two sampling modes](https://docs.sentry.io/platfor
 
 ### Network
 
-The amount of network traffic used is not an issue for those with fast network connections, but can a factor for mobile users with slower data access. Session Replay generally uploads more data than other Sentry SDK features as it needs to essentially record a clone of your HTML/CSS, as well as any updates to it. By default, the Session Replay SDK compresses the recording payloads before uploading to reduce the amount of data sent. The amount of data depends on the size of your application, how much the user is interacting with it, and how much the DOM changes. If the user is using up their available bandwidth to upload a replay, it means they won’t have any to fetch updates on your application.
+The amount of network traffic used is not an issue for those with fast network connections, but can be a factor for mobile users with slower data access. Session Replay generally uploads more data than other Sentry SDK features as it needs to essentially record a clone of your HTML/CSS, as well as any updates to it. By default, the Session Replay SDK compresses the recording payloads before uploading to reduce the amount of data sent. The amount of data depends on the size of your application, how much the user is interacting with it, and how much the DOM changes. If the user is using up their available bandwidth to upload a replay, it means they won’t have any to fetch updates on your application.
 
 ### Web Vitals
 
