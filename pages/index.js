@@ -44,7 +44,14 @@ export default function Home({ posts, authorDetails }) {
             return (
               <div key={slug} className="mr-8 max-w-sm overflow-hidden rounded shadow-lg">
                 <Link href={`/blog/${slug}`} className="text-gray-900 dark:text-gray-100">
-                  <img className="h-32 w-full" src={images} alt="Post hero image" />
+                  <Image
+                    className="h-32 w-full"
+                    priority={true}
+                    height={1550}
+                    width={640}
+                    src={images[0]}
+                    alt="Post hero image"
+                  />
                 </Link>
                 <div className="px-6 py-4">
                   <div className="mb-2 text-xl font-bold">
