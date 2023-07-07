@@ -23,7 +23,7 @@ Figuring out what to measure to track bundle size can be a challenge as it is de
 
 ![Github report on the size of Sentry's JS SDK](/images/javascript-sdk-package-reduced/sdk-size.png)
 
-We chose to track the minified CDN bundle over the gzipped + minified CDN bundle because the minified bundle is more representative of the bundle executed at runtime. The bundle size at runtime has a direct relationship with parse and execution time, so minimizing the minified bundle would minimize the time Sentry blocked the main thread. It’s much easier to track the impact individual changes had against the minified bundle size versus the total gzipped + minified bundle size.
+We chose to track the minified CDN bundle over the gzipped + minified CDN bundle because the minified bundle is more representative of the bundle executed at runtime. The bundle size at runtime has a direct relationship with parse and execution time, so minimizing the minified bundle would minimize the time Sentry blocked the main thread. It’s much easier to track the impact individual changes had against the minified bundle size versus the total gzipped & minified bundle size.
 
 To track progress toward tree shaking, [we created a list of scenarios](https://github.com/getsentry/sentry-javascript/tree/master/scenarios/browser) and checked the [webpack bundle analyzer](https://www.npmjs.com/package/webpack-bundle-analyzer) output over time to monitor which modules were being included. This helped us validate if certain changes improved the tree shakability of our SDK.
 
