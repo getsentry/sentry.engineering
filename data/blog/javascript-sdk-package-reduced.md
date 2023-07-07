@@ -10,7 +10,7 @@ canonicalUrl: https://blog.sentry.io/2022/07/19/javascript-sdk-package-reduced/
 authors: ['abhijeetprasad']
 ---
 
-Developers started to notice just how big our JavaScript package was and yeah, we knew. We weren’t ignoring the issues; after all, we don’t want the Sentry package to be the cause of a slowdown. But to reduce our JavaScript SDK package size effectively we had to account for shipping new capabilities, like being able to manage the health of a release and performance monitoring, while maintaining a manageable bundle size. After all, new features == bigger package - usually.
+Developers started to notice just how big our JavaScript package was and yeah, we knew. We weren’t ignoring the issues; after all, we don’t want the Sentry package to be the cause of a slowdown. But to reduce our JavaScript SDK package size effectively we had to account for shipping new capabilities, like being able to manage the health of a release and performance monitoring, while maintaining a manageable bundle size. After all, new features == bigger package - usually. 
 
 Refactoring to reduce bundle size and support future feature development was not the only challenge; the refactoring we needed to do would yield breaking changes to folks who wrote their own integrations. When shipping a third-party JavaScript library for tracking errors and latency issues, we better have a gosh-darn good reason for introducing breaking changes, especially to a library that helps people see and solve errors and latency issues.
 
