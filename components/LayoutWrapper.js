@@ -16,7 +16,7 @@ const LayoutWrapper = ({ children }) => {
               <div className="flex items-center justify-between">
                 <div className="mr-3">
                   <svg
-                    class="css-lfbo6j e10nushx4 fill-[#362d59] dark:fill-white"
+                    className="css-lfbo6j e10nushx4 fill-[#362d59] dark:fill-white"
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 72 66"
                     width="50"
