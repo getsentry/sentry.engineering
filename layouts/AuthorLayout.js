@@ -32,7 +32,7 @@ export default function AuthorLayout({ children, frontMatter, posts }) {
           <div className="xl:col-span-2">
             <h2 className="mb-2 text-4xl font-bold">About</h2>
             <div className="prose pb-8">{children}</div>
-            {posts.length > 0 && (
+            {posts && posts.length > 0 && (
               <div>
                 <h2 className="mb-2 text-4xl font-bold">Posts</h2>
                 {posts.map((frontMatter) => {
