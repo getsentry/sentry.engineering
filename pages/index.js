@@ -27,7 +27,7 @@ export default function Home({ posts, authorDetails }) {
     <>
       <PageSEO title={siteMetadata.title} description={siteMetadata.description} />
       <div className="divide-y divide-gray-200 border-none dark:divide-gray-700">
-        <div className="space-y-2 pt-6 pb-8 md:space-y-5">
+        <div className="space-y-2 pb-8 pt-6 md:space-y-5">
           <h1 className="text-3xl font-extrabold leading-9 tracking-tight text-gray-900 dark:text-gray-100 sm:text-4xl sm:leading-10 md:text-6xl md:leading-14">
             Latest
           </h1>
@@ -70,7 +70,7 @@ export default function Home({ posts, authorDetails }) {
                     </Link>
                   </p>
                 </div>
-                <div className="px-6 pt-4 pb-2">
+                <div className="px-6 pb-2 pt-4">
                   {postAuthors.map((author) => {
                     return (
                       <li className="flex items-center space-x-2" key={author.name}>
@@ -85,13 +85,20 @@ export default function Home({ posts, authorDetails }) {
                         )}
                         <dl className="whitespace-nowrap text-sm font-medium leading-5">
                           <dt className="sr-only">Name</dt>
-                          <dd className="text-gray-900 dark:text-gray-100">{author.name}</dd>
+                          <dd className="text-gray-900 dark:text-gray-100">
+                            <Link
+                              className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"
+                              href={`/about/${encodeURIComponent(author.slug)}`}
+                            >
+                              {author.name}
+                            </Link>
+                          </dd>
                           <dt className="sr-only">Twitter</dt>
                           <dd>
                             {author.twitter && (
                               <Link
                                 href={author.twitter}
-                                className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"
+                                className="text-xs text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"
                               >
                                 {author.twitter.replace('https://twitter.com/', '@')}
                               </Link>
