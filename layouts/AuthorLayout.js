@@ -5,7 +5,7 @@ import formatDate from '@/lib/utils/formatDate'
 import Link from '@/components/Link'
 
 export default function AuthorLayout({ children, frontMatter, posts }) {
-  const { name, avatar, occupation, url, company, email, twitter, linkedin, github } = frontMatter
+  const { name, avatar, occupation, url, stackoverflow, twitter, linkedin, github } = frontMatter
 
   return (
     <>
@@ -26,6 +26,7 @@ export default function AuthorLayout({ children, frontMatter, posts }) {
               <SocialIcon kind="github" href={github} />
               <SocialIcon kind="linkedin" href={linkedin} />
               <SocialIcon kind="twitter" href={twitter} />
+              <SocialIcon kind="stackoverflow" href={stackoverflow} />
               <SocialIcon kind="link" href={url} />
             </div>
           </div>
