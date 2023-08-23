@@ -1,6 +1,6 @@
 ---
 name: Katie Byers
-avatar: /static/avatars/default.png
+avatar: /static/avatars/katiebyers.jpeg
 occupation: Software Engineer
 github: https://github.com/lobsterkatie
 linkedin: https://www.linkedin.com/in/byerskatie/

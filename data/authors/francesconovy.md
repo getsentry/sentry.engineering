@@ -1,6 +1,6 @@
 ---
 name: Francesco Novy
-avatar: /static/avatars/default.png
+avatar: /static/avatars/francesconovy.jpeg
 occupation: Senior Software Engineer
-github: https://github.com/mydea 
+github: https://github.com/mydea
 ---

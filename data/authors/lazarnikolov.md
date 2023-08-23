@@ -1,6 +1,6 @@
 ---
 name: Lazar Nikolov
-avatar: /static/avatars/default.png
+avatar: /static/avatars/lazarnikolov.png
 occupation: Developer Advocate
 twitter: https://twitter.com/NikolovLazar
 ---
