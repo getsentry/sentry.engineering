@@ -7,4 +7,4 @@ github: https://github.com/markstory
 url: https://mark-story.com
 ---
 
-Mark is a staff-engineer at Sentry, and open source enthusiast. He also
+Mark is a staff-engineer at Sentry, and open source enthusiast. He's also built seven mechanical keyboards and counting!

@@ -7,4 +7,4 @@ linkedin: https://www.linkedin.com/adammckerlie
 url: https://mckerlie.com
 ---
 
-Some text
+Adam is a Director of Engineering at Sentry. He enjoys coding, eating and baking bread.
