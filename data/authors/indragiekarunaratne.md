@@ -4,6 +4,7 @@ avatar: /static/avatars/indragiekarunaratne.png
 occupation: Director of Engineering
 twitter: https://twitter.com/indragie
 linkedin: https://linkedin.com/in/indragie/
+stackoverflow: https://stackoverflow.com/users/153112/indragie
 url: https://indragie.com/
 ---
 
