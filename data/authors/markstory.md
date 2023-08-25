@@ -2,6 +2,7 @@
 name: Mark Story
 avatar: /static/avatars/markstory.png
 occupation: Staff Engineer
+stackoverflow: https://stackoverflow.com/users/186379/mark-story
 twitter: https://mastodon.social/@markstory
 github: https://github.com/markstory
 url: https://mark-story.com
