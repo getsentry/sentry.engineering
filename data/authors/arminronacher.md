@@ -2,6 +2,7 @@
 name: Armin Ronacher
 avatar: /static/avatars/arminronacher.png
 occupation: Principal Architect
+stackoverflow: https://stackoverflow.com/users/19990/armin-ronacher
 twitter: https://twitter.com/mitsuhiko
 ---
 
