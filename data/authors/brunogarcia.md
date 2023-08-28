@@ -3,6 +3,7 @@ name: Bruno Garcia
 avatar: /static/avatars/brunogarcia.png
 occupation: Engineering Manager
 twitter: https://twitter.com/brungarc
+stackoverflow: https://stackoverflow.com/users/1977143/bruno-garcia
 github: https://github.com/bruno-garcia
 url: https://garcia.in
 ---
