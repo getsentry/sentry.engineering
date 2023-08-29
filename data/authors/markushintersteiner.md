@@ -3,6 +3,7 @@ name: Markus Hintersteiner
 avatar: /static/avatars/markushintersteiner.jpg
 twitter: https://twitter.com/markushi_
 github: https://github.com/markushi
+url: https://androiddev.social/@markushi
 ---
 
-Sentry
+Still can’t decide on a favourite programming language. Alpine adventurer and potato lover.

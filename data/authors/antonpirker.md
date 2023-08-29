@@ -1,7 +1,10 @@
 ---
 name: Anton Pirker
-avatar: /static/avatars/default.png
+avatar: /static/avatars/antonpirker.jpeg
 occupation: Senior Software Engineer
+url: https://anton-pirker.at/
+github: https://github.com/antonpirker/
+linkedin: https://www.linkedin.com/in/antonpirker/
 ---
 
-Some text
+Anton is a software engineer from Vienna, Austria. Python makes him smile. Besides software he likes tinkering with and riding bikes.
