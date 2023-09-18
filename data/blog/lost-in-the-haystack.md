@@ -194,11 +194,11 @@ Which produces this output:
 └───────────────────┴───────────┴────────────┴──────────────┴──────────────────────┘
 ```
 
-A pre-requisite to running this query is that you've run _other_ queries against your replays_test table. But once you've done that you should see that our new, encoded column has significantly better performance than the old column. We read more rows with less memory usage and it takes us significantly less time to complete the query. Neat!
+A pre-requisite to running this query is that you've run _other_ queries against your test table. But once you've done that you should see that our new, encoded column has significantly better performance than the old column. We read more rows with less memory usage and it takes us significantly less time to complete the query. Neat!
 
 Be careful running this migration. It can be tough depending on the size of your dataset.
 
-Side-bar. Dropping nullability has implications for your query. For example, the `any` function will ignore nulls when computing its result. If you have an empty string value in your dataset that was previously marked as null your query may return that value rather than the non-empty string it previously returned. There's a simple solution to this. ClickHouse functions accept an `If` combinator and this combinator can be used to strip the empty values. Like so: `anyIf(column, notEmpty(column))`. The second argument to the function is any expression which returns a boolean result.
+Side bar. Dropping nullability has implications for your query. For example, the `any` function will ignore nulls when computing its result. If you have an empty string value in your dataset that was previously marked as null your query may return that value rather than the non-empty string it previously returned. There's a simple solution to this. ClickHouse functions accept an `If` combinator and this combinator can be used to strip the empty values. Like so: `anyIf(column, notEmpty(column))`. The second argument to the function is any expression which returns a boolean result.
 
 **Applying Indexes**
 
@@ -237,6 +237,58 @@ GROUP BY replay_id
 ```
 
 There are limitations to this. For example, you can't filter by multiple error_ids at the same time. But for Sentry this optimization can be applied to nearly all of our queries. It also has the benefit of not consuming any memory which is a great win for a query operating in a memory-constrained environment.
+
+Evaluating the "performance" of a query has many dimmensions. I've mentioned a couple throughout this post but one dimmension in particular is the target of this optimization. Query latency. We know we can find a query's latency by inspecting the system's logs but how scientific is that? Query latency when measured against one or two or ten runs of a query has limited utility. You need a more extensive testing strategy to truly evaluate the latency impact on a query chnage. Fortunately, ClickHouse includes a tool called `clickhouse-benchmark` for testing this. I'm able to access this utility by entering the following command: `docker exec -it clickhouse /usr/bin/clickhouse-benchmark`.
+
+ClickHouse Benchmark accepts a `--query` parameter followed by a string argument. The benchmarking utility will execute that query thousands of times and at the end of this process you'll have a nice percentile breakdown of how a query performed. Here's the output of our before and after.
+
+Before:
+
+```
+Queries executed: 1018.
+
+localhost:9000, queries 1018, QPS: 94.159, RPS: 94158531.479, MiB/s: 5118.405, result RPS: 94.159, result MiB/s: 0.001.
+
+0.000%          0.009 sec.
+10.000%         0.009 sec.
+20.000%         0.009 sec.
+30.000%         0.009 sec.
+40.000%         0.009 sec.
+50.000%         0.009 sec.
+60.000%         0.010 sec.
+70.000%         0.011 sec.
+80.000%         0.013 sec.
+90.000%         0.014 sec.
+95.000%         0.015 sec.
+99.000%         0.015 sec.
+99.900%         0.016 sec.
+99.990%         0.016 sec.
+```
+
+After:
+
+```
+Queries executed: 3401.
+
+localhost:9000, queries 3401, QPS: 474.014, RPS: 8706691.199, MiB/s: 406.868, result RPS: 474.014, result MiB/s: 0.004.
+
+0.000%          0.002 sec.
+10.000%         0.002 sec.
+20.000%         0.002 sec.
+30.000%         0.002 sec.
+40.000%         0.002 sec.
+50.000%         0.002 sec.
+60.000%         0.002 sec.
+70.000%         0.002 sec.
+80.000%         0.002 sec.
+90.000%         0.002 sec.
+95.000%         0.002 sec.
+99.000%         0.003 sec.
+99.900%         0.004 sec.
+99.990%         0.009 sec.
+```
+
+A 5x throughput improvement and our _P99.99 lateny_ matches our _P0 latency_ on the non-indexed query. Its amazing what a well-placed index can do!
 
 ### Parting Thoughts
 
