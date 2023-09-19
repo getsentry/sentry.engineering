@@ -55,7 +55,7 @@ GROUP BY replay_id
 LIMIT 1
 ```
 
-The total memory footprint of our preflight query has been reduced by the uncompressed-size of the `url` column. But our data query hasn't increased by that amount. It's only increased by the uncompressed-size of the `url` column _for that replay_id_.
+The total memory footprint of our preflight query has been reduced by the uncompressed size of the `url` column. But our data query hasn't increased by that amount. It's only increased by the uncompressed size of the `url` column _for that `replay-id`_.
 
 **In the HAVING Clause**
 
