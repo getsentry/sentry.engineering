@@ -11,7 +11,7 @@ authors: ['coltonallen']
 
 Imagine I asked you to find a needle in a haystack. That'd be pretty difficult, right? Now imagine I asked you to hold the haystack while you searched and even if you found the needle you had to keep holding the haystack until you looked at every piece of hay. That would just be mean. Well, that's how I treated ClickHouse and it's probably why he stopped returning my calls.
 
-Jokes aside this is an accurate representation of what ClickHouse had to do to support the Session Replay product and it had real-world implications. Searching through Sentry's replays used to take more than 10 seconds. For our largest customers, searching was impossible. We didn't have enough memory to answer those sorts of queries.
+This is an accurate representation of what ClickHouse had to do to support the Session Replay product and it had real-world implications. For our largest customers, searching was impossible. We didn't have enough memory to answer search and sort queries. For more moderately sized customers, search was possible but it was unbearably slow taking more than 10 seconds to respond.
 
 Today these heavy queries are more than 10x faster and our memory usage is 100x lower (and, more importantly, bounded). Our largest customers no longer see errors when searching for replays and we can now support customers of arbitrary size without running out of memory. This is how we did it.
 
@@ -19,11 +19,11 @@ Today these heavy queries are more than 10x faster and our memory usage is 100x 
 
 A replay is not a singular event. It's multiple events aggregated together. You can perform that aggregation when you write, when you read, or asynchronously at some undefined time. But you have to aggregate! At Sentry, we chose to aggregate on-demand when a user wants to see their replays. This has benefits but also imposes its own set of constraints.
 
-One of those constraints is cardinality. As it turns out our aggregation key is high-cardinality. We could have millions of unique aggregations in memory at once. This many aggregations means you have to be strategic about the data you aggregate. But our customers don't care about that. They want to see the data they paid us to store. This is the central conflict we need to resolve.
+One of those constraints is cardinality. As it turns out our aggregation key has high-cardinality. We could have millions of unique aggregations in memory at once. This many aggregation keys means you have to be strategic about the data you aggregate. Otherwise you risk running out of memory. But our customers don't care about that. They want to see the data they paid us to store. This is the central conflict we need to resolve. How do we minimize our memory usage while simulataneously returning useful results to our customers?
 
 ### Minimizing Memory Usage
 
-**In the SELECT Clause**
+**When Reading Data**
 
 Let's look at an example query.
 
@@ -57,7 +57,9 @@ LIMIT 1
 
 The total memory footprint of our preflight query has been reduced by the uncompressed size of the `url` column. But our data query hasn't increased by that amount. It's only increased by the uncompressed size of the `url` column _for that `replay-id`_.
 
-**In the HAVING Clause**
+Terrific! With this pattern we can now read the `url` column without running out of memory.
+
+**When Filtering Data**
 
 Let's look at another example query:
 
@@ -69,15 +71,15 @@ HAVING has(groupArray(url), 'sentry.io')
 LIMIT 1
 ```
 
-We've adopted our changes from the previous step but now, to answer a search condition, we're aggregating the URL column in the HAVING clause. This has identical memory usage to SELECTing the column directly. So how do you ask the question "is some value contained within the aggregated set" when the aggregated set is too large to fit in memory? You "stream" it!
+We've adopted our changes from the previous step but now, to answer a search condition, we're aggregating the URL column in the `HAVING` clause. This has identical memory usage to `SELECT`ing the column directly. So how do you ask the question "is some value contained within the aggregated set" when the aggregated set is too large to fit in memory? You "stream" it!
 
 Instead of aggregating a column and then asking it some question, you can ask the column a question and aggregate its answer before finally asking a question about the aggregated answer! Clear as mud? Let's demonstrate the concept with SQL.
 
 Let's ask the same question again: "does sentry.io exist in the set of aggregated urls". How should we phrase this in SQL? There's the straightforward approach `has(groupArray(url), 'sentry.io')` and then there's the streaming approach `sum(url = 'sentry.io') > 0`. What we've done here is subtle but has huge implications. Instead of aggregating the url we're aggregating the result of the condition "does this term match this value" which is represented as either a 0 or 1.
 
-The memory usage from aggregating these tiny integers is minimal meaning our largest customers can query their heaviest columns and consume 100x less memory. The query consumes memory proportional to the number of unique aggregation keys. The implication of this change might not be obvious but consuming memory in this manner is predictable and allows us to control the memory usage of the query through code and through ClickHouse configuration!
+The memory usage from aggregating these tiny integers is minimal meaning we might consume 100x less memory to answer the same question. Also, the query now consumes memory proportional to the number of unique aggregation keys (rather than consuming the uncompressed size of the filtered column). The implication of this change might not be obvious but consuming memory in this manner is predictable and allows us to control the memory usage of the query through code and through ClickHouse configuration!
 
-**In the ORDER BY Clause**
+**When Ordering Data**
 
 Let's look at a final query example.
 
@@ -104,13 +106,17 @@ By materializing the column we reduce a huge array of thousands of bytes into a 
 
 Because this is evaluated on insert, it takes some time to roll out. In the case of Sentry, we have a retention period and old rows gradually fall off the end. After making this change we just have to wait for the duration of the retention period before every row has this optimization.
 
-In the meantime, we can still target the `count_errors` column and if it does not have any data populated it will compute the value at run-time. Performance gradually improves as time goes on.
+In the meantime, we can still target the `count_errors` column and if it doesn't have any data populated it will compute the value at run-time. Performance gradually improves as time goes on.
 
 **A Sprinkle of Configuration**
 
-Because of our cardinality, memory usage is still too high. There's one final change we need to solve this problem. Because our memory usage is now proportional to the number of unique aggregation keys we need to cap the number of unique aggregation keys. This is really easy and it's something you can set and forget.
+Because of our cardinality, memory usage is still too high. There's one final change we need to solve this problem.
 
-In our preflight we're going to update our query with two new settings. The first is `max_rows_to_group_by`. A somewhat misnamed setting, it doesn't cap the number of rows in your aggregation result. It caps the number of unique aggregation keys. You can compute the maximum memory usage of our query by multiplying the size of a single row by the maximum number of aggregation keys. The second option is `group_by_overflow_mode`. The default configuration is "throw". We don't want that. It's up to you whether you choose "any" or "break". "break" will perform better and "any" _could_ return more accurate results. It depends on how your data is distributed. We've chosen "any" because we don't observe any performance difference at our current scale.
+Because our memory usage is now proportional to the number of unique aggregation keys we can use a ClickHouse query setting to cap the number of unique aggregation keys held in memory. This is really easy and it's something you can set and forget.
+
+In our preflight we're going to update our query with two new settings. The first is `max_rows_to_group_by`. A somewhat misnamed setting, it doesn't cap the number of rows used to build your aggregation result. It caps the number of results in your aggregated set. This allows us to compute the maximum memory usage of our query by multiplying the size of a single row by the value of `max_rows_to_group_by`.
+
+The second option is `group_by_overflow_mode`. The default configuration is "throw". We don't want that. It's up to you whether you choose "any" or "break". "break" will perform better and "any" _could_ return more accurate results. It depends on how your data is distributed. We've chosen "any" because we don't observe any performance difference at our current scale.
 
 ```sql
 SELECT replay_id
@@ -128,17 +134,19 @@ We've done it! With these simple changes we've successfully conquered our memory
 
 **Encoding Columns**
 
-ClickHouse offers the ability to alter the representation of a column on disk with special encodings like `LowCardinality`. The `LowCardinality` encoding takes some string value and converts it into an enum representation. We have a few columns that could benefit from this encoding. Maybe we should apply it there.
+ClickHouse offers the ability to alter the representation of a column on disk with special encodings like `LowCardinality`. The `LowCardinality` encoding takes some string value and converts it into an enum representation. We have a few columns that could benefit from this encoding. We should consider applying it there.
 
-We're also using `Nullable` an awful lot too but should we? `Nullable` in ClickHouse works differently from other databases. ClickHouse stores null values in a separate file. It's basically a bitmap index of where the nulls are in our column. Your column would then contain the empty state of its datatype in each row position where a null exists. So string would be `""` and an integer would be `0`. By using null you don't save any space, you're just adding an index that needs to be scanned. So maybe we can remove it too.
+We're also using `Nullable` an awful lot too but should we? `Nullable` in ClickHouse works differently from other databases. ClickHouse stores null values in a separate file. It's basically a bitmap index of where the nulls are in our column. Your column would then contain the empty state of its datatype in each row position where a null exists. So a string column would be `""` and an integer column would be `0`. By using null you don't save any space, you're just adding an index that needs to be scanned. So we should consider removing it too.
 
-Out of curiosity, what happens if we take this column:
+Let's experiment. What happens if we take the `browser_name` column and apply these two changes?
+
+Before:
 
 ```sql
 `browser_name` Nullable(String)
 ```
 
-And convert it into this column:
+After:
 
 ```sql
 `browser_name` LowCardinality(String)
@@ -204,13 +212,13 @@ Sidebar. Dropping nullability has implications for your query. For example, the 
 
 ClickHouse indexes are a little different from indexes in other databases. They don't point to a row. They point to a granule which is a collection of rows. At least one row will contain the indexed value for a given matched granule.
 
-This is important because an index is no guarantee of a fast query. If your value has a 1/8192 (or greater) chance of being present on a row then indexing it will give you nothing. ClickHouse will scan every row in the database to answer your query.
+This is important because an index is no guarantee of a fast query. If your value has a 1 in 8192 (or greater) chance of being present on a row then indexing it will give you nothing. ClickHouse will scan every row in the database to answer your query.
 
-Indexes should only be used for values which are rare. A UUID is a great candidate for an index. Someone's age in years is not.
+Indexes should only be used for values which are rare. A UUID is a great candidate for an index. A person's birth year is not.
 
-I'll leave applying indexes as an exercise for the reader, we have a different problem we need to solve. Session Replay has an aggregated data model. Indexes won't work. We need an alternative.
+I'll leave applying indexes as an exercise for the reader, we have a different problem we need to solve. Session Replay has an aggregated data model. Indexes won't work under these conditions. We need the ability to query for replays in a non-aggregated context.
 
-One possibility is a sub-query. Our `replay_id` column is indexed and is not under any aggregate function. We can make scalar comparisons against it in the WHERE clause. A sub-query would then need to return a set of `replay-ids` matching some indexed condition. For example:
+One possibility is a sub-query. Our `replay_id` column is indexed and is not under any aggregate function. We can make scalar comparisons against it in the `WHERE` clause. A sub-query would then need to return a set of `replay-ids` matching some indexed condition. For example:
 
 ```sql
 WHERE replay_id IN (
@@ -220,7 +228,7 @@ WHERE replay_id IN (
 )
 ```
 
-For reasons outside the scope of this post, we did not end up using this approach. We decided on an alternative. In our preflight query, under certain conditions, we can apply WHERE clauses which reduce the aggregation set but do not alter the outcome of the query. For example, consider the question "show me every replay which contains the error_id `x`".
+For reasons outside the scope of this post, we did not end up using this approach. We decided on an alternative. In our preflight query, under certain conditions, we can apply conditions in the `WHERE` clause which reduce the aggregation set but do not alter the outcome of the query. For example, consider the question "show me every replay which contains the error_id `x`".
 
 Instead of querying like this:
 
@@ -236,9 +244,9 @@ WHERE error_id = 'x'
 GROUP BY replay_id
 ```
 
-There are limitations to this. For example, you can't filter by multiple error_ids at the same time. But for Sentry this optimization can be applied to nearly all of our queries. It also has the benefit of not consuming any memory which is a great win for a query operating in a memory-constrained environment.
+There are limitations to this. For example, you can't filter by multiple error_ids at the same time. But for Sentry this optimization can be applied to nearly all of our customer's queries. It also has the benefit of not consuming any memory which is a great win for a query operating in a memory-constrained environment.
 
-Evaluating the "performance" of a query has many dimensions. I've mentioned a couple throughout this post but one dimension in particular is the target of this optimization. Query latency. We know we can find a query's latency by inspecting the system's logs but how scientific is that? Query latency when measured against one or two or ten runs of a query has limited utility. You need a more extensive testing strategy to truly evaluate the latency impact on a query change. Fortunately, ClickHouse includes a tool called `clickhouse-benchmark` for testing this. I'm able to access this utility by entering the following command: `docker exec -it clickhouse /usr/bin/clickhouse-benchmark`.
+Evaluating the "performance" of a query has many dimensions. I've mentioned a couple throughout this post but one dimension in particular is the target of this optimization. Query latency. We know we can find a query's latency by inspecting the system's logs but how scientific is that? Query latency when measured against one or two or ten runs of a query has limited utility. You need a more extensive testing strategy to truly evaluate the latency impact of a change. Fortunately, ClickHouse includes a tool called `clickhouse-benchmark` for testing this. I'm able to access this utility by entering the following command: `docker exec clickhouse /usr/bin/clickhouse-benchmark`.
 
 ClickHouse Benchmark accepts a `--query` parameter followed by a string argument. The benchmarking utility will execute that query thousands of times and at the end of this process you'll have a nice percentile breakdown of how a query performed. Here's the output of our before and after.
 
@@ -288,8 +296,18 @@ localhost:9000, queries 3401, QPS: 474.014, RPS: 8706691.199, MiB/s: 406.868, re
 99.990%         0.009 sec.
 ```
 
-A 5x throughput improvement and our _P99.99 lateny_ matches our _P0 latency_ on the non-indexed query. It's amazing what a well-placed index can do!
+A 5x throughput improvement and our p99.99 latency _matches our p0 latency_ on the non-indexed query. At least, it does in our testing dataset. Testing against production data in this way is much more difficult and not likely something people want me doing. But we can feel some sense of certainty that we're on the right track.
 
 ### Parting Thoughts
 
 Hopefully you enjoyed this post. ClickHouse is a really interesting piece of technology and well worth your time to learn if you've not looked at it before.
+
+Let's recap what we did:
+
+1. We added indexes where appropriate.
+2. We encoded our columns where appropriate.
+3. We bounded our memory usage to a multiple of the number of aggregation keys.
+4. We capped the number of aggregation keys that we hold in memory.
+5. We learned how to use the utilities ClickHouse provides to validate our assumptions.
+
+Thanks for reading!
