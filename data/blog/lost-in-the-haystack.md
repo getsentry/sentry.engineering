@@ -102,7 +102,7 @@ An interesting feature of ClickHouse is its ability to materialize a column. Mat
 
 By materializing the column we reduce a huge array of thousands of bytes into a single 1-byte integer value. The end result is more rows from the materialized column can be loaded into memory at once (better performance) and the total size of those values are thousands of times smaller (better memory usage).
 
-Because this is evaluated on insert, it takes some time to rollout. In the case of Sentry, we have a retention-period and old rows gradually fall off the end. After making this change we just have to wait the duration of the retention-period before every row has this optimization.
+Because this is evaluated on insert, it takes some time to roll out. In the case of Sentry, we have a retention period and old rows gradually fall off the end. After making this change we just have to wait for the duration of the retention period before every row has this optimization.
 
 In the mean time, we can still target the `count_errors` column and if it does not have any data populated it will compute the value at run-time. Performance gradually improves as time goes on.
 
