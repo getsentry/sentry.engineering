@@ -19,7 +19,7 @@ Today these heavy queries are more than 10x faster and our memory usage is 100x 
 
 A replay is not a singular event. It's multiple events aggregated together. You can perform that aggregation when you write, when you read, or asynchronously at some undefined time. But you have to aggregate! At Sentry, we chose to aggregate on-demand when a user wants to see their replays. This has benefits but also imposes its own set of constraints.
 
-One of those constraints is cardinality. As it turns out our aggregation key is high-cardinality. We could have millions of unique aggregations in memory at once. This many aggregations means you have to be strategic about the data you aggregate. But our customers don't care about that. They want to see the data they paid to see. This is the central conflict we need to resolve.
+One of those constraints is cardinality. As it turns out our aggregation key is high-cardinality. We could have millions of unique aggregations in memory at once. This many aggregations means you have to be strategic about the data you aggregate. But our customers don't care about that. They want to see the data they paid us to store. This is the central conflict we need to resolve.
 
 ### Minimizing Memory Usage
 
