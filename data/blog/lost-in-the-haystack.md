@@ -36,7 +36,7 @@ LIMIT 1
 
 The total memory usage of this query is the sum of every unique replay*id plus \_every* URL stored in the database. We absolutely can not hold this in memory. But we need to return the URLs. So, how do we resolve this?
 
-For every request made by a user to the Replay's service we can make two queries to the database. The first query is a preflight. It returns a set of replay-ids after all search and sort conditions are applied. The second query is a data query. It fetches all the data needed to satisfy the user's request using the replay-ids returned by the preflight.
+For every request made by a user to the Replay's service we can make two queries to the database. The first query is a preflight. It returns a set of `replay-ids` after all search and sort conditions are applied. The second query is a data query. It fetches all the data needed to satisfy the user's request using the `replay-ids` returned by the preflight.
 
 Let's transform our example query into this new format:
 
