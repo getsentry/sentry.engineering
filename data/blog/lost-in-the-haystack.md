@@ -69,7 +69,7 @@ HAVING has(groupArray(url), 'sentry.io')
 LIMIT 1
 ```
 
-We've adopted our changes from the previous step but now, to answer a search condition, we're aggregating the URL column in the HAVING clause. This has identical memory-usage to SELECTing the column directly. So how do you ask the question "is some value contained within the aggregated set" when the aggregated set is too large to fit in memory? You "stream" it!
+We've adopted our changes from the previous step but now, to answer a search condition, we're aggregating the URL column in the HAVING clause. This has identical memory usage to SELECTing the column directly. So how do you ask the question "is some value contained within the aggregated set" when the aggregated set is too large to fit in memory? You "stream" it!
 
 Instead of aggregating a column and then asking it some question, you can ask the column a question and aggregate its answer before finally asking a question about the aggregated answer! Clear as mud? Let's demonstrate the concept with SQL.
 
