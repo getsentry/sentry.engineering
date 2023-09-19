@@ -9,7 +9,7 @@ canonicalUrl: lost-in-the-haystack
 authors: ['coltonallen']
 ---
 
-Imagine I asked you to find a needle in a haystack. That'd be pretty difficult, right? Now imagine I asked you to hold the haystack while you searched and even if you found the needle you had to keep holding the haystack until you looked at every piece of hay. That would just be mean. Well, that's how I treated ClickHouse and its probably why he stopped returning my calls.
+Imagine I asked you to find a needle in a haystack. That'd be pretty difficult, right? Now imagine I asked you to hold the haystack while you searched and even if you found the needle you had to keep holding the haystack until you looked at every piece of hay. That would just be mean. Well, that's how I treated ClickHouse and it's probably why he stopped returning my calls.
 
 Jokes aside this is an accurate representation of what ClickHouse had to do to support the Session Replay product and it had real-world implications. Searching through Sentry's replays used to take more than 10 seconds. For our largest customers, searching was impossible. We didn't have enough memory to answer those sorts of queries.
 
