@@ -1,5 +1,5 @@
 ---
-title: 'Lost in the Haystack: Optimizing a Tough ClickHouse Query'
+title: 'Lost in the Haystack: Optimizing an Expensive ClickHouse Query'
 date: '2023-09-18'
 tags: ['clickhouse', 'replay', 'database']
 summary: 'Finding a needle in a haystack is really difficult. Why make it harder than it needs to be?'
