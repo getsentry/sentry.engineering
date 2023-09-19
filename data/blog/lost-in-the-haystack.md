@@ -2,8 +2,8 @@
 title: 'Lost in the Haystack: Optimizing a Tough ClickHouse Query'
 date: '2023-09-18'
 tags: ['clickhouse', 'replay']
-summary: 'My cool summary'
-images: []
+summary: 'Finding a needle in a haystack is really difficult. Why make it harder than it needs to be?'
+images: ['/images/lost-in-the-haystack/SnubaIntro.gif']
 layout: PostLayout
 canonicalUrl: lost-in-the-haystack
 authors: ['coltonallen']
