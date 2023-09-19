@@ -73,7 +73,7 @@ We've adopted our changes from the previous step but now, to answer a search con
 
 Instead of aggregating a column and then asking it some question, you can ask the column a question and aggregate its answer before finally asking a question about the aggregated answer! Clear as mud? Let's demonstrate the concept with SQL.
 
-Let's ask the same question again: "does sentry.io exist in the set of aggregated urls". How should we phrase this in SQL? There's the straight-forward approach `has(groupArray(url), 'sentry.io')` and then there's the streaming approach `sum(url = 'sentry.io') > 0`. What we've done here is subtle but has huge implications. Instead of aggregating the url we're aggregating the result of the condition "does this term match this value" which is represented as either a 0 or 1.
+Let's ask the same question again: "does sentry.io exist in the set of aggregated urls". How should we phrase this in SQL? There's the straightforward approach `has(groupArray(url), 'sentry.io')` and then there's the streaming approach `sum(url = 'sentry.io') > 0`. What we've done here is subtle but has huge implications. Instead of aggregating the url we're aggregating the result of the condition "does this term match this value" which is represented as either a 0 or 1.
 
 The memory usage from aggregating these tiny integers is minimal meaning our largest customers can query their heaviest columns and consume 100x less memory. The query consumes memory proportional to the number of unique aggregation keys. The implication of this change might not be obvious but consuming memory in this manner is predictable and allows us to control the memory usage of the query through code and through ClickHouse configuration!
 
