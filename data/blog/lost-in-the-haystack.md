@@ -94,7 +94,7 @@ When we compute the counts we call `sum(length(column))`. This works but it requ
 
 Once again we've run up against this memory constraint but now we're out of tricks. We can't solve this problem at read-time. It has to be solved deeper in the stack.
 
-An interesting feature of ClickHouse is its ability to materialize a column. Materalized columns are functions that are evaluated on insert and stored as some output type `T`. For example, a materialized `error_ids` column might look like this:
+An interesting feature of ClickHouse is its ability to materialize a column. Materialized columns are functions that are evaluated on insert and stored as some output type `T`. For example, a materialized `error_ids` column might look like this:
 
 ```sql
 `count_errors` UInt8 MATERIALIZED length(error_ids)
