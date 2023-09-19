@@ -34,7 +34,7 @@ GROUP BY replay_id
 LIMIT 1
 ```
 
-The total memory usage of this query is the sum of every unique `replay-id` plus *every* URL stored in the database. We absolutely can not hold this in memory. But we need to return the URLs. So, how do we resolve this?
+The total memory usage of this query is the sum of every unique `replay-id` plus _every_ URL stored in the database. We absolutely can not hold this in memory. But we need to return the URLs. So, how do we resolve this?
 
 For every request made by a user to the Replay's service we can make two queries to the database. The first query is a preflight. It returns a set of `replay-ids` after all search and sort conditions are applied. The second query is a data query. It fetches all the data needed to satisfy the user's request using the `replay-ids` returned by the preflight.
 
@@ -104,13 +104,13 @@ By materializing the column we reduce a huge array of thousands of bytes into a 
 
 Because this is evaluated on insert, it takes some time to roll out. In the case of Sentry, we have a retention period and old rows gradually fall off the end. After making this change we just have to wait for the duration of the retention period before every row has this optimization.
 
-In the mean time, we can still target the `count_errors` column and if it does not have any data populated it will compute the value at run-time. Performance gradually improves as time goes on.
+In the meantime, we can still target the `count_errors` column and if it does not have any data populated it will compute the value at run-time. Performance gradually improves as time goes on.
 
 **A Sprinkle of Configuration**
 
-Because of our cardinality, memory usage is still too high. There's one final change we need to solve this problem. Because our memory usage is now proportional to the number of unique aggregation keys we need to cap the number of unique aggregation keys. This is really easy and its something you can set and forget.
+Because of our cardinality, memory usage is still too high. There's one final change we need to solve this problem. Because our memory usage is now proportional to the number of unique aggregation keys we need to cap the number of unique aggregation keys. This is really easy and it's something you can set and forget.
 
-In our preflight we're going to update our query with two new settings. The first is `max_rows_to_group_by`. A somewhat misnamed setting, it doesn't cap the number of rows in your aggregation result. It caps the number of unique aggregation keys. You can compute the maximum memory usage of our query by multiplying the size of a single row by the maximum number of aggregation keys. The second option is `group_by_overflow_mode`. The default configuration is "throw". We don't want that. Its up to you whether you choose "any" or "break". "break" will perform better and "any" _could_ return more accurate results. It depends on how your data is distributed. We've chosen "any" because at our current scale we don't observe any performance difference.
+In our preflight we're going to update our query with two new settings. The first is `max_rows_to_group_by`. A somewhat misnamed setting, it doesn't cap the number of rows in your aggregation result. It caps the number of unique aggregation keys. You can compute the maximum memory usage of our query by multiplying the size of a single row by the maximum number of aggregation keys. The second option is `group_by_overflow_mode`. The default configuration is "throw". We don't want that. It's up to you whether you choose "any" or "break". "break" will perform better and "any" _could_ return more accurate results. It depends on how your data is distributed. We've chosen "any" because we don't observe any performance difference at our current scale.
 
 ```sql
 SELECT replay_id
@@ -122,7 +122,7 @@ SETTINGS max_rows_to_group_by='1000000', group_by_overflow_mode='any'
 
 ### Success
 
-We've done it! With these simple changes we've successfully conquered our memory usage. We could stop here and be happy. But there is this unspoken problem that we've not considered. We have to scan the full dataset for every query. For our use case, there's not many ways to avoid that but there are a few and in cases where we do have to perform a table scan it would be nice if those scans were faster.
+We've done it! With these simple changes we've successfully conquered our memory usage. We could stop here and be happy. But there is this unspoken problem that we've not considered. We have to scan the full dataset for every query. For our use case, there are not many ways to avoid that but there are a few and in cases where we do have to perform a table scan it would be nice if those scans were faster.
 
 ### Making Schema Changes
 
@@ -130,9 +130,9 @@ We've done it! With these simple changes we've successfully conquered our memory
 
 ClickHouse offers the ability to alter the representation of a column on disk with special encodings like `LowCardinality`. The `LowCardinality` encoding takes some string value and converts it into an enum representation. We have a few columns that could benefit from this encoding. Maybe we should apply it there.
 
-We're also using `Nullable` an awful lot too but should we? `Nullable` in ClickHouse works differently from other databases. ClickHouse stores null values in a separate file. Its basically a bitmap index of where the nulls are in our column. Your column would then contain the empty state of its datatype in each row position where a null exists. So string would be `""` and an integer would be `0`. By using null you don't save any space, you're just adding an index that needs to be scanned. So maybe we can remove it too.
+We're also using `Nullable` an awful lot too but should we? `Nullable` in ClickHouse works differently from other databases. ClickHouse stores null values in a separate file. It's basically a bitmap index of where the nulls are in our column. Your column would then contain the empty state of its datatype in each row position where a null exists. So string would be `""` and an integer would be `0`. By using null you don't save any space, you're just adding an index that needs to be scanned. So maybe we can remove it too.
 
-Out of curiousity, what happens if we take this column:
+Out of curiosity, what happens if we take this column:
 
 ```sql
 `browser_name` Nullable(String)
@@ -146,7 +146,7 @@ And convert it into this column:
 
 If you've installed ClickHouse with Docker you should have received `clickhouse-client`. On my machine, I can run `docker exec -it clickhouse /usr/bin/clickhouse-client` to start the client.
 
-With this tool I can insert records into the database, run queries against those records, and evaluate the performance of those queries. I'm doing exactly that here to validate these schema changes. I've created a table called replays_test and I've added the `old` column which uses `Nullable(String)` and the `new` column which uses `LowCardinality(String)`. After that I bulk insert 1,000,000 rows and start playing around.
+With this tool, I can insert records into the database, run queries against those records, and evaluate the performance of those queries. I'm doing exactly that here to validate these schema changes. I've created a table called replays_test and I've added the `old` column which uses `Nullable(String)` and the `new` column which uses `LowCardinality(String)`. After that I bulk insert 1,000,000 rows and start playing around.
 
 We can run the following query to see the size of the columns on disk:
 
@@ -198,7 +198,7 @@ A pre-requisite to running this query is that you've run _other_ queries against
 
 Be careful running this migration. It can be tough depending on the size of your dataset.
 
-Side bar. Dropping nullability has implications for your query. For example, the `any` function will ignore nulls when computing its result. If you have an empty string value in your dataset that was previously marked as null your query may return that value rather than the non-empty string it previously returned. There's a simple solution to this. ClickHouse functions accept an `If` combinator and this combinator can be used to strip the empty values. Like so: `anyIf(column, notEmpty(column))`. The second argument to the function is any expression which returns a boolean result.
+Sidebar. Dropping nullability has implications for your query. For example, the `any` function will ignore nulls when computing its result. If you have an empty string value in your dataset that was previously marked as null your query may return that value rather than the non-empty string it previously returned. There's a simple solution to this. ClickHouse functions accept an `If` combinator and this combinator can be used to strip the empty values. Like so: `anyIf(column, notEmpty(column))`. The second argument to the function is any expression which returns a boolean result.
 
 **Applying Indexes**
 
@@ -210,7 +210,7 @@ Indexes should only be used for values which are rare. A UUID is a great candida
 
 I'll leave applying indexes as an exercise for the reader, we have a different problem we need to solve. Session Replay has an aggregated data model. Indexes won't work. We need an alternative.
 
-One possibility is a sub-query. Our `replay_id` column is indexed and is not under any aggregate function. We can make scalar comparisons against it in the WHERE clause. A sub-query would then need to return a set of replay-ids matching some indexed condition. For example:
+One possibility is a sub-query. Our `replay_id` column is indexed and is not under any aggregate function. We can make scalar comparisons against it in the WHERE clause. A sub-query would then need to return a set of `replay-ids` matching some indexed condition. For example:
 
 ```sql
 WHERE replay_id IN (
@@ -238,7 +238,7 @@ GROUP BY replay_id
 
 There are limitations to this. For example, you can't filter by multiple error_ids at the same time. But for Sentry this optimization can be applied to nearly all of our queries. It also has the benefit of not consuming any memory which is a great win for a query operating in a memory-constrained environment.
 
-Evaluating the "performance" of a query has many dimmensions. I've mentioned a couple throughout this post but one dimmension in particular is the target of this optimization. Query latency. We know we can find a query's latency by inspecting the system's logs but how scientific is that? Query latency when measured against one or two or ten runs of a query has limited utility. You need a more extensive testing strategy to truly evaluate the latency impact on a query chnage. Fortunately, ClickHouse includes a tool called `clickhouse-benchmark` for testing this. I'm able to access this utility by entering the following command: `docker exec -it clickhouse /usr/bin/clickhouse-benchmark`.
+Evaluating the "performance" of a query has many dimensions. I've mentioned a couple throughout this post but one dimension in particular is the target of this optimization. Query latency. We know we can find a query's latency by inspecting the system's logs but how scientific is that? Query latency when measured against one or two or ten runs of a query has limited utility. You need a more extensive testing strategy to truly evaluate the latency impact on a query change. Fortunately, ClickHouse includes a tool called `clickhouse-benchmark` for testing this. I'm able to access this utility by entering the following command: `docker exec -it clickhouse /usr/bin/clickhouse-benchmark`.
 
 ClickHouse Benchmark accepts a `--query` parameter followed by a string argument. The benchmarking utility will execute that query thousands of times and at the end of this process you'll have a nice percentile breakdown of how a query performed. Here's the output of our before and after.
 
@@ -288,7 +288,7 @@ localhost:9000, queries 3401, QPS: 474.014, RPS: 8706691.199, MiB/s: 406.868, re
 99.990%         0.009 sec.
 ```
 
-A 5x throughput improvement and our _P99.99 lateny_ matches our _P0 latency_ on the non-indexed query. Its amazing what a well-placed index can do!
+A 5x throughput improvement and our _P99.99 lateny_ matches our _P0 latency_ on the non-indexed query. It's amazing what a well-placed index can do!
 
 ### Parting Thoughts
 
