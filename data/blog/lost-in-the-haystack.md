@@ -34,7 +34,7 @@ GROUP BY replay_id
 LIMIT 1
 ```
 
-The total memory usage of this query is the sum of every unique `replay-id` plus _every_ URL stored in the database. We absolutely can not hold this in memory. But we need to return the URLs. So, how do we resolve this?
+The total memory usage of this query is the sum of every unique `replay-id` plus _every_ url stored in the database. We absolutely can not hold this in memory. But we need to return the aggregated urls for that `replay-id`. How do we resolve this?
 
 For every request made by a user to the Replay's service we can make two queries to the database. The first query is a preflight. It returns a set of `replay-ids` after all search and sort conditions are applied. The second query is a data query. It fetches all the data needed to satisfy the user's request using the `replay-ids` returned by the preflight.
 
@@ -71,7 +71,7 @@ HAVING has(groupArray(url), 'sentry.io')
 LIMIT 1
 ```
 
-We've adopted our changes from the previous step but now, to answer a search condition, we're aggregating the URL column in the `HAVING` clause. This has identical memory usage to `SELECT`ing the column directly. So how do you ask the question "is some value contained within the aggregated set" when the aggregated set is too large to fit in memory? You "stream" it!
+We've adopted our changes from the previous step but now, to answer a search condition, we're aggregating the `url` column in the `HAVING` clause. This has identical memory usage to `SELECT`ing the column directly. So how do you ask the question "is some value contained within the aggregated set" when the aggregated set is too large to fit in memory? You "stream" it!
 
 Instead of aggregating a column and then asking it some question, you can ask the column a question and aggregate its answer before finally asking a question about the aggregated answer! Clear as mud? Let's demonstrate the concept with SQL.
 
@@ -81,7 +81,7 @@ The memory usage from aggregating these tiny integers is minimal meaning we migh
 
 **When Ordering Data**
 
-Let's look at a final query example.
+Let's look at another query example.
 
 ```sql
 SELECT replay_id
@@ -179,7 +179,7 @@ Which outputs:
 └────────────┴─────────────────┴───────────────────┴────────┘
 ```
 
-As you can see, our encodings have reduced our byte size by 80%. That's pretty cool and we didn't have to work too hard for it. We can also evaluate how these queries perform when reading these columns by running the following query:
+As you can see, our encodings have reduced our size on disk by 80%. That's pretty cool and we didn't have to work too hard for it. We can also evaluate how these queries perform when reading these columns by running the following query:
 
 ```
 SELECT
@@ -228,7 +228,7 @@ WHERE replay_id IN (
 )
 ```
 
-For reasons outside the scope of this post, we did not end up using this approach. We decided on an alternative. In our preflight query, under certain conditions, we can apply conditions in the `WHERE` clause which reduce the aggregation set but do not alter the outcome of the query. For example, consider the question "show me every replay which contains the error_id `x`".
+We did not end up using this approach. We decided on an alternative. In our preflight query, under certain conditions, we can apply filters in the `WHERE` clause which reduce the aggregation set but do not alter the outcome of the query. For example, consider the question "show me every replay which contains the error_id `x`".
 
 Instead of querying like this:
 
@@ -244,7 +244,7 @@ WHERE error_id = 'x'
 GROUP BY replay_id
 ```
 
-There are limitations to this. For example, you can't filter by multiple error_ids at the same time. But for Sentry this optimization can be applied to nearly all of our customer's queries. It also has the benefit of not consuming any memory which is a great win for a query operating in a memory-constrained environment.
+There are limitations to this. For example, you can't filter by multiple error_ids at the same time. In practice, this optimization can be applied to nearly all of our customer's queries. It also has the benefit of not consuming any memory which is a great win for a query operating in a memory-constrained environment.
 
 Evaluating the "performance" of a query has many dimensions. I've mentioned a couple throughout this post but one dimension in particular is the target of this optimization. Query latency. We know we can find a query's latency by inspecting the system's logs but how scientific is that? Query latency when measured against one or two or ten runs of a query has limited utility. You need a more extensive testing strategy to truly evaluate the latency impact of a change. Fortunately, ClickHouse includes a tool called `clickhouse-benchmark` for testing this. I'm able to access this utility by entering the following command: `docker exec clickhouse /usr/bin/clickhouse-benchmark`.
 
@@ -296,7 +296,7 @@ localhost:9000, queries 3401, QPS: 474.014, RPS: 8706691.199, MiB/s: 406.868, re
 99.990%         0.009 sec.
 ```
 
-A 5x throughput improvement and our p99.99 latency _matches our p0 latency_ on the non-indexed query. At least, it does in our testing dataset. Testing against production data in this way is much more difficult and not likely something people want me doing. But we can feel some sense of certainty that we're on the right track.
+A 5x throughput improvement and our p99.99 latency _matches our p0 latency_ on the non-indexed query.
 
 ### Parting Thoughts
 
