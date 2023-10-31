@@ -12,12 +12,12 @@ authors: ['francesconovy']
 
 Bundle Size Overview
 
-## Version | Bundle Size | What
-
-7.72.0 | 75.58 KB | Before updating to rrweb 2.0
-7.73.0 | 84.26 KB | After updating to rrweb 2.0
-7.77.0 | 77.44 KB | New default
-7.77.0 | 66.48 KB | With all tree shaking options configured
+| Version | Bundle Size | What                                     |
+| ------- | ----------- | ---------------------------------------- |
+| 7.72.0  | 75.58 KB    | Before updating to rrweb 2.0             |
+| 7.73.0  | 84.26 KB    | After updating to rrweb 2.0              |
+| 7.78.0  | 70.8 KB     | New default                              |
+| 7.78.0  | 56.02 KB    | With all tree shaking options configured |
 
 TODO FN: Update bundle size when all is done
 
