@@ -24,12 +24,14 @@ This tipped us over the edge to declare a bundle size emergency, and focus on br
 
 We're very happy to say that our efforts have been successful, and we managed to reduce the minified & gzipped bundle size compared to the rrweb 2 baseline by 15% (~9 KB), and by up to 33% (~28 KB) with maximum tree shaking configuration enabled.
 
-| Version | Bundle Size | What                                     |
-| ------- | ----------- | ---------------------------------------- |
-| 7.72.0  | 75.58 KB    | Before updating to rrweb 2.0             |
-| 7.73.0  | 84.26 KB    | After updating to rrweb 2.0              |
-| 7.78.0  | 70.8 KB     | New default                              |
-| 7.78.0  | 56.02 KB    | With all tree shaking options configured |
+| Version | Bundle Size¹ | What                                     |
+| ------- | ------------ | ---------------------------------------- |
+| 7.72.0  | 75.58 KB     | Before updating to rrweb 2.0             |
+| 7.73.0  | 84.26 KB     | After updating to rrweb 2.0              |
+| 7.78.0  | 70.8 KB      | New default                              |
+| 7.78.0  | 56.02 KB     | With all tree shaking options configured |
+
+¹Including Error & Performance Monitoring as well as Session Replay, minified & gzipped
 
 TODO FN: Update bundle size when all is done
 
