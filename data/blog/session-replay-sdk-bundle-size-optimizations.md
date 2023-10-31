@@ -4,9 +4,9 @@ date: '2023-10-31'
 tags: ['sdk', 'javascript', 'replay', 'session-replay']
 draft: true
 summary: 'An in-depth analysis of how we managed to cut the Session Replay SDK bundle size by X%.'
-images: [/images/reduce-ci-time-with-nx-caching/hero.jpg]
+images: [/images/session-replay-sdk-bundle-size-optimizations/hero.jpg]
 layout: PostLayout
-canonicalUrl:
+canonicalUrl: https://sentry.engineering/blog/session-replay-sdk-bundle-size-optimizations
 authors: ['francesconovy']
 ---
 
