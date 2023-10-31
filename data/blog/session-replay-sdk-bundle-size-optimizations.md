@@ -10,7 +10,19 @@ canonicalUrl: https://sentry.engineering/blog/session-replay-sdk-bundle-size-opt
 authors: ['francesconovy']
 ---
 
-Bundle Size Overview
+[Bundle Size matters](https://blog.sentry.io/js-browser-sdk-bundle-size-matters/) - this is something we SDK engineers at Sentry are acutely aware of.
+In an ideal world, you'd get all the functionality you want with no additional bundle size - oh, would't that be nice?
+Sadly, in reality any feature we add to the JavaScript SDK results in additional bundle size for the SDK - there is always a trade off to be made.
+
+With [Session Replay](https://docs.sentry.io/product/session-replay/), this topic is especially challenging.
+Session Replay allows to capture what's going on in a users browsers, which can help developers to debug errors or problems the user is experiencing.
+While this can be incredibly helpful, there is also a considerable amount of JavaScript code required to actually make this possible - thus leading to an increased bundle size.
+
+In version 7.73.0 of the JavaScript SDKs, we updated the underlying [rrweb](https://github.com/rrweb-io/rrweb) package from v1 to v2.
+While this brought a host of improvements, it also came with a considerable increase in bundle size.
+This tipped us over the edge to declare a bundle size emergency, and focus on bringing the additional size Session Replay adds to the SDK down as much as possible.
+
+We're very happy to say that our efforts have been successful, and we managed to reduce the minified & gzipped bundle size compared to the rrweb 2 baseline by 15% (~9 KB), and by up to 33% (~28 KB) with maximum tree shaking configuration enabled.
 
 | Version | Bundle Size | What                                     |
 | ------- | ----------- | ---------------------------------------- |
