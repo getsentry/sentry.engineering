@@ -11,14 +11,14 @@ authors: ['francesconovy']
 ---
 
 [Bundle Size matters](https://blog.sentry.io/js-browser-sdk-bundle-size-matters/) - this is something we SDK engineers at Sentry are acutely aware of.
-In an ideal world, you'd get all the functionality you want with no additional bundle size - oh, would't that be nice?
+In an ideal world, you'd get all the functionality you want with no additional bundle size - oh, wouldn't that be nice?
 Sadly, in reality any feature we add to the JavaScript SDK results in additional bundle size for the SDK - there is always a trade off to be made.
 
 With [Session Replay](https://docs.sentry.io/product/session-replay/), this topic is especially challenging.
-Session Replay allows to capture what's going on in a users browsers, which can help developers to debug errors or problems the user is experiencing.
+Session Replay allows to capture what's going on in a users browsers, which can help developers debug errors or problems the user is experiencing.
 While this can be incredibly helpful, there is also a considerable amount of JavaScript code required to actually make this possible - thus leading to an increased bundle size.
 
-In version 7.73.0 of the JavaScript SDKs, we updated the underlying [rrweb](https://github.com/rrweb-io/rrweb) package from v1 to v2.
+In version 7.73.0 of the JavaScript SDKs, we updated the underlying [rrweb](https://github.com/getsentry/rrweb) package from v1 to v2.
 While this brought a host of improvements, it also came with a considerable increase in bundle size.
 This tipped us over the edge to declare a bundle size emergency, and focus on bringing the additional size Session Replay adds to the SDK down as much as possible.
 
@@ -39,15 +39,15 @@ TODO FN: Update bundle size when all is done
 
 In order to achieve these bundle size improvements, we took a couple of steps ranging from removing unused code to build time configuration and improved tree shaking:
 
-- Allow to remove iframe & shadow dom support via a build-time flag
-- Removed canvas recording support by default (users can opt-in via a config option)
+- Allow to remove iframe & shadow DOM support via a build-time flag
+- Removed canvas recording support by default (users can opt-in via a config option, [support is coming](https://github.com/getsentry/sentry-javascript/issues/6519))
 - Remove unused code from our rrweb fork
 - Remove unused code in Session Replay itself
 - Allow to remove the included compression worker in favor of hosting it yourself
 
 ## Primer: rrweb
 
-[rrweb](https://github.com/rrweb-io/rrweb) is the underlying tool we use to make the recordings for Session Replay.
+[rrweb](https://github.com/getsentry/rrweb) is the underlying tool we use to make the recordings for Session Replay.
 While we try to contribute to the main rrweb repository as much as possible, there are some changes that are very specific to our needs at Sentry,
 which is why we also maintain a [forked version](https://github.com/getsentry/rrweb) of rrweb with some custom changes.
 
@@ -55,7 +55,7 @@ which is why we also maintain a [forked version](https://github.com/getsentry/rr
 
 If you do not know what tree shaking is and how it works, you can [read about it in our docs](https://docs.sentry.io/platforms/javascript/configuration/tree-shaking/).
 
-## Allow to remove iframe & shadow dom support via a build-time flag
+## Allow to remove iframe & shadow DOM support via a build-time flag
 
 While rrweb allows to capture more or less everything that happens on your page, some of the things it can capture may not be necessary for some users.
 For these cases, we now allow users to manually remove certain parts of the rrweb codebase they may not need at build time, reducing the bundle size.
@@ -83,7 +83,7 @@ sentryPlugin({
 
 This will safe you about 5 KB gzipped of bundle size!
 
-### How to implement build-time tree shaking flags
+### How we implement build-time tree shaking flags
 
 We already had some build-time flags for tree shaking implemented in the JavaScript SDK itself (`__SENTRY_DEBUG__` and `__SENTRY_TRACING__`). We followed the same structure for rrweb:
 
@@ -146,7 +146,7 @@ This means that by default, the regular `ShadowDomManager` is used. However, if 
 
 ## Removed canvas recording support by default
 
-Since we currently do not support replaying captured canvas elements, and because the canvas capturing code makes up a considerable amount of the rrweb codebase,
+Since we currently do [not support replaying captured canvas elements](https://github.com/getsentry/sentry-javascript/issues/6519), and because the canvas capturing code makes up a considerable amount of the rrweb codebase,
 we decided to remove this code by default from our rrweb fork, and instead allow to opt-in to use this by passing a canvas manager into the rrweb `record()` function.
 
 We implemented this in [getsentry/rrweb#122](https://github.com/getsentry/rrweb/pull/122), where we started to export a new `getCanvasManager` function, as well as accepting such a function in the `record()` method. With this, we can successfully tree-shake the unused canvas manager out, leading to smaller bundle size by default, unless users manually import & pass the `getCanvasManager` function.
@@ -190,7 +190,7 @@ In addition to rrweb, we also identified & removed some unused code in Session R
 - Clean up some logs and internal checks [getsentry/sentry-javascript#9392](https://github.com/getsentry/sentry-javascript/pull/9392), [getsentry/sentry-javascript#9391](https://github.com/getsentry/sentry-javascript/pull/9391)
 - Remove unused function [getsentry/sentry-javascript#9393](https://github.com/getsentry/sentry-javascript/pull/9393)
 
-Especially the unused compression worker code safed us about 5 KB gzipped.
+Especially the unused compression worker code shaved off about 5 KB gzipped!
 
 ## Allow to host compression worker
 
