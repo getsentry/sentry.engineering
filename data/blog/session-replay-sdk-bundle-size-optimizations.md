@@ -42,6 +42,7 @@ In order to achieve these bundle size improvements, we took a couple of steps ra
 - Remove unused code from our rrweb fork
 - Remove unused code in Session Replay itself
 - Allow to remove the included compression worker in favor of hosting it yourself
+- Move to a different compression library with a smaller footprint
 
 ## Primer: rrweb
 
