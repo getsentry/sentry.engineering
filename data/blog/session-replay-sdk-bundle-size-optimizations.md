@@ -3,7 +3,7 @@ title: 'Session Replay SDK Bundle Size Optimizations'
 date: '2023-10-31'
 tags: ['sdk', 'javascript', 'replay', 'session-replay']
 draft: false
-summary: 'An in-depth analysis of how we managed to cut the Session Replay SDK bundle size by X%.'
+summary: 'An in-depth analysis of how we managed to cut the Session Replay SDK bundle size by 23%.'
 images: [/images/session-replay-sdk-bundle-size-optimizations/hero.jpg]
 layout: PostLayout
 canonicalUrl: https://sentry.engineering/blog/session-replay-sdk-bundle-size-optimizations
@@ -22,18 +22,16 @@ In version 7.73.0 of the JavaScript SDKs, we updated the underlying [rrweb](http
 While this brought a host of improvements, it also came with a considerable increase in bundle size.
 This tipped us over the edge to declare a bundle size emergency, and focus on bringing the additional size Session Replay adds to the SDK down as much as possible.
 
-We're very happy to say that our efforts have been successful, and we managed to reduce the minified & gzipped bundle size compared to the rrweb 2 baseline by 15% (~9 KB), and by up to 33% (~28 KB) with maximum tree shaking configuration enabled.
+We're very happy to say that our efforts have been successful, and we managed to reduce the minified & gzipped bundle size compared to the rrweb 2 baseline by 23% (~19 KB), and by up to 35% (~29 KB) with maximum tree shaking configuration enabled.
 
-| Version | Bundle Size¹ | What                                     |
-| ------- | ------------ | ---------------------------------------- |
-| 7.72.0  | 75.58 KB     | Before updating to rrweb 2.0             |
-| 7.73.0  | 84.26 KB     | After updating to rrweb 2.0              |
-| 7.78.0  | 70.8 KB      | New default                              |
-| 7.78.0  | 56.02 KB     | With all tree shaking options configured |
+| Version                                                                      | Bundle Size¹ | What                                     |
+| ---------------------------------------------------------------------------- | ------------ | ---------------------------------------- |
+| [7.72.0](https://github.com/getsentry/sentry-javascript/releases/tag/7.72.0) | 75.58 KB     | Before updating to rrweb 2.0             |
+| [7.73.0](https://github.com/getsentry/sentry-javascript/releases/tag/7.73.0) | 84.26 KB     | After updating to rrweb 2.0              |
+| [7.78.0](https://github.com/getsentry/sentry-javascript/releases/tag/7.78.0) | 65.24 KB     | New default                              |
+| [7.78.0](https://github.com/getsentry/sentry-javascript/releases/tag/7.78.0) | 55.48 KB     | With all tree shaking options configured |
 
 ¹Including Error & Performance Monitoring as well as Session Replay, minified & gzipped
-
-TODO FN: Update bundle size when all is done
 
 ## Steps to reduce the SDK bundle size
 
@@ -186,11 +184,13 @@ In addition, we also made some general small improvements which we also contribu
 
 In addition to rrweb, we also identified & removed some unused code in Session Replay itself:
 
-- Remove unused compression worker code [getsentry/sentry-javascript#9369](https://github.com/getsentry/sentry-javascript/pull/9369)
 - Clean up some logs and internal checks [getsentry/sentry-javascript#9392](https://github.com/getsentry/sentry-javascript/pull/9392), [getsentry/sentry-javascript#9391](https://github.com/getsentry/sentry-javascript/pull/9391)
 - Remove unused function [getsentry/sentry-javascript#9393](https://github.com/getsentry/sentry-javascript/pull/9393)
 
-Especially the unused compression worker code shaved off about 5 KB gzipped!
+## Update library used for compression
+
+We used to compress replay payloads with [pako](https://github.com/nodeca/pako), which, while it worked well enough, turned out to be a rather large (bundle-size wise) library for compression.
+We switched over to use [fflate](https://github.com/101arrowz/fflate) in [getsentry/sentry-javascript#9436](https://github.com/getsentry/sentry-javascript/pull/9436) instead, which reduced bundle size by a few KB.
 
 ## Allow to host compression worker
 
