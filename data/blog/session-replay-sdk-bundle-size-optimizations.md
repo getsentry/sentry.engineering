@@ -26,7 +26,7 @@ We're very happy to say that our efforts have been successful, and we managed to
 
 | Version                                                                      | Bundle Size¹ | What                                     |
 | ---------------------------------------------------------------------------- | ------------ | ---------------------------------------- |
-| [7.72.0](https://github.com/getsentry/sentry-javascript/releases/tag/7.72.0) | 75.58 KB     | With rrweb 1.0             |
+| [7.72.0](https://github.com/getsentry/sentry-javascript/releases/tag/7.72.0) | 75.58 KB     | With rrweb 1.0                           |
 | [7.73.0](https://github.com/getsentry/sentry-javascript/releases/tag/7.73.0) | 84.26 KB     | After updating to rrweb 2.0              |
 | [7.78.0](https://github.com/getsentry/sentry-javascript/releases/tag/7.78.0) | 65.24 KB     | New default                              |
 | [7.78.0](https://github.com/getsentry/sentry-javascript/releases/tag/7.78.0) | 55.48 KB     | With all tree shaking options configured |
@@ -37,11 +37,11 @@ We're very happy to say that our efforts have been successful, and we managed to
 
 In order to achieve these bundle size improvements, we took a couple of steps ranging from removing unused code to build time configuration and improved tree shaking:
 
-- Allow to remove iframe & shadow DOM support via a build-time flag
+- Make it possible to remove iframe & shadow DOM support via a build-time flag
 - Removed canvas recording support by default (users can opt-in via a config option, [support is coming](https://github.com/getsentry/sentry-javascript/issues/6519))
 - Remove unused code from our rrweb fork
 - Remove unused code in Session Replay itself
-- Allow users to remove the included compression worker in favor of hosting it yourself
+- Make it possible to remove the included compression worker in favor of hosting it yourself
 - Move to a different compression library with a smaller footprint
 
 ## Primer: rrweb
@@ -52,10 +52,10 @@ which is why we also maintain a [forked version](https://github.com/getsentry/rr
 
 ## Primer: Tree Shaking
 
-Tree shaking allows a JavaScript bundler to remove unused code from the final bundle
-If you're not familiar with how it works and their advantages, we recommend [reading about it in our docs](https://docs.sentry.io/platforms/javascript/configuration/tree-shaking/) for more details.
+Tree shaking allows a JavaScript bundler to remove unused code from the final bundle.
+If you're not familiar with how it works and the advantages tree shaking brings, you can [learn more about it in our docs](https://docs.sentry.io/platforms/javascript/configuration/tree-shaking/).
 
-## Allow to remove iframe & shadow DOM support via a build-time flag
+## Made it possible to remove iframe & shadow DOM support via a build-time flag
 
 While rrweb allows you to capture more or less everything that happens on your page, some of the things it can capture may not be necessary for some users.
 For these cases, we now allow users to manually remove certain parts of the rrweb codebase they may not need at build time, reducing the bundle size.
@@ -83,7 +83,7 @@ sentryPlugin({
 
 This will save you about 5 KB gzipped of bundle size!
 
-### How we implement build-time tree shaking flags
+### How we implemented build-time tree shaking flags
 
 We already had some build-time flags for tree shaking implemented in the JavaScript SDK itself (`__SENTRY_DEBUG__` and `__SENTRY_TRACING__`). We followed the same structure for rrweb:
 
@@ -153,7 +153,7 @@ We implemented this in [getsentry/rrweb#122](https://github.com/getsentry/rrweb/
 
 Once we fully support capturing & replaying canvas elements in Session Replay [(coming soon)](https://github.com/getsentry/sentry-javascript/issues/6519), we will add a configuration option to `new Replay()` to opt-in to canvas recording.
 
-## Remove unused code from rrweb
+## Removed unused code from rrweb
 
 Another step we took to reduce bundle size was to remove & streamline some code in our rrweb fork.
 rrweb can be configured in a lot of different ways and is very flexible. However, due to its flexibility, a lot of the code is not tree shakeable, because it depends on runtime configuration.
@@ -182,19 +182,19 @@ In addition, we also made some general small improvements which we also contribu
 - Avoid unnecessary cloning of objects or arrays [getsentry/rrweb#125](https://github.com/getsentry/rrweb/pull/125)
 - Avoid cloning events to add timestamp [getsentry/rrweb#124](https://github.com/getsentry/rrweb/pull/124)
 
-## Remove unused code in Session Replay
+## Removed unused code in Session Replay
 
 In addition to rrweb, we also identified & removed some unused code in Session Replay itself:
 
 - Clean up some logs and internal checks [getsentry/sentry-javascript#9392](https://github.com/getsentry/sentry-javascript/pull/9392), [getsentry/sentry-javascript#9391](https://github.com/getsentry/sentry-javascript/pull/9391)
 - Remove unused function [getsentry/sentry-javascript#9393](https://github.com/getsentry/sentry-javascript/pull/9393)
 
-## Update library used for compression
+## Updated library used for compression
 
 We used to compress replay payloads with [pako](https://github.com/nodeca/pako), which, while it worked well enough, turned out to be a rather large (bundle-size wise) library for compression.
 We switched over to use [fflate](https://github.com/101arrowz/fflate) in [getsentry/sentry-javascript#9436](https://github.com/getsentry/sentry-javascript/pull/9436) instead, which reduced bundle size by a few KB.
 
-## Allow to host compression worker
+## Allowed to host compression worker
 
 We use a web worker to compress Session Replay recording data.
 This helps to send less data over the network, and reduces the performance overhead for users of the SDK.
