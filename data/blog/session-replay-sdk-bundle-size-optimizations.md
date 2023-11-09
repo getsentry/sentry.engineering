@@ -14,8 +14,8 @@ authors: ['francesconovy']
 In an ideal world, you'd get all the functionality you want with no additional bundle size - oh, wouldn't that be nice?
 Sadly, in reality any feature we add to the JavaScript SDK results in additional bundle size for the SDK - there is always a trade off to be made.
 
-With [Session Replay](https://docs.sentry.io/product/session-replay/), this topic is especially challenging.
-Session Replay allows to capture what's going on in a users browsers, which can help developers debug errors or problems the user is experiencing.
+With [Session Replay](https://docs.sentry.io/product/session-replay/), this is especially challenging.
+Session Replay allows you to capture what's going on in a users' browsers, which can help developers debug errors or other problems the user is experiencing.
 While this can be incredibly helpful, there is also a considerable amount of JavaScript code required to actually make this possible - thus leading to an increased bundle size.
 
 In version 7.73.0 of the JavaScript SDKs, we updated the underlying [rrweb](https://github.com/getsentry/rrweb) package from v1 to v2.
@@ -26,14 +26,14 @@ We're very happy to say that our efforts have been successful, and we managed to
 
 | Version                                                                      | Bundle Size¹ | What                                     |
 | ---------------------------------------------------------------------------- | ------------ | ---------------------------------------- |
-| [7.72.0](https://github.com/getsentry/sentry-javascript/releases/tag/7.72.0) | 75.58 KB     | Before updating to rrweb 2.0             |
+| [7.72.0](https://github.com/getsentry/sentry-javascript/releases/tag/7.72.0) | 75.58 KB     | With rrweb 1.0             |
 | [7.73.0](https://github.com/getsentry/sentry-javascript/releases/tag/7.73.0) | 84.26 KB     | After updating to rrweb 2.0              |
 | [7.78.0](https://github.com/getsentry/sentry-javascript/releases/tag/7.78.0) | 65.24 KB     | New default                              |
 | [7.78.0](https://github.com/getsentry/sentry-javascript/releases/tag/7.78.0) | 55.48 KB     | With all tree shaking options configured |
 
 ¹Including Error & Performance Monitoring as well as Session Replay, minified & gzipped
 
-## Steps to reduce the SDK bundle size
+## Steps we took to reduce bundle size
 
 In order to achieve these bundle size improvements, we took a couple of steps ranging from removing unused code to build time configuration and improved tree shaking:
 
@@ -41,7 +41,7 @@ In order to achieve these bundle size improvements, we took a couple of steps ra
 - Removed canvas recording support by default (users can opt-in via a config option, [support is coming](https://github.com/getsentry/sentry-javascript/issues/6519))
 - Remove unused code from our rrweb fork
 - Remove unused code in Session Replay itself
-- Allow to remove the included compression worker in favor of hosting it yourself
+- Allow users to remove the included compression worker in favor of hosting it yourself
 - Move to a different compression library with a smaller footprint
 
 ## Primer: rrweb
@@ -52,14 +52,15 @@ which is why we also maintain a [forked version](https://github.com/getsentry/rr
 
 ## Primer: Tree Shaking
 
-If you do not know what tree shaking is and how it works, you can [read about it in our docs](https://docs.sentry.io/platforms/javascript/configuration/tree-shaking/).
+Tree shaking allows a JavaScript bundler to remove unused code from the final bundle
+If you're not familiar with how it works and their advantages, we recommend [reading about it in our docs](https://docs.sentry.io/platforms/javascript/configuration/tree-shaking/) for more details.
 
 ## Allow to remove iframe & shadow DOM support via a build-time flag
 
-While rrweb allows to capture more or less everything that happens on your page, some of the things it can capture may not be necessary for some users.
+While rrweb allows you to capture more or less everything that happens on your page, some of the things it can capture may not be necessary for some users.
 For these cases, we now allow users to manually remove certain parts of the rrweb codebase they may not need at build time, reducing the bundle size.
 
-In [getsentry/sentry-javascript#9274](https://github.com/getsentry/sentry-javascript/pull/9274) & [getsentry/rrweb#114](https://github.com/getsentry/rrweb/pull/114) we implemented the ground work to allow to tree shake iframe and shadow dom recording. This means that if, for example, you don't have any iframes on your page, you can safely opt-in to remove this code from your application.
+In [getsentry/sentry-javascript#9274](https://github.com/getsentry/sentry-javascript/pull/9274) & [getsentry/rrweb#114](https://github.com/getsentry/rrweb/pull/114) we implemented the ground work to allow for tree shaking iframe and shadow DOM recordings. This means that if, for example, you don't have any iframes on your page, you can safely opt-in to remove this code from your application.
 
 In [getsentry/sentry-javascript-bundler-plugins#428](https://github.com/getsentry/sentry-javascript-bundler-plugins/pull/428) we implemented an easy way to implement these optimizations in your app. If you are using one of our bundler plugins:
 
@@ -80,7 +81,7 @@ sentryPlugin({
 })
 ```
 
-This will safe you about 5 KB gzipped of bundle size!
+This will save you about 5 KB gzipped of bundle size!
 
 ### How we implement build-time tree shaking flags
 
@@ -110,9 +111,9 @@ if (false) {
 }
 ```
 
-And in turn, since the code inside of `if (false)` will definitely never be called, will be completely tree shaken away.
+And in turn, since the code inside of `if (false)` will definitely never be called, it will be completely tree shaken away.
 
-For rrweb, we used the same approach to allow to remove certain recording managers:
+For rrweb, we used the same approach to allow you to remove certain recording managers:
 
 1. In order to avoid touching all the parts of the code that may use a manager, we added new dummy managers following the same interface but doing nothing:
 
@@ -132,7 +133,7 @@ class ShadowDomManagerNoop implements ShadowDomManagerInterface {
 }
 ```
 
-2. Now, in the place where the ShadowDomManager is usually initialized, we can do the following:
+2. Now, in the place where the `ShadowDomManager` is usually initialized, we can do the following:
 
 ```js
 const shadowDomManager =
@@ -146,11 +147,11 @@ This means that by default, the regular `ShadowDomManager` is used. However, if 
 ## Removed canvas recording support by default
 
 Since we currently do [not support replaying captured canvas elements](https://github.com/getsentry/sentry-javascript/issues/6519), and because the canvas capturing code makes up a considerable amount of the rrweb codebase,
-we decided to remove this code by default from our rrweb fork, and instead allow to opt-in to use this by passing a canvas manager into the rrweb `record()` function.
+we decided to remove this code by default from our rrweb fork, and instead allow you to opt-in to use this by passing a canvas manager into the rrweb `record()` function.
 
 We implemented this in [getsentry/rrweb#122](https://github.com/getsentry/rrweb/pull/122), where we started to export a new `getCanvasManager` function, as well as accepting such a function in the `record()` method. With this, we can successfully tree-shake the unused canvas manager out, leading to smaller bundle size by default, unless users manually import & pass the `getCanvasManager` function.
 
-Once we fully support capturing & replaying canvas elements in Session Replay, we will add a configuration option to `new Replay()` to opt-in to canvas recording.
+Once we fully support capturing & replaying canvas elements in Session Replay [(coming soon)](https://github.com/getsentry/sentry-javascript/issues/6519), we will add a configuration option to `new Replay()` to opt-in to canvas recording.
 
 ## Remove unused code from rrweb
 
@@ -206,4 +207,4 @@ In order to both satisfy stricter CSP environments, as well as allowing to optim
 
 Implemented in [getsentry/sentry-javascript#9409](https://github.com/getsentry/sentry-javascript/pull/9409),
 we added an example web worker that users can host on their own server, and then pass in a custom `workerUrl` to `new Replay({})`.
-With this setup, users safe 10 KB gzipped of their bundle size, and can serve the worker as a separate asset that can be cached independently.
+With this setup, users save 10 KB gzipped of their bundle size, and can serve the worker as a separate asset that can be cached independently.
