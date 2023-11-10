@@ -22,7 +22,7 @@ In version 7.73.0 of the JavaScript SDKs, we updated the underlying [rrweb](http
 While this brought a host of improvements, it also came with a considerable increase in bundle size.
 This tipped us over the edge to declare a bundle size emergency, and focus on bringing the additional size Session Replay adds to the SDK down as much as possible.
 
-We're very happy to say that our efforts have been successful, and we managed to reduce the minified & gzipped bundle size compared to the rrweb 2 baseline by 23% (~19 KB), and by up to 35% (~29 KB) with maximum tree shaking configuration enabled.
+We're very happy to say that our efforts have been successful, and we managed to reduce the minified & gzipped bundle size compared to the rrweb 2.0 baseline by 23% (~19 KB), and by up to 35% (~29 KB) with maximum tree shaking configuration enabled.
 
 | Version                                                                      | Bundle Size¹ | What                                     |
 | ---------------------------------------------------------------------------- | ------------ | ---------------------------------------- |
@@ -37,12 +37,12 @@ We're very happy to say that our efforts have been successful, and we managed to
 
 In order to achieve these bundle size improvements, we took a couple of steps ranging from removing unused code to build time configuration and improved tree shaking:
 
-- Make it possible to remove iframe & shadow DOM support via a build-time flag
+- Made it possible to remove iframe & shadow DOM support via a build-time flag
 - Removed canvas recording support by default (users can opt-in via a config option, [support is coming](https://github.com/getsentry/sentry-javascript/issues/6519))
-- Remove unused code from our rrweb fork
-- Remove unused code in Session Replay itself
-- Make it possible to remove the included compression worker in favor of hosting it yourself
-- Move to a different compression library with a smaller footprint
+- Removed unused code from our rrweb fork
+- Removed unused code in Session Replay itself
+- Made it possible to remove the included compression worker in favor of hosting it yourself
+- Moved to a different compression library with a smaller footprint
 
 ## Primer: rrweb
 
@@ -194,7 +194,7 @@ In addition to rrweb, we also identified & removed some unused code in Session R
 We used to compress replay payloads with [pako](https://github.com/nodeca/pako), which, while it worked well enough, turned out to be a rather large (bundle-size wise) library for compression.
 We switched over to use [fflate](https://github.com/101arrowz/fflate) in [getsentry/sentry-javascript#9436](https://github.com/getsentry/sentry-javascript/pull/9436) instead, which reduced bundle size by a few KB.
 
-## Allowed to host compression worker
+## Made it possible to host compression worker
 
 We use a web worker to compress Session Replay recording data.
 This helps to send less data over the network, and reduces the performance overhead for users of the SDK.
