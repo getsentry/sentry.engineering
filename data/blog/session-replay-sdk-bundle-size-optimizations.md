@@ -1,5 +1,5 @@
 ---
-title: 'Session Replay SDK Bundle Size Optimizations'
+title: 'How We Reduced Replay SDK Bundle Size by 35%'
 date: '2023-10-31'
 tags: ['sdk', 'javascript', 'replay', 'session-replay']
 draft: false
