@@ -1,9 +1,9 @@
 ---
 title: 'How We Reduced Replay SDK Bundle Size by 35%'
-date: '2023-10-31'
+date: '2023-11-14'
 tags: ['sdk', 'javascript', 'replay', 'session-replay']
 draft: false
-summary: 'An in-depth analysis of how we managed to cut the Session Replay SDK bundle size by 23%.'
+summary: 'An in-depth analysis of how we managed to cut the Session Replay SDK bundle size by 35%.'
 images: [/images/session-replay-sdk-bundle-size-optimizations/hero.jpg]
 layout: PostLayout
 canonicalUrl: https://sentry.engineering/blog/session-replay-sdk-bundle-size-optimizations
