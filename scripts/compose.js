@@ -41,11 +41,8 @@ const genFrontMatter = (answers) => {
   images: []
   layout: ${answers.layout}
   canonicalUrl: ${answers.canonicalUrl}
+  authors: [${authorArray}]
   `
-
-  if (answers.authors.length > 0) {
-    frontMatter = frontMatter + '\n' + `authors: [${authorArray}]`
-  }
 
   frontMatter = frontMatter + '\n---'
 
