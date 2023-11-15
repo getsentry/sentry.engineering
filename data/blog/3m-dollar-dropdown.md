@@ -9,7 +9,7 @@ layout: PostLayout
 authors: ['mikeihbe']
 ---
 
-Bringing data residency to Sentry’s EU customers the hard way
+This is a story about a $3,000,000 dollar dropdown we built to bring Sentry customers EU data residency the hard way.
 
 ### TLDR; Shameless Plug
 
@@ -31,23 +31,23 @@ This is the $3M dropdown in the Sentry organization creation flow that sets wher
 
 > 💰 ~15 people working part or full time over >18 months in San Francisco and Toronto easily tops $3M.
 
-# Doing the right thing for our users
+# Optimizing for User Experience
+
+One of the primary goals of this project was to deliver a great user experience for our customers. This drove most of our decision-making.
 
 It would’ve been an easy implementation to simply deploy a completely disjointed instance of Sentry in the EU. Unfortunately, this would’ve been a terrible user experience for many customers.
 
-You’ve probably experienced the bad UX I’m talking about with other products. Every time you want to log in, you have to tell them your email address or the name of your organization, then they send you a link to the right URL where you can actually log in. We wanted to avoid that rigmarole.
+You’ve probably experienced the bad UX I’m talking about with other products. Every time you want to log in, you have to tell them your email address or the name of your organization, then they send you a link to the right URL where you can actually log in.
 
-One major reason for this is that about half of Sentry’s users are in multiple Sentry organizations, and those organizations can now be in different data centers!
+We wanted to avoid that rigmarole – for several reasons. About half of Sentry’s users are in multiple Sentry organizations, and those organizations can now be in different data centers. Imagine having to wait for an email link every time you wanted to switch organizations?
 
-> 💡 Fun Fact: ~50% of Sentry’s users are in multiple sentry organizations
-
-We built with all of those users in mind. We didn’t want to disrupt your ability to seamlessly toggle between Sentry organizations anywhere in the world.
+So we built with all of those users in mind. We didn’t want to disrupt your ability to seamlessly toggle between Sentry organizations anywhere in the world.
 
 ![An organization picker from sentry.io](/images/3m-dollar-dropdown/orgpicker.png)
 
-> 💡 Another Fun Fact: 1000s of organizations link the same 3rd party integration target with multiple organizations
+We also have 1000s of organizations that share the same 3rd party integration target with multiple Sentry organizations. Sometimes several teams within a company will create their own Sentry orgniazations but share a single GitHub account or Slack workspace. Or a parent company can have many subsidiaries (each with their own Sentry organization) that all share a Jira instance. We didn’t want to break any of these customer workflows just because customers opt to have organizations in multiple locales.
 
-This could be because a company has multiple Sentry organizations that share a single GitHub account or Slack workspace, or a parent company which has many subsidiaries that all share a Jira instance. Whatever their workflows, we didn’t want to break them just because they opt to have organizations in multiple locales.
+We worked hard to design a solution to maintain these optimal experiences, and that was as backward compatibile and as fault-tolerant as possible.
 
 # An architecture that optimizes for UX
 
@@ -63,11 +63,13 @@ Some stats to illustrate the scope of the sentry monolith:
 
 ## Our approach
 
-The most important thing we did was to articulate a clear difference between Sentry customer data and Sentry’s customers’ data. Sentry’s customers’ data must never leave the region it was sent to.
+The most important thing we did was to articulate a clear difference between Sentry user data (its users) and Sentry’s customers’ data (event data). Customer event data must never leave the region it was sent to, but Sentry user data has to be reachable everywhere.
 
 ## Splitting the data model
 
 Given those constraints, we began by introducing the concept of “silos”. A single “control silo” contains globally unique data and many “region silos” contain Sentry’s customer’s data.
+
+The control silo holds globally unique information like organization data, user accounts, slugs, and integration configuration. The region silos contain all of an organization’s events, projects, and other customer-specific information.
 
 We then assigned each model to a silo and went about breaking all foreign keys between models located in different silos. This required roughly 80 migrations as well as refactoring all queries that joined data across silo boundaries to either fundamentally change how they work or replace them with RPC calls.
 
@@ -79,27 +81,25 @@ Customer data cannot be fetched from region silos, which is the key principle of
 
 ### Remote Procedure Calls
 
-We ended up building a fairly standard RPC implementation that allows us to define a pure python interface that accepts simple dataclasses as arguments, then we provide a single concrete implementation of the interface, and wrap up those pieces with decorators that expose an HTTP client implementation which automatically handles serialization, etc and connects to our RPC endpoint that re-marshals the data and handles dispatching to the concrete implementation.
+We ended up building a fairly standard RPC implementation that allows us to define a pure python interface that accepts simple dataclasses as arguments, then we provide a single concrete implementation of the interface. We have some decorators and helper methods that wrap up the interface and autogenerate an HTTP client implementation that handles arguemnt serialization, etc and connects to our RPC endpoint that re-marshals the data and handles dispatching to the concrete implementation.
 
 [—> Go see some code —>](https://github.com/getsentry/sentry/tree/master/src/sentry/services/hybrid_cloud)
 
 #### Why not GRPC?
 
-We strongly considered it, but adopting a code gen tool for this was a bit controversial internally, and this wasn’t that hard to do, so we just built it.
+We strongly considered it, but adopting a code gen tool for this was a bit controversial internally, and this wasn’t that hard to implement, so we just built it 🤷.
 
 ### RPC Versioning
 
-If you’re familiar with API design, then you know breaking API changes can be a big problem. We haven’t actually built this yet, but we will be building a tool that basically publishes an OpenAPI spec for these interfaces and can detect incompatible version drift (like removing arguments or adding arguments without a default). In practice, so far at least, these APIs don’t change much, so we’ve been prioritizing shipping this to customers, but we’ll be circling back to ensure all of this remains stable.
+Breaking API changes can be a big problem. Particularly when we have to run different versions of Sentry all over the world in a backward compatible way. That's why we are building a tool that publishes the OpenAPI spec for our RPC interfaces and can detect incompatible version drift (like removing arguments or adding arguments without a default). In practice, so far at least, these APIs don’t change much, so we’ve been prioritizing shipping this to customers, but we’ll be circling back to ship this to ensure that all of our cross-silo communication remains stable.
 
 ### Cross Region Replication
 
-We had some hearty debate about how to handle data replication where we needed it. We wanted to strike the right balance between network efficiency, explicitness, and ease of correct use. We didn’t want to require ops intervention to replicate a new table, but we also didn’t want it to be too easy for developers to move data around that they shouldn’t be moving. Explicitness was key to the implementation so we could confirm correctness.
+We had some hearty debate about how to handle data replication where we needed it. We wanted to strike the right balance between network efficiency, explicitness, and ease of correct use. We didn’t want to require intervention from our ops team to replicate a new table, but we also didn’t want it to be too easy for developers to move data around that they shouldn’t be moving. Explicitness was key to the implementation so we could confirm correctness.
 
 #### Why not Change Data Capture (CDC)?
 
 Sentry has a lot of wildly varying deployment modes that we need to handle: self-hosted, development environments, test suites, single tenants, and production SaaS. Our replication needs also occasionally involve business logic that needs to be tested. Between the operational complexity and our need for custom business logic, we opted to fully define our replication implementation within the application logic so that it would just work everywhere and be easy to test.
-
-Another problem we quickly ran into once we started breaking foreign keys between silos was the need to duplicate ON DELETE CASCADE functionality. This outbox mechanism was perfect for sending tombstone records between regions and triggering cleanup tasks in a unified way. We
 
 ### Cross silo synchronization
 
@@ -109,15 +109,15 @@ Sentry receives webhooks from many third parties, ranging from repository provid
 
 #### 3rd Party Integrations
 
-Another idiosyncrasy of Sentry is that our third party integrations can be shared across organizations. This could be because multiple teams within the same company each have their own Sentry organization, but perhaps they share the same Slack workspace. This was no problem when all requests to the third party originated from the same place. In a world where requests to this third party come from multiple distinct regions, we have a problem: Any of the requests from any region could trigger an OAuth token refresh that other silos need to be immediately aware of. Eventual consistency driven by our outbox system is insufficient for meeting this requirement.
+Sentry allows third party integrations to be shared across organizations. This was no problem when all requests to the third party originated from the same place, but now these organizations can be in different regions. This causes a problem: any of the requests to a third party from any region could trigger an OAuth token refresh that other silos need to be immediately aware of. Eventual consistency driven by our outbox system is insufficient for meeting this requirement.
 
 ![A sequence diagram illustrating the oauth proxy refreshing tokens for all requests across clusters](/images/3m-dollar-dropdown/oauth-proxy.png)
 
-In order to provide this synchronization, we built an OAuth aware 3rd party proxy that handles token refreshes and allows us to maintain a single source of truth for OAuth tokens. The trade off for correctness here is that all 3rd party API traffic has to go through this control silo proxy.
+In order to provide this synchronization, we built an OAuth aware 3rd party proxy that handles token refreshes and allows us to maintain a single source of truth for OAuth tokens. The trade off for correctness here is that all 3rd party API traffic has to go through this proxy that lives in the control silo.
 
 ## Learnings & Challenges
 
-This was a long project with a lot of interesting challenges. We’ll be covering many of these topic in more detail in an upcoming blog series shortly after we go live.
+This post was only able to scratch the surface of the many interesting challenges we encountered in this project. We’ll be covering many of these topic in more detail in an upcoming blog series after we go live.
 
 |                                         |                                      |
 | --------------------------------------- | ------------------------------------ |
