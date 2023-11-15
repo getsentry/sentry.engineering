@@ -3,13 +3,11 @@ title: 'A $3,000,000 Dropdown'
 date: '2023-11-15'
 tags: ['building sentry']
 draft: false
-summary: 'Almost 2 years ago, Sentry embarked on a project to bring true data residency to our customers. This is about bringing data residency to Sentry’s EU customers the hard way.'
+summary: Almost 2 years ago, Sentry embarked on a project to bring true EU data residency to Sentry's customers. We decided to do it the hard way.
 images: ['/images/locking-war-story-title.png']
 layout: PostLayout
 authors: ['mikeihbe']
 ---
-
-This is a story about a $3,000,000 dollar dropdown we built to bring Sentry customers EU data residency the hard way.
 
 ### TLDR; Shameless Plug
 
@@ -19,11 +17,11 @@ On to the technical goodies…
 
 # The Project
 
-Almost 2 years ago, Sentry embarked on a project to bring true data residency to our customers.
+Almost 2 years ago, Sentry embarked on a project to bring true data residency to our customers. We decided to do it the hard way.
 
 We’ve been fully compliant with GDPR through data processor contracts, but we wanted to side-step the lawyers and enable customers to truly host their data in the EU. Many Sentry users, big and small, have been self-hosting Sentry because we were unable to provide in-jurisdiction data storage for them.
 
-Superficially, this is as simple as adding a dropdown to our organization creation flow. We did in fact do that, but there is a mountain of work that happened behind the scenes that we want to share!
+Superficially, supporting the EU is as simple as adding a dropdown to our organization creation flow. We did in fact do that, but there is a mountain of work that happened behind the scenes that we want to share!
 
 This is the $3M dropdown in the Sentry organization creation flow that sets where your customer data is stored:
 
@@ -35,19 +33,19 @@ This is the $3M dropdown in the Sentry organization creation flow that sets wher
 
 One of the primary goals of this project was to deliver a great user experience for our customers. This drove most of our decision-making.
 
-It would’ve been an easy implementation to simply deploy a completely disjointed instance of Sentry in the EU. Unfortunately, this would’ve been a terrible user experience for many customers.
+A simple implementation would've involved deploying a completely disjointed instance of Sentry in the EU. Unfortunately, this would’ve been a terrible user experience for many customers.
 
 You’ve probably experienced the bad UX I’m talking about with other products. Every time you want to log in, you have to tell them your email address or the name of your organization, then they send you a link to the right URL where you can actually log in.
 
-We wanted to avoid that rigmarole – for several reasons. About half of Sentry’s users are in multiple Sentry organizations, and those organizations can now be in different data centers. Imagine having to wait for an email link every time you wanted to switch organizations?
+We wanted to avoid that rigamarole – for several reasons. About half of Sentry’s users are in multiple Sentry organizations, and those organizations can now be in different data centers. Imagine having to wait for an email link every time you wanted to switch organizations?
 
-So we built with all of those users in mind. We didn’t want to disrupt your ability to seamlessly toggle between Sentry organizations anywhere in the world.
+We wanted to do better. We wanted to maintain your ability to seamlessly toggle between Sentry organizations anywhere in the world.
 
 ![An organization picker from sentry.io](/images/3m-dollar-dropdown/orgpicker.png)
 
 We also have 1000s of organizations that share the same 3rd party integration target with multiple Sentry organizations. Sometimes several teams within a company will create their own Sentry orgniazations but share a single GitHub account or Slack workspace. Or a parent company can have many subsidiaries (each with their own Sentry organization) that all share a Jira instance. We didn’t want to break any of these customer workflows just because customers opt to have organizations in multiple locales.
 
-We worked hard to design a solution to maintain these optimal experiences, and that was as backward compatibile and as fault-tolerant as possible.
+We worked hard to design a solution that maintained these optimal experiences, and that was as backward compatibile and as fault-tolerant as possible.
 
 # An architecture that optimizes for UX
 
