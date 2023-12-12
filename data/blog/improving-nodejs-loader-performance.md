@@ -18,21 +18,26 @@ In order to differentiate which loader to use, Node.js depends on several factor
 This decision is made in `lib/internal/modules/run_main.js` file. You can see a simplified version of [the code][prior-to-optimization-run-main] below:
 
 ```js
-const { readPackageScope } = require('internal/modules/package_json_reader');
+const { readPackageScope } = require('internal/modules/package_json_reader')
 
 function shouldUseESMLoader(mainPath) {
   // Determine the module format of the entry point.
-  if (mainPath && mainPath.endsWith('.mjs')) { return true; }
-  if (!mainPath || mainPath.endsWith('.cjs')) { return false; }
+  if (mainPath && mainPath.endsWith('.mjs')) {
+    return true
+  }
+  if (!mainPath || mainPath.endsWith('.cjs')) {
+    return false
+  }
 
-  const pkg = readPackageScope(mainPath);
+  const pkg = readPackageScope(mainPath)
   switch (pkg.data?.type) {
     case 'module':
-      return true;
+      return true
     case 'commonjs':
-      return false;
-    default: { // No package.json or no `type` field.
-      return false;
+      return false
+    default: {
+      // No package.json or no `type` field.
+      return false
     }
   }
 }
@@ -40,7 +45,7 @@ function shouldUseESMLoader(mainPath) {
 
 `readPackageScope` traverses the directory tree upwards until it finds a `package.json` file. Prior to the optimizations done on this post, `readPackageScope` calls an internal version of `fs.readFileSync` until it finds a `package.json` file. This synchronous call makes a filesystem operation and communicates with Node.js C++ layer. This operation has performance bottlenecks depending on the value/type it returns because of the cost of serialization/deserialization of data. This is why we want to avoid calling `readPackage` a.k.a. `fs.readFileSync` inside `readPackageScope` as much as possible.
 
-## How does Node.js parse `package.json`?
+## How Node.js parses `package.json`?
 
 By default, `readPackage` calls an internal version `fs.readFileSync` to read the `package.json` file. This synchronous call returns a string from Node.js C++ layer, which later gets parsed using V8's `JSON.parse()` method. Depending on the validity of this JSON, Node.js checks and creates an object that's required for the remaining of the loaders to perform. These fields are `pkg.name`, `pkg.main`, `pkg.exports`, `pkg.imports` and `pkg.type`. If the JSON has faulty syntax, Node.js will throw an error and exit the process.
 
@@ -79,25 +84,25 @@ In order to avoid returning unnecessary large objects, I changed the signature o
 ```js
 function shouldUseESMLoader(mainPath) {
   // Determine the module format of the entry point.
-  if (mainPath && mainPath.endsWith('.mjs')) { return true; }
-  if (!mainPath || mainPath.endsWith('.cjs')) { return false; }
+  if (mainPath && mainPath.endsWith('.mjs')) {
+    return true
+  }
+  if (!mainPath || mainPath.endsWith('.cjs')) {
+    return false
+  }
 
-  const response = getNearestParentPackageJSONType(mainPath);
+  const response = getNearestParentPackageJSONType(mainPath)
 
   // No package.json or no `type` field.
   if (response === undefined || response[0] === 'none') {
-    return false;
+    return false
   }
 
-  const {
-    0: type,
-    1: filePath,
-    2: rawContent,
-  } = response;
+  const { 0: type, 1: filePath, 2: rawContent } = response
 
-  checkPackageJSONIntegrity(filePath, rawContent);
+  checkPackageJSONIntegrity(filePath, rawContent)
 
-  return type === 'module';
+  return type === 'module'
 }
 ```
 
@@ -109,45 +114,45 @@ The same function that was mentioned above but on ESM loader called `getPackageS
 
 ```js
 function getPackageScopeConfig(resolved) {
-   let packageJSONUrl = new URL('./package.json', resolved);
-   while (true) {
-     const packageJSONPath = packageJSONUrl.pathname;
-     if (packageJSONPath.endsWith('node_modules/package.json')) {
-       break;
-     }
-     const packageConfig = packageJsonReader.read(fileURLToPath(packageJSONUrl), {
-       __proto__: null,
-       specifier: resolved,
-       isESM: true,
-     });
-     if (packageConfig.exists) {
-       return packageConfig;
-     }
+  let packageJSONUrl = new URL('./package.json', resolved)
+  while (true) {
+    const packageJSONPath = packageJSONUrl.pathname
+    if (packageJSONPath.endsWith('node_modules/package.json')) {
+      break
+    }
+    const packageConfig = packageJsonReader.read(fileURLToPath(packageJSONUrl), {
+      __proto__: null,
+      specifier: resolved,
+      isESM: true,
+    })
+    if (packageConfig.exists) {
+      return packageConfig
+    }
 
-     const lastPackageJSONUrl = packageJSONUrl;
-     packageJSONUrl = new URL('../package.json', packageJSONUrl);
+    const lastPackageJSONUrl = packageJSONUrl
+    packageJSONUrl = new URL('../package.json', packageJSONUrl)
 
-     // Terminates at root where ../package.json equals ../../package.json
-     // (can't just check "/package.json" for Windows support).
-     if (packageJSONUrl.pathname === lastPackageJSONUrl.pathname) {
-       break;
-     }
-   }
-   const packageJSONPath = fileURLToPath(packageJSONUrl);
-   return {
-     __proto__: null,
-     pjsonPath: packageJSONPath,
-     exists: false,
-     main: undefined,
-     name: undefined,
-     type: 'none',
-     exports: undefined,
-     imports: undefined,
-   };
- }
+    // Terminates at root where ../package.json equals ../../package.json
+    // (can't just check "/package.json" for Windows support).
+    if (packageJSONUrl.pathname === lastPackageJSONUrl.pathname) {
+      break
+    }
+  }
+  const packageJSONPath = fileURLToPath(packageJSONUrl)
+  return {
+    __proto__: null,
+    pjsonPath: packageJSONPath,
+    exists: false,
+    main: undefined,
+    name: undefined,
+    type: 'none',
+    exports: undefined,
+    imports: undefined,
+  }
+}
 ```
 
-`getPackageScopeConfig` function on a happy path calls C++ To summarize, Node.js has a C++ 3 times from the following functions:
+To summarize, `getPackageScopeConfig` function calls C++ 3 times from the following functions:
 
 - `new URL(...)` calls `internalBinding('url').parse()` C++ method
 - `path.fileURLToPath()` calls `new URL()` if the input is a string
