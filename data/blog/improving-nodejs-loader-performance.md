@@ -59,7 +59,7 @@ Additionally, Node.js supports an experimental version of `Subresource Integrity
 
 The most important usage is that, for every `require/import` call, Node.js needs to know the module format of the file. For example, if the user require's a NPM module that uses ESM on a CommonJS (CJS) application, Node.js will need to parse the `package.json` file of that module and throw an error if the NPM package is ESM.
 
-Because of all of these calls and usages across ESM and CJS loaders, `package.json` reader is one of the most important parts of Node.js loader implementation.
+Because of all of these calls and usages across ESM and CJS loaders, `package.json` reader is one of the most important parts of the Node.js loader implementation.
 
 ## Optimizations
 
