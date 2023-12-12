@@ -72,6 +72,14 @@ module.exports = withSentryConfig(
   withBundleAnalyzer({
     reactStrictMode: true,
     pageExtensions: ['js', 'jsx', 'md', 'mdx'],
+    images: {
+      remotePatterns: [{
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com',
+        port: '',
+        pathname: '/u/**',
+      }],
+    },
     eslint: {
       dirs: ['pages', 'components', 'lib', 'layouts', 'scripts'],
     },
