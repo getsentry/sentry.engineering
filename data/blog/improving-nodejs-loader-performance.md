@@ -70,7 +70,7 @@ In order to optimize the `package.json` reader performance, I first moved the ca
 - Use V8's `v8::JSON::Parse()` method which takes a `v8::String` as an input and returns a `v8::Value` as an output.
 - Use `simdjson` library to parse the JSON file.
 
-Since, the filesystem returns a string, converting that string into a `v8::String` just to retrieve the keys and values as a `std::string` didn't make sense. Therefore, I added `simdjson` as a dependency to Node.js and used it to parse the JSON file. This change enabled us to parse the JSON file in C++ and extract and return only the necessary fields to the JavaScript side, reducing the size of the input that needs to be serialized/deserialized.
+Since the filesystem returns a string, converting that string into a `v8::String` just to retrieve the keys and values as a `std::string` didn't make sense. Therefore, I added `simdjson` as a dependency to Node.js and used it to parse the JSON file. This change enabled us to parse the JSON file in C++ and extract and return only the necessary fields to the JavaScript side, reducing the size of the input that needs to be serialized/deserialized.
 
 ### Avoiding serialization cost
 
