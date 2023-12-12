@@ -40,7 +40,7 @@ function shouldUseESMLoader(mainPath) {
 
 `readPackageScope` traverses the directory tree upwards until it finds a `package.json` file. Prior to the optimizations done on this post, `readPackageScope` calls an internal version of `fs.readFileSync` until it finds a `package.json` file. This synchronous call makes a filesystem operation and communicates with Node.js C++ layer. This operation has performance bottlenecks depending on the value/type it returns because of the cost of serialization/deserialization of data. This is why we want to avoid calling `readPackage` a.k.a. `fs.readFileSync` inside `readPackageScope` as much as possible.
 
-## How does Node.js parses `package.json`?
+## How does Node.js parse `package.json`?
 
 By default, `readPackage` calls an internal version `fs.readFileSync` to read the `package.json` file. This synchronous call returns a string from Node.js C++ layer, which later gets parsed using V8's `JSON.parse()` method. Depending on the validity of this JSON, Node.js checks and creates an object that's required for the remaining of the loaders to perform. These fields are `pkg.name`, `pkg.main`, `pkg.exports`, `pkg.imports` and `pkg.type`. If the JSON has faulty syntax, Node.js will throw an error and exit the process.
 
