@@ -153,7 +153,7 @@ function getPackageScopeConfig(resolved) {
 - `path.fileURLToPath()` calls `new URL()` if the input is a string
 - `packageJsonReader.read()` calls `fs.readFileSync()` C++ method
 
-Moving this whole function to C++, enabled us to reduce the number of C++ calls to 1 to 1. This conversion also forced us to implement `url.fileURLToPath()` in C++.
+Moving this whole function to C++ enabled us to reduce the number of C++ calls to 1 to 1. This conversion also forced us to implement `url.fileURLToPath()` in C++.
 
 ## Results
 
