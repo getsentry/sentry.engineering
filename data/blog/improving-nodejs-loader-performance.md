@@ -110,7 +110,7 @@ Moving the caching layer to C++ enabled us to expose micro-functions that return
 
 ### Reducing C++ calls to 1 to 1
 
-The same function that was mentioned above but on ESM loader called `getPackageScopeConfig` made a lot of C++ calls in order to resolve and retrieve the applicable `package.json` file. The implementation was as follows:
+On CommonJS, `readPackageConfig` is implemented on the ESM loader under `getPackageScopeConfig` function. This function made a lot of C++ calls in order to resolve and retrieve the applicable `package.json` file. The implementation was as follows:
 
 ```js
 function getPackageScopeConfig(resolved) {
