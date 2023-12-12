@@ -147,7 +147,7 @@ function getPackageScopeConfig(resolved) {
  }
 ```
 
-`getPackageScopeConfig` function on a happy path calls C++ To summarize Node.js has a C++ 3 times from the following functions:
+`getPackageScopeConfig` function on a happy path calls C++ To summarize, Node.js has a C++ 3 times from the following functions:
 
 - `new URL(...)` calls `internalBinding('url').parse()` C++ method
 - `path.fileURLToPath()` calls `new URL()` if the input is a string
