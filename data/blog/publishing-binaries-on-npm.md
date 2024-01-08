@@ -32,7 +32,7 @@ If we do not want to contribute to it, we need a solution that exclusively downl
 
 ## Exploring Our Options
 
-- **TL;DR: The most reliable option is to ship the binaries inside of `optionalDependencies` and download the binary via a `postinstall` script as a backup strategy. Doing only one of the two will run into problems in setups where the respective feature is disabled. Skip to [Implementation](#implementation) for details.**
+**TL;DR: The most reliable option is to ship the binaries inside of `optionalDependencies` and download the binary via a `postinstall` script as a backup strategy. Doing only one of the two will run into problems in setups where the respective feature is disabled. Skip to [Implementation](#implementation) for details.**
 
 There are two options to ship platform-specific binaries without having to download all of the binaries:
 
