@@ -10,7 +10,7 @@ canonicalUrl: https://sentry.engineering/blog/publishing-binaries-on-npm
 authors: ['lucaforstner']
 ---
 
-**This blog post is a comprehensive guide on how to distribute platform-specific binaries over npm.**
+**This blog post is a comprehensive guide on how to distribute platform-specific binaries over npm. Publishing binaries on npm has a lot of pitfalls and this post aims to help you to avoid them.**
 
 At Sentry we maintain an npm package called `@sentry/cli`, which is a JavaScript wrapper around the Sentry CLI (Command Line Interface).
 The Sentry CLI is written in Rust and ships as multiple different binaries for different processor architectures and operating systems:
@@ -347,8 +347,9 @@ The Linux binary executable files are called `my-binary` and the Windows binary 
        └── cli
    ```
 
-Now we're done.
-Once `my-package` is published and installed, the binaries will be downloaded alongside, and you can either access them from your JS code with the `getBinaryPath()` function or you can directly invoke the binary executables from the command line.
+This concludes setting up your packages for distributing platform-specific binaries.
+Once `my-package` is published and installed, a binary will either be downloaded alongside via `optionalDependencies`, or they will be downloaded through the `postinstall` script.
+To access the binary from you JavaScript code, you can locate it with the `getBinaryPath()` function we created, and if users want to invoke the binary executable from their command line they will be able to do so.
 
 For a full example, take a look at the [Example Repository](https://github.com/lforst/npm-binary-example).
 
