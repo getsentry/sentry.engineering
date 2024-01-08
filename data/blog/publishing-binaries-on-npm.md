@@ -348,8 +348,8 @@ The Linux binary executable files are called `my-binary` and the Windows binary 
    ```
 
 This concludes setting up your packages for distributing platform-specific binaries.
-Once `my-package` is published and installed, a binary will either be downloaded alongside via `optionalDependencies`, or they will be downloaded through the `postinstall` script.
-To access the binary from you JavaScript code, you can locate it with the `getBinaryPath()` function we created, and if users want to invoke the binary executable from their command line they will be able to do so.
+Once `my-package` is published and installed, a binary will either be downloaded alongside via `optionalDependencies`, or it will be downloaded through the `postinstall` script.
+To access the binary from your JavaScript code, you can locate it with the `getBinaryPath()` function we created, and if users want to invoke the binary executable from their command line they will be able to do so.
 
 For a full example, take a look at the [Example Repository](https://github.com/lforst/npm-binary-example).
 
