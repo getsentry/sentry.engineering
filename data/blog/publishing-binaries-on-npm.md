@@ -3,7 +3,7 @@ title: 'How to publish binaries on npm'
 date: '2024-1-5'
 tags: ['npm', 'binary', 'cli', 'web']
 draft: false
-summary: 'A comprehensive guide on how to publish binaries on npm without getting fired'
+summary: 'A comprehensive guide on how to publish binaries on npm without getting fired.'
 images: [/images/publishing-binaries-on-npm/hero.jpeg]
 layout: PostLayout
 canonicalUrl: https://sentry.engineering/blog/publishing-binaries-on-npm
@@ -210,11 +210,9 @@ The Linux binary executable files are called `my-binary` and the Windows binary 
      // Extract binary from package and write to disk
      fs.writeFileSync(
        fallbackBinaryPath,
-       extractFileFromTarball(tarballBuffer, `package/bin/${binaryName}`)
+       extractFileFromTarball(tarballBuffer, `package/bin/${binaryName}`),
+       { mode: 0o755 } // Make binary file executable
      )
-
-     // Make binary executable
-     fs.chmodSync(fallbackBinaryPath, '755')
    }
 
    function isPlatformSpecificPackageInstalled() {
