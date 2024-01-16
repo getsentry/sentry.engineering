@@ -27,7 +27,7 @@ Ideally, our Performance Scores should feel true to what users experience on our
 
 To demonstrate the issues mentioned above, let’s consider a scenario where we have three pageload transactions, with the following **LCP** values and thresholds:
 
-```jsx
+```
 Good    | Meh     | Poor
 -----------------------------
 <1200ms | <2400ms | >= 2400ms
@@ -41,7 +41,7 @@ Aggregating the LCP values above would get a p75 of 4200ms, which equates to an 
 
 A better approach would be to calculate the Performance Score of each pageload transaction on ingestion, and then aggregate for an overall score. If any Web Vitals are missing on a pageload transaction, we can dynamically adjust weights to exclude those missing Web Vitals. Using the example above, we get the following approximate LCP score values
 
-```jsx
+```
 300ms  -> 99
 400ms  -> 99
 8000ms -> 7
