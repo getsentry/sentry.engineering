@@ -24,7 +24,7 @@ Today, we are making updates to how Performance Scores are calculated. These upd
 
         $$S_{total}=S_{lcp} \times 30 + S_{fid} \times 30 + S_{cls} \times 15 + S_{fcp} \times 15 + S_{ttfb} \times 10$$
 
-You can find out more about how these are calculate [in our documentation](https://docs.sentry.io/product/performance/web-vitals/#performance-score).
+You can find out more about how these are calculated [in our documentation](https://docs.sentry.io/product/performance/web-vitals/#performance-score).
 
 While the above approach gives some of the signal that we're looking for, there are some drawbacks that affect how accurately our Performance Scores reflect what users experience:
 
