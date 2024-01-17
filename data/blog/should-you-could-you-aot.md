@@ -94,7 +94,7 @@ internal partial class SentryJsonContext : JsonSerializerContext
 
 This custom context ensures that when we compile the Sentry SDK to a NuGet package, the compiler knows not to trim the `GrowableArray<int>`, `Dictionary<string, bool>` or `Dictionary<string, object>` types that we know get serialized by the Sentry SDK.
 
-Not everything that is possible with Newtonsoft.Json is possible with System.Text.Json though.
+Not everything that is possible when serializing using dynamically generated code is possible with the new System.Text.Json source generators though.
 
 For example, the Sentry SDK includes something called `Contexts` that gets sent with events such as crash reports through to the Sentry backend. It's [possible for users to add their own custom context](https://github.com/getsentry/sentry-dotnet/blob/a34e9844228142bd59f4d454f669207fa9b472cc/src/Sentry/Contexts.cs#L207-L208) as a `KeyValuePair<string, object>` and we have no idea what types they might supply as custom context. As such, we had to give users a way to supply their own `SentryJsonContext` for any custom types that they might be sending with Sentry events.
 
@@ -135,7 +135,7 @@ If you're interested, there's a bit more detail on this and some sample code in 
 
 ## Dependencies on libraries that aren't AOT compatible
 
-Since Sentry is an SDK, we've generally kept dependencies for the solution to a minimum and where we do have dependencies, we maintain the source code for these as GIT submodules within our solution (so that users of our SDK don't need to know about it).
+The Sentry SDKs follow the philosophy that [dependency has a cost](https://develop.sentry.dev/sdk/philosophy/#dependencies-cost) and we generally keep dependencies to a minimum. Where possible, we maintain the source code for these as Git submodules within our solution to avoid conflicts and other issues. This simplified dependency challenges for us.
 
 The main one we struggled with was [Ben.Demystifier by Ben Adams](https://github.com/benaadams/Ben.Demystifier). This is a library that we use to create enhanced stack traces for the crash reports collected by Sentry. It's a great library but unfortunately it relies heavily on reflection and it's not AOT compatible.
 
