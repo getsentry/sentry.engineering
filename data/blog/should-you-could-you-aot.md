@@ -40,7 +40,7 @@ However there are some more fundamental [limitations of Native AOT deployment](h
 1. The _code you write_ must respect these constraints to be AOT compatible
 2. You will need to ensure that _any dependencies you use_ are also AOT compatible
 
-The good news is that version 4 of the Sentry SDK for .NET is AOT compatible, so you can use Sentry for crash reporting and application performance monitoring in your next AOT compiled ASP.NET Core application without worry!
+The good news is that the version 4.0 beta of the Sentry SDK for .NET is AOT compatible, with a GA release happening very soon, so you can use Sentry for crash reporting and application performance monitoring in your next AOT compiled ASP.NET Core application without worry!
 
 Moreover, a lot of work went into making this possible and, as a large open source repository, the journey of making the Sentry .NET SDK AOT compatible is a great case study for the kinds of issues you might encounter and how to overcome these when making your own transition from JIT to AOT.
 
@@ -163,7 +163,7 @@ That on its own would not be enough however. Ordinarily the existence of the cal
 
 Finally, we had some random uses of reflection in our code.
 
-Oftentimes, source code generators can be used instead of reflection. This is exactly what Microsoft have done to create AOT compatibility solutions for serialization and configuration binding. However, in some cases that's not possible.
+Oftentimes, source code generators can be used instead of reflection. This is exactly what Microsoft have done to create AOT compatibile solutions for serialization and configuration binding. However, in some cases that's not possible.
 
 One such case that we ran into is a block of code in the Sentry SDK that uses reflection to set `Microsoft.UI.Xaml.Application.Current.UnhandledException` to Sentry's `WinUIUnhandledExceptionHandler`. The reason we use reflection for this is that this code runs in our core Sentry SDK and we don't want that SDK to take a dependency on `Microsoft.UI.Xaml` (a dependency that is only relevant for WinUI applications).
 
