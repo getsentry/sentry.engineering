@@ -30,13 +30,21 @@ While the above approach gives some of the signal that we're looking for, there 
 
 - Performance Scores can be skewed based on outlier pageloads if the Web Vitals are extreme enough.
 
-  - Consider a scenario where we have three pageload transactions, with the following [LCP](https://docs.sentry.io/product/performance/web-vitals/#largest-contentful-paint-lcp) values and thresholds:
-    ```
-    300ms  -> Good
-    400ms  -> Good
-    8000ms -> Bad
-    ```
-  - Aggregating the LCP values above would get a p75 of 4200ms, qwhich equates to an LCP score of **26**. Although two of the samples in the scenario have very performant LCP values, the one outlier sample overly skews the LCP score negatively.
+  1. Consider a scenario where we have three pageload transactions, with the following [LCP](https://docs.sentry.io/product/performance/web-vitals/#largest-contentful-paint-lcp) values and thresholds:
+     ```
+     300ms  -> Good
+     400ms  -> Good
+     8000ms -> Bad
+     ```
+  2. Aggregating the LCP values above would get a p75 of 4200ms.
+
+     $$p75(300ms,400ms,8000ms)=4200ms$$
+
+  3. Which equates to an LCP score of **26** in our Complementary Log-Normal CDF.
+
+     $$C_{lcp}(4200ms)=0.26$$
+
+  4. Although two of the samples in the scenario have very performant LCP values, the one outlier sample overly skews the LCP score negatively.
 
 - Some Web Vitals may be reported less frequently, depending on [browser support](https://docs.sentry.io/product/performance/web-vitals/#browser-support). These Web Vitals end up overrepresented in Performance Scores because we use static weights.
   - Consider a scenario where our web app has a single LCP sample from Chrome and 100 pageload samples without LCP from Safari (because Safari does not support LCP). This causes LCP to be overrepresented in our performance score because LCP makes up to 30% of our overall Performance Score despite having a sample size of one.
