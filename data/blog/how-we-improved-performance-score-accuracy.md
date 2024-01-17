@@ -2,7 +2,7 @@
 title: 'How we improved Performance Score accuracy'
 date: '2024-01-17'
 tags: ['javascript', 'performance', 'web']
-draft: true
+draft: false
 summary: "We're making updates to how Performance Scores are calculated in the Web Vitals module, which will bring them closer to what your users experience."
 images: ['/images/how-we-improved-performance-score-accuracy/hero.jpg']
 layout: PostLayout
@@ -47,7 +47,7 @@ While the above approach gives some of the signal that we're looking for, there 
   4. Although two of the samples in the scenario have very performant LCP values, the one outlier sample overly skews the LCP score negatively.
 
 - Some Web Vitals may be reported less frequently, depending on [browser support](https://docs.sentry.io/product/performance/web-vitals/#browser-support). These Web Vitals end up overrepresented in Performance Scores because we use static weights.
-  - Consider a scenario where our web app has a single LCP sample from Chrome and 100 pageload samples without LCP from Safari (because Safari does not support LCP). This causes LCP to be overrepresented in our performance score because LCP makes up to 30% of our overall Performance Score despite having a sample size of one.
+  - Consider a scenario where our web app has a single LCP sample from Chrome and 100 pageload samples without LCP from Safari (because Safari does not support LCP). This causes LCP to be overrepresented in our performance score because LCP makes up a static 30% weight of our overall Performance Score despite having a sample size of one.
 
 Ideally, our Performance Scores should feel true to what users experience on our web app. If our web app is fast and responsive, our Performance Scores should positively reflect that. Additionally, Performance Scores should show a consistent relationship when drilling down from web app, to pages, to pageloads.
 
