@@ -12,7 +12,7 @@ authors: ['jamescrosswell']
 
 .NET developers have long been accustomed to JIT (Just-in-Time) compilation. This is where our applications are compiled to intermediate language (IL) bytecode that is only, at runtime, converted to the specific machine code instructions required to execute the program on a specific machine.
 
-However with recent changes to .NET it's now possible to build ASP.NET Core applications that are compiled and built AOT (Ahead-of-Time) into native machine code that can execute on a machine that does not have the .NET runtime installed (like an application written in C or Rust).
+However with the release of .NET 8.0 it's now possible to build ASP.NET Core applications that are compiled and built AOT (Ahead-of-Time) into native machine code that can execute on a machine that does not have the .NET runtime installed (like an application written in C or Rust).
 
 ## Should you compile AOT?
 
