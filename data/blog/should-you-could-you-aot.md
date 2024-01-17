@@ -94,7 +94,7 @@ internal partial class SentryJsonContext : JsonSerializerContext
 
 This custom context ensures that when we compile the Sentry SDK to a NuGet package, the compiler knows not to trim the `GrowableArray<int>`, `Dictionary<string, bool>` or `Dictionary<string, object>` types that we know get serialized by the Sentry SDK.
 
-Not everything that is possible with Newtonsoft.Json is possible with System.Text.Json however.
+Not everything that is possible with Newtonsoft.Json is possible with System.Text.Json though.
 
 For example, the Sentry SDK includes something called `Contexts` that gets sent with events such as crash reports through to the Sentry backend. It's [possible for users to add their own custom context](https://github.com/getsentry/sentry-dotnet/blob/a34e9844228142bd59f4d454f669207fa9b472cc/src/Sentry/Contexts.cs#L207-L208) as a `KeyValuePair<string, object>` and we have no idea what types they might supply as custom context. As such, we had to give users a way to supply their own `SentryJsonContext` for any custom types that they might be sending with Sentry events.
 
