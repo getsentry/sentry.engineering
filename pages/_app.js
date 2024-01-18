@@ -20,7 +20,11 @@ const isSocket = process.env.SOCKET
 
 export default function App({ Component, pageProps }) {
   useEffect(() => {
-    Sentry.metrics.increment('pageview', 1)
+    let metricsData
+    if (pageProps?.post?.frontMatter?.slug) {
+      metricsData = { tags: { slug: pageProps?.post?.frontMatter?.slug } }
+    }
+    Sentry.metrics.increment('pageview', 1, metricsData)
   })
   return (
     <ThemeProvider attribute="class" defaultTheme={siteMetadata.theme}>
