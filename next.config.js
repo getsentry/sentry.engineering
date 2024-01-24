@@ -13,7 +13,7 @@ const ContentSecurityPolicy = `
   media-src 'none';
   connect-src *;
   font-src 'self';
-  frame-src youtube.com www.youtube.com;
+  frame-src youtube-nocookie.com www.youtube-nocookie.com;
   worker-src 'self' blob:;
   child-src 'self' blob:;
   `

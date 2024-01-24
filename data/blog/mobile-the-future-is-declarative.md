@@ -53,7 +53,7 @@ iOS did have some declarative features, like Auto Layout, UIAppearance, the Obje
 
 For example, iOS had (and still has) Storyboards. Storyboards is a graphical tool we use to build our UIs. It is actually an XML file under the hood, but the developers almost never touch the XML code itself. Here’s how we added UI elements in our Storyboards, and created references and actions:
 
-<iframe width="100%" height="450" src="https://www.youtube.com/embed/pTTpjeSARZw?controls=0" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"></iframe>
+<iframe width="100%" height="450" src="https://www.youtube-nocookie.com/embed/pTTpjeSARZw?controls=0" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"></iframe>
 
 ## Being declarative
 To refresh our memory, the **imperative** approach is when you provide step-by-step instructions until you achieve the desired UI. The **declarative** approach is when you describe how the final state of the desired UI should look.
