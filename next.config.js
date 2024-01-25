@@ -7,15 +7,16 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 // You might need to insert additional domains in script-src if you are using external services
 const ContentSecurityPolicy = `
   default-src 'self';
-  script-src 'self' 'unsafe-eval' 'unsafe-inline' www.googletagmanager.com www.google-analytics.com plausible.io;
-  style-src 'self' 'unsafe-inline' *.googleapis.com;
+  script-src 'self' 'unsafe-eval' 'unsafe-inline' www.googletagmanager.com plausible.io;
+  style-src 'self' 'unsafe-inline';
   img-src * blob: data:;
   media-src 'none';
   connect-src *;
   font-src 'self';
-  frame-src youtube.com www.youtube.com;
+  frame-src www.youtube-nocookie.com;
   worker-src 'self' blob:;
   child-src 'self' blob:;
+  report-uri  https://o1.ingest.sentry.io/api/4506633066512384/security/?sentry_key=05f1ed2eb6d2a24f9b00a7147fdef6db;
   `
 
 const securityHeaders = [
@@ -73,12 +74,14 @@ module.exports = withSentryConfig(
     reactStrictMode: true,
     pageExtensions: ['js', 'jsx', 'md', 'mdx'],
     images: {
-      remotePatterns: [{
-        protocol: 'https',
-        hostname: 'avatars.githubusercontent.com',
-        port: '',
-        pathname: '/u/**',
-      }],
+      remotePatterns: [
+        {
+          protocol: 'https',
+          hostname: 'avatars.githubusercontent.com',
+          port: '',
+          pathname: '/u/**',
+        },
+      ],
     },
     eslint: {
       dirs: ['pages', 'components', 'lib', 'layouts', 'scripts'],
