@@ -16,6 +16,7 @@ const ContentSecurityPolicy = `
   frame-src youtube-nocookie.com www.youtube-nocookie.com;
   worker-src 'self' blob:;
   child-src 'self' blob:;
+  report-uri  https://o1.ingest.sentry.io/api/4506633066512384/security/?sentry_key=05f1ed2eb6d2a24f9b00a7147fdef6db;
   `
 
 const securityHeaders = [
@@ -73,12 +74,14 @@ module.exports = withSentryConfig(
     reactStrictMode: true,
     pageExtensions: ['js', 'jsx', 'md', 'mdx'],
     images: {
-      remotePatterns: [{
-        protocol: 'https',
-        hostname: 'avatars.githubusercontent.com',
-        port: '',
-        pathname: '/u/**',
-      }],
+      remotePatterns: [
+        {
+          protocol: 'https',
+          hostname: 'avatars.githubusercontent.com',
+          port: '',
+          pathname: '/u/**',
+        },
+      ],
     },
     eslint: {
       dirs: ['pages', 'components', 'lib', 'layouts', 'scripts'],
