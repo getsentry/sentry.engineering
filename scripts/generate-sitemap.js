@@ -11,6 +11,8 @@ const siteMetadata = require('../data/siteMetadata')
     'pages/*.tsx',
     'data/blog/**/*.mdx',
     'data/blog/**/*.md',
+    'data/blog/*.mdx',
+    'data/blog/*.md',
     'public/tags/**/*.xml',
     '!pages/_*.js',
     '!pages/_*.tsx',
@@ -27,9 +29,6 @@ const siteMetadata = require('../data/siteMetadata')
                   const source = fs.readFileSync(page, 'utf8')
                   const fm = matter(source)
                   if (fm.data.draft) {
-                    return
-                  }
-                  if (fm.data.canonicalUrl) {
                     return
                   }
                 }
