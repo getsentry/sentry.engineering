@@ -7,7 +7,7 @@ const siteMetadata = {
   language: 'en-us',
   theme: 'system', // system, dark or light
   siteUrl: 'https://sentry.engineering',
-  siteRepo: '',
+  siteRepo: 'https://github.com/getsentry/sentry.engineering',
   siteLogo: '',
   image: '/images/sentry-engineering.png',
   socialBanner: '/images/sentry-engineering.png',
