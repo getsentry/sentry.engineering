@@ -4,7 +4,7 @@ date: '2024-04-17'
 tags: ['mobile', 'ios', 'android', 'profiling']
 draft: false
 summary: "See what's happening in your app before your first line of code can even run."
-images: []
+images: ['/images/mobile-app-launch-profiling/launch-profile.png']
 layout: PostLayout
 canonicalUrl: mobile-app-launch-profiling
 authors: ['armcknight']
