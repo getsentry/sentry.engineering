@@ -12,11 +12,11 @@ authors: ['andrewmcknight']
 
 If you use Sentry’s Performance monitoring on Cocoa and Android, you also have the ability to see [profiles](https://docs.sentry.io/product/profiling/) of how your app runs in the wild on real end user devices. Any time an automatic or manual transaction is recorded, that profiling data is attached. But are there times where you can’t record a transaction? 🤔
 
+# App launch performance
+
 <aside>
 💡 This post will focus on our Cocoa app launch profiling feature. You can read more about the Android counterpart by heading over to that area of our docs: https://docs.sentry.io/platforms/android/profiling/#app-start-profiling
 </aside>
-
-# App launch performance
 
 Apple places special focus on good [performance of an app’s launch](https://developer.apple.com/documentation/xcode/reducing-your-app-s-launch-time). They even built an entire process to enforce good performance: the [watchdog](https://developer.apple.com/documentation/xcode/addressing-watchdog-terminations). There are two ways you can monitor launch performance today:
 
