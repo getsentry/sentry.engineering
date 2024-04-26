@@ -12,7 +12,7 @@ authors: ['cathyteng']
 
 At Sentry, we always want to bring value to the developer. One area we can do this is through developer workflows, such as pull requests. If you’re already working in a particular area, it’s useful to be informed about issues related to the code you’re changing so you can be proactive in acknowledging and addressing them.
 
-When somebody opens a Github PR, we parse the functions from the PR diff, search for unresolved, unhandled issues related to those functions in the PR files, and make a nice little comment on that PR.
+When somebody opens a GitHub PR, we parse the functions from the PR diff, search for unresolved, unhandled issues related to those functions in the PR files, and make a nice little comment on that PR.
 
 # How it works
 
@@ -20,13 +20,13 @@ When somebody opens a Github PR, we parse the functions from the PR diff, search
 
 ## Webhook
 
-When somebody installs the Sentry Github App, we request permissions so that we can consume webhooks for particular events that we would like to handle. We have a webhook for pull request events that does stuff on the Sentry side when somebody interacts with a pull request on Github. So when somebody opens a pull request, we can kick off the open PR comment workflow.
+When somebody installs the [Sentry GitHub App](https://github.com/apps/sentry-io), we request permissions so that we can consume webhooks for particular events that we would like to handle. We have a webhook for pull request events that does stuff on the Sentry side when somebody interacts with a pull request on GitHub. So when somebody opens a pull request, we can kick off the open PR comment workflow.
 
 ## Comment workflow
 
 ### Qualification checks
 
-We fetch information for the PR files from Github, and then ensure that we don’t comment on PRs that have any of the following:
+We fetch information for the PR files from GitHub, and then ensure that we don’t comment on PRs that have any of the following:
 
 1. More than 7 files modified
 2. More than 500 lines changed
@@ -44,8 +44,8 @@ Note that we only support a particular set of languages (via looking at file ext
 
 #### Reverse codemapping
 
-1.  Normal [codemappings](https://blog.sentry.io/code-mappings-and-why-they-matter/) map a file in the stack trace (within Sentry) to the source code (in a source code management integration such as Github) using a stack trace root and a source code root. Sentry may store filenames differently than in Github, so codemappings store this relationship. We leverage codemappings here because we want to figure out the Sentry project(s) associated with the file and the stored name of the file in order to make a Snuba query (our in-house search infrastructure, read more about it [here](https://blog.sentry.io/introducing-snuba-sentrys-new-search-infrastructure/)), which requires `project_id`.
-2.  We use the organization, the repository, and the filename to attempt to fetch code mappings for the file, matching on whether any source code root for a codemapping is a substring of the filename. If any codemappings are found, we reverse codemap by replacing the source code root in the filename from Github with the stack trace root. (Reverse because usually we go from stack trace to source code root, for instance when opening up a line from a stack trace in Github)
+1.  Normal [codemappings](https://blog.sentry.io/code-mappings-and-why-they-matter/) map a file in the stack trace (within Sentry) to the source code (in a source code management integration such as GitHub) using a stack trace root and a source code root. Sentry may store file names differently than in GitHub, so codemappings store this relationship. We leverage codemappings here because we want to figure out the Sentry project(s) associated with the file and the stored name of the file in order to make a [Snuba](https://blog.sentry.io/introducing-snuba-sentrys-new-search-infrastructure/) query, which requires `project_id`.
+2.  We use the organization, the repository, and the file name to attempt to fetch code mappings for the file, matching on whether any source code root for a codemapping is a substring of the file name. If any codemappings are found, we reverse codemap by replacing the source code root in the file name from GitHub with the stack trace root. (Reverse because usually we go from stack trace to source code root, for instance when opening up a line from a stack trace in GitHub)
 
 #### Extract functions from the file patch
 
@@ -58,7 +58,7 @@ Note that we only support a particular set of languages (via looking at file ext
 1.  We first fetch the first 10k unresolved issues for the projects found via reverse codemapping through Postgres, ordered by times seen. This is to prevent overloading the Snuba query if we pass in too many issue ids.
 2.  Next, we have a complicated looking Snuba query that does the following:
     - Subquery to fetch the count of events for each issue id
-    - Query that filters on the subquery to 1) squash issue ids with the same title and culprit, 2) look for unhandled events that have the filename+function combo for any of the file’s function within the first 4 frames of the stacktrace, and 3) return the top 5 issues with the greatest count of events
+    - Query that filters on the subquery to 1) squash issue ids with the same title and culprit, 2) look for unhandled events that have the file name+function combo for any of the file’s function within the first 4 frames of the stacktrace, and 3) return the top 5 issues with the greatest count of events
 3.  There is also some different logic being inserted depending on the language of the file. For instance, for JavaScript/TypeScript we also look for events that have `{any classname}.function_name` inside the file in addition to just `function_name` inside the file because of how JavaScript/TypeScript events are stored.
 
 ### Create comment
@@ -78,7 +78,7 @@ If we find more things that are different between languages, we can add to the p
 - Issue row template for the comment
 - Extracting functions from patch
 - [multiIf](https://clickhouse.com/docs/en/sql-reference/functions/conditional-functions#multiif)
-  - This can contain custom logic to fetch the function name from the stackframe that matches the filename + a name within the list of function names.
+  - This can contain custom logic to fetch the function name from the stackframe that matches the file name + a name within the list of function names.
   - We do this because we can match up to X frames deep in the stacktrace, we might have a set of function names we’re matching on, and we want the actual function name that we matched on in the stack trace. The stack trace is stored as an array.
 
 ### Example language parser
@@ -89,14 +89,14 @@ Example implementation for JavaScript ([code](https://github.com/getsentry/sentr
 
 # How we got here
 
-I also wanted to call out that getting here was no easy feat. We also investigated using abstract syntax trees (ASTs) to be completely sure what functions had been modified. However, the tradeoff would be that we would need to 1) hit more Github APIs to fetch the complete files and the files for the base commit for the PR and 2) construct or borrow AST logic for each language to make the comparison.
+I also wanted to call out that getting here was no easy feat. We also investigated using abstract syntax trees (ASTs) to be completely sure what functions had been modified. However, the tradeoff would be that we would need to 1) hit more GitHub APIs to fetch the complete files and the files for the base commit for the PR and 2) construct or borrow AST logic for each language to make the comparison.
 
 We decided to iterate from the simplest implementation possible in case it became apparent that the project was not worth pursuing. we first iterated internally with only file-level granularity for these open PR comments. This was not received well, so we knew that we needed to implement open PR comments with function-level granularity.
 
 # How do I get these?
 
-If your project is written in a language that [we currently support](https://docs.sentry.io/product/integrations/source-code-mgmt/github/#open-pull-request-comments), and you use Github, navigate to the Github integration features and toggle `Enable Comments on Open Pull Requests`!
+If your project is written in a language that [we currently support](https://docs.sentry.io/product/integrations/source-code-mgmt/github/#open-pull-request-comments), and you use GitHub, navigate to the GitHub integration features and toggle `Enable Comments on Open Pull Requests`!
 
 ![Toggle open PR comments](/images/open-pr-comments/open-pr-comments-toggle.png)
 
-Open PR Comments is currently only available on Github, and we are looking to extend all the PR comment features to other SCM integrations soon (GitLab, Bitbucket, etc). For more feature requests, submit an issue to the Sentry repo or comment on the PR comment Github discussion [https://github.com/getsentry/sentry/discussions/49996](https://github.com/getsentry/sentry/discussions/49996)
+Open PR Comments is currently only available on GitHub, and we are looking to extend all the PR comment features to other SCM integrations soon (GitLab, Bitbucket, etc). For more feature requests, submit an issue to the Sentry repo or comment on the PR comment GitHub discussion [https://github.com/getsentry/sentry/discussions/49996](https://github.com/getsentry/sentry/discussions/49996)
