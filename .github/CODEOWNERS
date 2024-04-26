@@ -1,0 +1,5 @@
+# Code Owners file
+/.github/CODEOWNERS @getsentry/security
+
+# Content Security Policy Owner
+/next.config.js @getsentry/security
