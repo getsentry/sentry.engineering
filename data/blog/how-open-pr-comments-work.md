@@ -4,7 +4,7 @@ date: '2024-04-18'
 tags: ['integrations', 'github', 'pr-comments']
 draft: false
 summary: "This is how we manage to comment Sentry issues related to code you're modifying in a pull request within seconds."
-images: []
+images: [/images/open-pr-comments/hero.jpeg]
 layout: PostLayout
 canonicalUrl: open-pr-comments
 authors: ['cathyteng']
