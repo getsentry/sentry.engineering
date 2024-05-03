@@ -4,7 +4,7 @@ date: '2024-04-30'
 tags: ['python', 'refactoring', 'sdk']
 draft: false
 summary: 'How we completed a huge refactoring of a software used by thousands of developers without breaking things.'
-images: []
+images: ['/images/how-to-refactor-and-not-break-things/hero.jpg']
 layout: PostLayout
 authors: ['antonpirker']
 ---
