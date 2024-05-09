@@ -1,10 +1,14 @@
 ---
 title: 'Removing risk from our multi-region design with simulations'
 date: '2024-05-07'
-tags: []
+tags: ['multiregion', 'eu', 'building sentry']
 draft: true
 summary: 'Before splitting our application database and infrastructure up, we wanted to have confidence in where the boundaries would be.'
-images: []
+images:
+  [
+    '/images/removing-risk-from-our-multiregion-design-with-simulations/before-state.png',
+    '/images/removing-risk-from-our-multiregion-design-with-simulations/after-state.png',
+  ]
 layout: PostLayout
 authors: ['markstory']
 ---
