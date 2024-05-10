@@ -1,8 +1,8 @@
 ---
 title: 'Removing risk from our multi-region design with simulations'
 date: '2024-05-07'
-tags: ['multiregion', 'eu', 'building sentry']
-draft: true
+tags: ['multiregion', 'building sentry']
+draft: false
 summary: 'Before splitting our application database and infrastructure up, we wanted to have confidence in where the boundaries would be.'
 images:
   [
