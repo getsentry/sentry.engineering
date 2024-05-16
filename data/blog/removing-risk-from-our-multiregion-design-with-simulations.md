@@ -64,7 +64,7 @@ class User(BaseModel, AbstractBaseUser):
    ...
 ```
 
-By annotating Django models we could add metadata, and build tooling that uses the geranted metadata to identify foreign keys that were spanning models in opposing silo modes. These foreign keys would need to be broken, and have their cascade operations replicated in application code. Model annotations also served as the foundation for generating a rough first pass at assigning silo modes to endpoints and tests.
+By annotating Django models we could add metadata, and build tooling that uses the generated metadata to identify foreign keys that were spanning models in opposing silo modes. These foreign keys would need to be broken, and have their cascade operations replicated in application code. Model annotations also served as the foundation for generating a rough first pass at assigning silo modes to endpoints and tests.
 
 With the silo boundaries roughed in, we made the application aware of silo modes during runtime and expanded the functionality of our decorators. Our next step was to monkeypatch Django’s ORM to raise errors when cross silo operations are performed. For example, if the application uses `User.objects.filter()` while in region mode we should get an error:
 
