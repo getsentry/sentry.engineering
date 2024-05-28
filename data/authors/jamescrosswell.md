@@ -6,6 +6,7 @@ twitter: https://twitter.com/jamescrosswell
 stackoverflow: https://stackoverflow.com/users/1182461/james-crosswell
 github: https://github.com/jamescrosswell
 linkedin: https://www.linkedin.com/in/jamescrosswell/
+url: https://www.jamescrosswell.dev
 ---
 
 Technologist and adrenaline junkie.
