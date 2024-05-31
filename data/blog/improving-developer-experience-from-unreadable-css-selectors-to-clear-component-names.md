@@ -42,6 +42,8 @@ _In spans, React component names are used in click interactions._
 
 _In Replay breadcrumbs, React component names are used in the selector path in user click breadcrumbs. If the user clicked on a component with a component name, you can search replays by that component name._
 
+### Session Replay Index Page - Rage and Dead Click Cards
+
 ![React component name used in rage and dead click selectors](/images/improving-developer-experience-from-unreadable-css-selectors-to-clear-component-names/rage-and-dead-selector.png)
 
 _In rage and dead click selectors, React component names are used as part of the selector name._
