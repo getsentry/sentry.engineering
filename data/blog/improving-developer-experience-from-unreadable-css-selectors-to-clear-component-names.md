@@ -1,7 +1,7 @@
 ---
 title: 'Improving DX: From Unreadable CSS Selectors to Clear React Component Names'
 date: '2024-05-30'
-tags: ['web', 'react']
+tags: ['web', 'react', 'debugging']
 draft: false
 summary: 'How to transform unreadable CSS selectors to React component names.'
 images:
