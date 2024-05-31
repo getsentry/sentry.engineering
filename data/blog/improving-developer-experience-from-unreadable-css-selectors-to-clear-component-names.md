@@ -50,6 +50,8 @@ _In Replay breadcrumbs, React component names are used in the selector path in u
 
 _In rage and dead click selectors, React component names are used as part of the selector name._
 
+### Rage Click Issue Details
+
 ![React component name used in rage click issues](/images/improving-developer-experience-from-unreadable-css-selectors-to-clear-component-names/rage-click-issue.png)
 
 _In rage click issues, the React component name is also shown if it’s available._
