@@ -4,7 +4,10 @@ date: '2024-05-30'
 tags: ['web', 'react']
 draft: false
 summary: 'How to transform unreadable CSS selectors to React component names.'
-images: []
+images:
+  [
+    /images/improving-developer-experience-from-unreadable-css-selectors-to-clear-component-names/hero.jpg,
+  ]
 layout: PostLayout
 authors: ['catherinelee']
 ---
