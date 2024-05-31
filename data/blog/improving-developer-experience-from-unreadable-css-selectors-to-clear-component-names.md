@@ -32,6 +32,8 @@ One of our core values at Sentry is “For Every Developer”. In order to stay 
 
 There were many opportunities across the product where we could leverage component names: spans, breadcrumbs, [rage click issues, and dead and rage click selectors](https://blog.sentry.io/introducing-rage-and-dead-click-detection-for-session-replay/).
 
+### Spans, in Tracing and Performance Monitoring
+
 ![React component name used in spans](/images/improving-developer-experience-from-unreadable-css-selectors-to-clear-component-names/span.png)
 
 _In spans, React component names are used in click interactions._
