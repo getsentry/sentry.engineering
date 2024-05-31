@@ -12,7 +12,7 @@ layout: PostLayout
 authors: ['catherinelee']
 ---
 
-Reading our own code is much easier than the output of a bundler or transpiler. The same goes for React developers reading CSS selectors generated from their CSS library of choice. CSS selectors are used all across Sentry to show clicks on components. This can provide useful information like which component is the cause of rage and dead clicks, and what component was clicked in a span. However, if you’re using React, these selectors become unreadable in production due to the minification process, so your selectors end up looking like this:
+Reading our own code is much easier than the output of a bundler or transpiler. The same goes for React developers reading CSS selectors generated from their CSS library of choice. CSS selectors are used all across [Sentry](https://sentry.io/for/react/) to show clicks on components. This can provide useful information like which component is the cause of rage and dead clicks, and what component was clicked in a span. However, if you’re using React, these selectors become unreadable in production due to the minification process, so your selectors end up looking like this:
 
 `button.en302zp1.app-191aavw.e16hd6vm2[role="button"][data-test-id="common-options"]`
 
