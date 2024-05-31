@@ -9,7 +9,7 @@ images:
     /images/improving-developer-experience-from-unreadable-css-selectors-to-clear-component-names/hero.jpg,
   ]
 layout: PostLayout
-authors: ['catherinelee']
+authors: ['catherinelee', 'ashanand']
 ---
 
 Reading our own code is much easier than the output of a bundler or transpiler. The same goes for React developers reading CSS selectors generated from their CSS library of choice. CSS selectors are used all across [Sentry](https://sentry.io/for/react/) to show clicks on components. This can provide useful information like which component is the cause of rage and dead clicks, and what component was clicked in a span. However, if you’re using React, these selectors become unreadable in production due to the minification process, so your selectors end up looking like this:
