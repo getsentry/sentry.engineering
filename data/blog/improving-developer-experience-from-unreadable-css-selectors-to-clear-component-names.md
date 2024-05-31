@@ -38,6 +38,8 @@ There were many opportunities across the product where we could leverage compone
 
 _In spans, React component names are used in click interactions._
 
+### Session Replay Breadcrumbs
+
 ![React component name used in replay breadcrumbs](/images/improving-developer-experience-from-unreadable-css-selectors-to-clear-component-names/replay-breadcrumb.png)
 
 _In Replay breadcrumbs, React component names are used in the selector path in user click breadcrumbs. If the user clicked on a component with a component name, you can search replays by that component name._
