@@ -1,5 +1,5 @@
 ---
-title: 'Improving Developer Experience: From Unreadable CSS Selectors to Clear Component Names'
+title: 'Improving DX: From Unreadable CSS Selectors to Clear React Component Names'
 date: '2024-05-30'
 tags: ['web', 'react']
 draft: false
