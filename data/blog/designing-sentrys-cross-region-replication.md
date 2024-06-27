@@ -2,7 +2,7 @@
 title: "Designing Sentry's cross-region replication"
 date: '2024-05-26'
 tags: ['multiregion', 'building sentry']
-draft: true
+draft: false
 summary: 'Cross-region replication is a foundational subsystem in multi-region Sentry. This post explores our design process.'
 images:
   [
