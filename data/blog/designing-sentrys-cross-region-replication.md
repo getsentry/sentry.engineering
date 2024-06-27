@@ -34,9 +34,9 @@ For example, when an organization creates a new API token, that token needs to b
 
 ![outline of a example scenario for replication](/images/designing-sentrys-cross-region-replication/scenario-outline.png)
 
-Authentication tokens are centralized in Control Silo, so that we can organization tokens, work against control silo resources, and so that ensure that all tokens are unique with database constraints. We need to replicate the organization’s token to region silo so that it can be used to authenticate requests made there. Later when the token is deleted, the user will remove it from Control Silo, and replication should update the relevant region.
+Authentication tokens are centralized in Control Silo, so that we can locate the organization tokens, work against control silo resources, and so ensure that all tokens are unique with database constraints. We need to replicate the organization’s token to region silo so that it can be used to authenticate requests made there. Later, when the token is deleted, the user will remove it from Control Silo, and replication should update the relevant region.
 
-We also use cross-region replication to push organization membership from the regions into Control Silo so that we can apply membership role permissions to organization resources in Control Silo (like Authentication tokens and Integrations).
+We also use cross-region replication to push organization membership from the regions into Control Silo. That allows us to apply membership role permissions to organization resources in Control Silo (like Authentication tokens and Integrations).
 
 # Evaluating existing solutions
 
@@ -61,7 +61,7 @@ We decided against this approach because of the complexity. We would need to ope
 
 # Outboxes
 
-[Transactional Outboxes](https://microservices.io/patterns/data/transactional-outbox.html) are a distributed systems pattern that fit our use case perfectly. As the application makes changes that need to be replicated, it can save an ‘outbox’ in the same postgres transaction as the change - providing use the atomicity we wanted. In the background, a worker pulls tasks from the outbox table and runs handlers to apply the necessary replication action via RPC. With this design we would be able to provide eventual consistency with at-least-once delivery semantics.
+[Transactional Outboxes](https://microservices.io/patterns/data/transactional-outbox.html) are a distributed systems pattern that fit our use case perfectly. As the application makes changes that need to be replicated, it can save an ‘outbox’ in the same postgres transaction as the change - providing the atomicity we wanted. In the background, a worker pulls tasks from the outbox table and runs handlers to apply the necessary replication action via RPC. With this design we would be able to provide eventual consistency with at-least-once delivery semantics.
 
 ![transactional outbox sequence diagram](/images/designing-sentrys-cross-region-replication/cdc-kafka.png)
 
