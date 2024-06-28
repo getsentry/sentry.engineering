@@ -68,7 +68,21 @@ In the Python SDK, we have over 40 integrations for various web frameworks, data
 
 We updated each integration from the old Hub-based API to the new Scope-based API in a separate PR. This was pretty straightforward and done in a couple of days.
 
-Doing this gave us insights into the look and feel of the new API. Because we now used the API in the same way as our power users would use it in the future. We found some things that we did not like and made some minor changes to the new API to make it more convenient to use. Having one PR for each integration created a lot of small PRs that were easy to review.
+Doing this gave us insights into the look and feel of the new API. Because we now used the API in the same way as our power users would use it in the future. We found some things that we did not like and made some minor changes to the new API to make it more convenient to use.
+
+Here an example this shortcut we [added](https://github.com/getsentry/sentry-python/pull/2844/files):
+
+```python
+# Before
+from sentry_sdk.scope import Scope
+Scope.get_client().should_send_default_pii()
+
+# After
+from sentry_sdk.scope import should_send_default_pii
+should_send_default_pii()
+```
+
+Having one PR for each integration created [a lot of small PRs](https://github.com/getsentry/sentry-python/pulls?q=is%3Apr+is%3Aclosed+label%3A%22SDK+2.0%22+use+new+scopes) that were easy to review.
 
 After we had all PRs merged, we created a release candidate and released it on PyPI so everyone could give it a try and we could gather feedback.
 
