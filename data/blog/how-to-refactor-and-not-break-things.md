@@ -92,9 +92,11 @@ We fixed all issues we uncovered during dogfooding, giving us enough confidence 
 
 On the first day, there was a [bug report](https://github.com/getsentry/sentry-python/issues/3021) from a user when using the SDK with the Starlette framework and Uvicorn as the server. We fixed the problem and released [2.0.1](https://github.com/getsentry/sentry-python/releases/tag/2.0.1) right away.
 
-Since then the bug tracker has been quiet, and no other regressions were reported.
+There was [one problem with propagating trace information in Celery](https://github.com/getsentry/sentry-python/issues/3068) that was caused by this refactoring.
 
-Our internal usage dashboards showed that our users (like a very popular music streaming app) were adopting the new major version and sent tens of millions of events to Sentry.
+We are now a couple of months after the 2.0 release and the bug tracker has been quiet, no other regressions were reported.
+
+Our internal usage dashboards showed that our users (like a very popular music streaming app) were adopting the new major version and sent hundreds of millions of events to Sentry.
 
 We are confident that the refactoring was a success and our SDK is now set up for the future. Making it easier to implement anything the future might bring.
 
