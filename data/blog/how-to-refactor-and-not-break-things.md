@@ -78,7 +78,7 @@ We started to do load testing. We created a [sample application and ran load tes
 
 [Sentry.io is a very big Python code base](https://github.com/getsentry/sentry) where we use all the advanced features of the SDK. It is a perfect candidate for dogfooding because it will uncover problems very soon.
 
-We first installed the new SDK on our Canary servers. We let it run for an hour and closely monitored CPU and Memory. Everything looked good. Like with the local load tests, nothing spiked.
+We first installed the new SDK on our Canary servers. We let it run for an hour and closely monitored CPU and memory. Everything looked good. Like with the local load tests, nothing spiked.
 
 Time for some proper dogfooding.
 
