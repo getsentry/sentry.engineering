@@ -94,7 +94,7 @@ On the first day, there was a [bug report](https://github.com/getsentry/sentry-
 
 Since then the bug tracker has been quiet, and no other regressions were reported.
 
-Our internal usage dashboards showed that our users (the most prominent one being Spotify) were adopting the new major version and sent tens of millions of events to Sentry.
+Our internal usage dashboards showed that our users (like a very popular music streaming app) were adopting the new major version and sent tens of millions of events to Sentry.
 
 We are confident that the refactoring was a success and our SDK is now set up for the future. Making it easier to implement anything the future might bring.
 
