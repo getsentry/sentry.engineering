@@ -76,7 +76,7 @@ We updated our internal usage dashboards so we could see the adoption of the new
 
 We started to do load testing. We created a [sample application and ran load tests](https://github.com/getsentry/demo-flask-load-test) locally to check if the CPU and memory usage would change between the current SDK and the new 2.0 version. It did not. After the load tests, we were confident that we could use the release candidate on Sentry.io.
 
-Sentry.io is a very big Python project where we use all the advanced features of the SDK. It is a perfect candidate for dogfooding because it will uncover problems very soon.
+[Sentry.io is a very big Python code base](https://github.com/getsentry/sentry) where we use all the advanced features of the SDK. It is a perfect candidate for dogfooding because it will uncover problems very soon.
 
 We first installed the new SDK on our Canary servers. We let it run for an hour and closely monitored CPU and Memory. Everything looked good. Like with the local load tests, nothing spiked.
 
