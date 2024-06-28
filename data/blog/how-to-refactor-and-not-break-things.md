@@ -13,7 +13,7 @@ In our Python SDK, we completed a huge refactoring, and I want to write down h
 
 ## The Initial Situation
 
-When you add the Sentry SDK to your project it hooks into the execution of your application and collects data during execution of your application. Depending on the frameworks or libraries you use the data is collected in different parts of your project and is sent to Sentry in other parts. 
+When you add Sentry to your application, it'll instrument the app and runtime to collect useful debugging information at runtime. Depending on the frameworks or libraries you use, the data is collected at different stages of process execution, and is sent to Sentry at a later stage, asynchronously. 
 If your project consists of multiple services (like the frontend, the backend, some microservices, or worker processes consuming items from a queue) the Sentry SDK also propagates tracing information between those services. This makes it possible to link the data from all your services into one trace.
 
 To handle all this data the SDK uses a thing called the Hub. The Hub holds a stack of so-called Scopes. All this was specified in the [Unified API](https://develop.sentry.dev/sdk/unified-api/) a long time ago. Data is sent to Sentry as events. Before sending events to Sentry the data from the Scope(s) is applied to those events. The SDK needs to make sure that only data from the right Scopes is applied to not leak data for example from one thread into the events captured by another thread.
