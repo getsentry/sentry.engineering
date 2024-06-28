@@ -88,7 +88,7 @@ All in all, we created 6 release candidates where we each time fixed some s
 
 ## Finally: The Release
 
-When we were confident that all problems were fixed, all data was correct, and CPU and memory usage was the same as before we [released version 2.0](https://github.com/getsentry/sentry-python/releases/tag/2.0.0).
+We fixed all issues we uncovered during dogfooding, giving us enough confidence to move forward. All data collected looked good, and CPU and memory usage was the same as before we [released version 2.0](https://github.com/getsentry/sentry-python/releases/tag/2.0.0).
 
 On the first day, there was a [bug report](https://github.com/getsentry/sentry-python/issues/3021) from a user when using the SDK with the Starlette framework and Uvicorn as the server. We fixed the problem and released [2.0.1](https://github.com/getsentry/sentry-python/releases/tag/2.0.1) right away.
 
