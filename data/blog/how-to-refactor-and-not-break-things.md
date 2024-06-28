@@ -13,14 +13,14 @@ In our Python SDK, we completed a huge refactoring, and I want to write down h
 
 ## The Initial Situation
 
-When you add Sentry to your application, it'll instrument the app and runtime to collect useful debugging information at runtime. Depending on the frameworks or libraries you use, the data is collected at different stages of process execution, and is sent to Sentry at a later stage, asynchronously. 
+When you add Sentry to your application, it'll instrument the app and runtime to collect useful debugging information at runtime. Depending on the frameworks or libraries you use, the data is collected at different stages of process execution and is sent to Sentry at a later stage, asynchronously. 
 If your application consists of multiple services (like frontend, backend, some microservices, or worker processes consuming items from a queue) the Sentry SDK also propagates tracing information between those services. This makes it possible to link the data from all your services into one trace.
 
-To handle all this data the SDK uses a thing called the Hub. The Hub holds a stack of so-called Scopes. All this was specified in the [Unified API](https://develop.sentry.dev/sdk/unified-api/) a long time ago. Data is sent to Sentry as events. Before sending events to Sentry the data from the Scope(s) is applied to those events. The SDK needs to make sure that only data from the right Scopes is applied to not leak data for example from one thread into the events captured by another thread. Think of a each web request having its own `url` tag, or `user.id`.
+To handle all this data the SDK uses a thing called the Hub. The Hub holds a stack of so-called Scopes. All this was specified in the [Unified API](https://develop.sentry.dev/sdk/unified-api/) a long time ago. Data is sent to Sentry as events. Before sending events to Sentry the data from the Scope(s) is applied to those events. The SDK needs to make sure that only data from the right Scopes is applied to not leak data for example from one thread into the events captured by another thread. Think of web requests each having its own `url` tag, or `user.id`.
 
 ## What We Wanted to Achieve
 
-We wanted to make our API simpler. Remove unnecessary abstractions where possible and thus make it easier for us and for open-source contributors to write new integrations for our SDK. The Hub-based API is used in our integrations but also by power users who do custom performance instrumentations. It can be hard to wrap your head around the concepts of Hubs and Scopes. We wanted to simplify this.
+We wanted to make our API simpler. Remove unnecessary abstractions where possible and thus make it easier for us and for open-source contributors to write new integrations for our SDK. The Hub-based API is used in our integrations and by power users who do custom performance instrumentations. It can be hard to wrap your head around the concepts of Hubs and Scopes. We wanted to simplify this.
 
 ## Why We Wanted to Do This
 
@@ -44,7 +44,7 @@ There is a quote by [Kent Beck](https://twitter.com/kentbeck/status/250733358307
 
 > Make the change easy, then make the easy change. (Warning, the first part might be hard)
 
-In this first phase, we moved existing functionality away from the Hub into the Scope. We did several PRs that each moved one or two functions from the Hub into the Scope and changed the function in the Hub to call its counterpart in the Scope.
+In this first phase, we moved existing functionality from the Hub into the Scope. We did several PRs that each moved one or two functions from the Hub into the Scope and changed the function in the Hub to call its counterpart in the Scope.
 
 This way we had a couple of smaller PRs that each dealt with one topic and were easy to review.
 
@@ -56,7 +56,7 @@ This concluded the preparation of our canvas. Time to make the change.
 
 Phase I left us with a hollow shell of a Hub and all functionality in the Scope. We now refactored the Scope. This was the biggest part. We changed how the Scope was stored in memory (it's not on the Hub anymore but saved as a Python Context Variable). We also introduced three different flavors of the Scope for better encapsulation of data. If you want to dig into details read our [develop docs on the topic](https://develop.sentry.dev/sdk/hub_and_scope_refactoring/).
 
-After we updated the Scope, the old Hub-based API could still be used, but under the hood the new Scopes-based API was called.
+After we updated the Scope, the old Hub-based API could still be used, but under the hood, the new Scopes-based API was called.
 
 Again, our test suite gave us confidence that the SDK still behaved the same as before.
 
@@ -70,7 +70,7 @@ We updated each integration from the old Hub-based API to the new Scope-based AP
 
 Doing this gave us insights into the look and feel of the new API. Because we now used the API in the same way as our power users would use it in the future. We found some things that we did not like and made some minor changes to the new API to make it more convenient to use.
 
-Here an example this shortcut we [added](https://github.com/getsentry/sentry-python/pull/2844/files):
+Here is an example of a shortcut we [added](https://github.com/getsentry/sentry-python/pull/2844/files):
 
 ```python
 # Before
