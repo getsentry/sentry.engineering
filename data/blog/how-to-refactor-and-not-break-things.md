@@ -33,7 +33,7 @@ We discovered that with our current Hub implementation that was not the case, 
 Some goals that we wanted to achieve with the refactoring:
 
 - Be as backward compatible as possible. If possible, our users should not need to change their custom Sentry code.
-- Because we changed how we handle data, we wanted to make sure that we do not use more resources (CPU and memory) compared to before the refactoring.
+- Avoid introducing additional overhead. Do not use more CPU and memory compared to before the refactoring.
 - Do not break things. Behavior must stay the same.
 - Do it in baby steps. Have only PRs of manageable size. (No one can review a PR with 120 files changed.)
 - Because this is a massive change, we decided to make it a major version update. Sentry SDK 2.0!
@@ -56,9 +56,11 @@ This concluded the preparation of our canvas. Time to make the change.
 
 Phase I left us with a hollow shell of a Hub and all functionality in the Scope. We now refactored the Scope. This was the biggest part. We changed how the Scope was stored in memory (it's not on the Hub anymore but saved as a Python Context Variable). We also introduced three different flavors of the Scope for better encapsulation of data. If you want to dig into details read our [develop docs on the topic](https://develop.sentry.dev/sdk/hub_and_scope_refactoring/).
 
-After we updated the Scope the old Hub-based API could still be used, but under the hood, the new Scopes-based API was called. We did not release this phase because we wanted to first do Phase III.
+After we updated the Scope, the old Hub-based API could still be used, but under the hood the new Scopes-based API was called.
 
 Again, our test suite gave us confidence that the SDK still behaved the same as before.
+
+We did not release this phase. We wanted to use the new API ourselves first. To see how it feels, to check if we have missed something, or if we can improve the ergonomics. So we did Phase III.
 
 ## Phase III: Use New Scopes Everywhere
 
@@ -94,9 +96,9 @@ On the first day, there was a [bug report](https://github.com/getsentry/sentry-
 
 There was [one problem with propagating trace information in Celery](https://github.com/getsentry/sentry-python/issues/3068) that was caused by this refactoring.
 
-We are now a couple of months after the 2.0 release and the bug tracker has been quiet, no other regressions were reported.
+We are now a couple of months after the 2.0 release and the bug tracker has been quiet, no other regressions connected to the refactoring were reported.
 
-Our internal usage dashboards showed that our users (like a very popular music streaming app) were adopting the new major version and sent hundreds of millions of events to Sentry.
+Our internal usage dashboards show that our users (like a very popular music streaming app) are adopting the new major version and are sending hundreds of millions of events to Sentry.
 
 We are confident that the refactoring was a success and our SDK is now set up for the future. Making it easier to implement anything the future might bring.
 
