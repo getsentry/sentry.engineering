@@ -1,6 +1,6 @@
 ---
 name: Anton Pirker
-avatar: /static/avatars/antonpirker.jpeg
+avatar: /static/avatars/antonpirker.png
 occupation: Senior Software Engineer
 url: https://anton-pirker.at/
 github: https://github.com/antonpirker/
