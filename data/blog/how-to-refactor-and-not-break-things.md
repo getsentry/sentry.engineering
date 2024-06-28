@@ -25,7 +25,7 @@ We wanted to make our API simpler. Remove unnecessary abstractions where possibl
 ## Why We Wanted to Do This
 
 When doing a big refactoring like this the WHY is very important. We do not want to refactor just for refactoring's sake. 
-In recent years [OpenTelementry](https://opentelemetry.io/) has become more popular and we wanted to make sure Sentry is compatible with OpenTelemetry. 
+In recent years [OpenTelemetry](https://opentelemetry.io/) has become more popular and we wanted to make sure Sentry is compatible with OpenTelemetry. 
 We discovered that with our current Hub implementation that was not the case, so we decided to remove the Hub and switch to have only Scopes and make them behave like Contexts in OpenTelementry. This makes Sentry 100% compatible with OpenTelemetry and paves the way for the future.
 
 ## This Is a Huge Undertaking, We need a Plan!
