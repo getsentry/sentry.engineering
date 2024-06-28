@@ -14,7 +14,7 @@ layout: PostLayout
 authors: ['markstory']
 ---
 
-When we started designing how multi-region Sentry, we didn’t plan on having replication between regions. However, as we got farther in the design process it became clear that because of where our silo boundaries would be, we would need data replicated between regions to facilitate looking up in which region an organization was in, or validating API tokens. While these operations could be completed with Remote Procedure Calls (RPC). The latency, atomicity and resiliency impacts of these high-volume RPC operations wouldn’t be acceptable, and we needed a solution that would be more efficient and more correct.
+When we started designing multi-region Sentry, we didn’t plan on having replication between regions. However, as we got farther in the design process it became clear that because of where our silo boundaries would be, we would need data replicated between regions to facilitate looking up in which region an organization was in, or validating API tokens. While these operations could be completed with Remote Procedure Calls (RPC). The latency, atomicity and resiliency impacts of these high-volume RPC operations wouldn’t be acceptable, and we needed a solution that would be more efficient and more correct.
 
 As the scenarios where we would use cross-region replication became more clear we collected the following requirements:
 
