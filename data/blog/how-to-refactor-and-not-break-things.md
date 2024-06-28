@@ -82,7 +82,7 @@ We first installed the new SDK on our Canary servers. We let it run for an hour 
 
 Time for some proper dogfooding.
 
-We installed SDK 2.0 on **all** our servers. After running the new version for a week on Sentry.io we discovered that there was a problem in the Celery integration where the baggage header (used for propagating trace information) was handled incorrectly. After fixing this we created a new release candidate and continued the dogfooding.
+We installed SDK 2.0 on **all** our servers. After running the new version for a week on Sentry.io we discovered that there was a problem in the Celery integration where the baggage header (used for propagating trace information) was handled incorrectly. [After fixing this](https://github.com/getsentry/sentry-python/pull/2993), we created a new release candidate and continued the dogfooding.
 
 All in all, we created 6 release candidates where we each time fixed some smaller problems or made improvements.
 
