@@ -63,7 +63,7 @@ We decided against this approach because of the complexity. We would need to ope
 
 [Transactional Outboxes](https://microservices.io/patterns/data/transactional-outbox.html) are a distributed systems pattern that fit our use case perfectly. As the application makes changes that need to be replicated, it can save an ‘outbox’ in the same postgres transaction as the change - providing the atomicity we wanted. In the background, a worker pulls tasks from the outbox table and runs handlers to apply the necessary replication action via RPC. With this design we would be able to provide eventual consistency with at-least-once delivery semantics.
 
-![transactional outbox sequence diagram](/images/designing-sentrys-cross-region-replication/cdc-kafka.png)
+![transactional outbox sequence diagram](/images/designing-sentrys-cross-region-replication/outbox-sequence.png)
 
 When delivering an outbox message our implementation assumes that any failures will raise errors, and that if an outbox handler completes successfully, that the replication operation is complete.
 
