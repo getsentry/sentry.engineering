@@ -1,6 +1,6 @@
 ---
 title: 'How to Refactor and Not Break Things'
-date: '2024-04-30'
+date: '2024-07-08'
 tags: ['python', 'refactoring', 'sdk']
 draft: false
 summary: 'How we completed a huge refactoring of a software used by thousands of developers without breaking things.'
