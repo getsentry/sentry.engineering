@@ -18,9 +18,9 @@ However, v8 was quite a massive release, with a lot of changes. The primary chan
 
 You can read more about all the changes we did and how to migrate from v7 to v8 either in the [Browser JS Migration docs](https://docs.sentry.io/platforms/javascript/migration/v7-to-v8/) or in the [Node JS Migration docs](https://docs.sentry.io/platforms/javascript/guides/node/migration/v7-to-v8/).
 
-This blog post does not aim to explain all the changes we did in v8. Instead, the goal of this post is to discuss takeaways we made while and after working on this large release, as well as sharing things we’d do the same or differently in future major releases.
+This blog post does not aim to explain all the changes we made in v8. Instead, the goal of this post is to discuss takeaways we identified while and after working on this large release, as well as sharing things we’d do again or differently in future major releases.
 
-## Things that we want to improve in the future
+## Things we want to improve in the future
 
 ### Shipping smaller majors
 
@@ -60,4 +60,4 @@ There were also a lot of things that went well during the v8 release cycle:
 
 ## Onwards...
 
-Big shoutout to the whole team that made this massive release possible! It has been quite a ride, and it was only possible due to the combined effort of the JavaScript SDK team. Now, if you'll excuse us, we'll continue to iterate on the SDK (actually, we are [already at v8.17.0](https://github.com/getsentry/sentry-javascript/releases/tag/8.17.0)).
+Big shoutout to the whole team that made this massive release possible! It has been quite a ride, and it was only possible due to the combined effort of the JavaScript SDK team. Now, if you'll excuse us, we'll continue to iterate on the SDK (actually, we are [already at v8.18.0](https://github.com/getsentry/sentry-javascript/releases/tag/8.18.0)).
