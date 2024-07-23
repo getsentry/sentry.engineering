@@ -12,9 +12,8 @@ Sentry.init({
   replaysSessionSampleRate: 1.0,
   replaysOnErrorSampleRate: 1.0,
   integrations: [
-    new Sentry.Replay({
+    Sentry.replayIntegration({
       maskAllText: false,
     }),
-    new Sentry.metrics.MetricsAggregator(),
   ],
 })
