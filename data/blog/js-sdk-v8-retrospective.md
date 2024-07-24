@@ -10,21 +10,21 @@ canonicalUrl: https://sentry.engineering/blog/js-sdk-v8-retrospective
 authors: ['francesconovy']
 ---
 
-On May 13, 2024, the Sentry Web Frontend SDK team shipped [v8.0.0](https://github.com/getsentry/sentry-javascript/releases/tag/8.0.0) of the JavaScript SDKs. This release has been a long time coming - the team has been working on it for multiple months, trying to ensure that all the changes we made in this version were well-tested and that upgrading would be as easy and painless as possible for our users.
+On May 13, 2024, Sentry's JavaScript SDK team shipped [v8.0.0](https://github.com/getsentry/sentry-javascript/releases/tag/8.0.0) of the JavaScript SDKs. This major release has been in progress for many months, as the team worked to ensure that all the changes made in this version were well-tested, and that upgrading would be as easy and painless as possible for our users.
 
-However, v8 was quite a massive release, with many changes. The primary change was that `@sentry/node` was rewritten to use OpenTelemetry under the hood. This main change, in turn, required us to make a variety of smaller and larger changes to accommodate the APIs that OpenTelemetry supports. The largest change that was part of this was adjusting all the performance APIs to be compatible with OpenTelemetry.
+However, v8 was quite a massive release, with many changes. Primarily, `@sentry/node` has been rewritten to use OpenTelemetry under the hood. This change, in turn, required us to make a variety of smaller and larger changes to accommodate the APIs that OpenTelemetry supports. The largest of those was adjusting all the performance APIs to be compatible with OpenTelemetry.
 
 ## Changes between v7 and v8
 
 You can read more about all the changes we did and how to migrate from v7 to v8 either in the [Browser JS Migration docs](https://docs.sentry.io/platforms/javascript/migration/v7-to-v8/) or in the [Node JS Migration docs](https://docs.sentry.io/platforms/javascript/guides/node/migration/v7-to-v8/).
 
-This blog post does not aim to explain all the changes we made in v8. Instead, the goal of this post is to discuss takeaways we identified while and after working on this large release, as well as sharing things we’d do again or differently in future major releases.
+This blog post does not aim to explain all the changes we made in v8. Instead, the goal of this post is to discuss takeaways we identified during and after working on this large release, and more directly, sharing things we’d do again and differently in future major releases.
 
 ## Things we want to improve in the future
 
 ### Shipping smaller majors
 
-Our biggest takeaway was that v8 was too large. Due to the host of changes necessary to make the Sentry SDK compatible with v8, we included too many breaking changes in the release. This led to the changelog and migration path becoming harder than necessary to parse for users.
+Our biggest takeaway was that v8 was too large. Due to the host of changes necessary to make the Sentry SDK compatible with OpenTelemetry, we included too many breaking changes in the release - leading to the changelog and migration path becoming harder than necessary to parse for users.
 
 For future releases, we want to center them around one or few breaking changes max, making it much easier to grasp if a breaking change in a major affects you. Instead, we plan to, if necessary, release major versions more often. To summarize, instead of having few majors (e.g. every other year) with a lot of breaking changes, we rather want to have more majors (e.g. one or two per year) with fewer breaking changes.
 
@@ -46,7 +46,7 @@ We always try to be critical when adding deprecations to the SDK codebase. Howev
 
 ### Be more active in the OpenTelemetry community
 
-Since we heavily rely on OpenTelemetry now, we want to be active parts of the community and contribute as much as possible. We have already started attending meetings and plan to expand on this even more in the future.
+Since we heavily rely on OpenTelemetry now, we want to be active contributors in the community, as much as possible. We have already started attending meetings and plan to expand on this even more in the future.
 
 ## Things that went well
 
@@ -55,8 +55,8 @@ There were also a lot of things that went well during the v8 release cycle:
 - We have good coverage of E2E test apps testing “real world” scenarios with the SDKs. This helped a lot with confidence building. Additionally, we also wrote some example apps to further test how things behaved.
 - The general process to implement deprecations with their replacements in v7 and then just removing the deprecated methods in v8 worked well, mostly.
 - Supporting backported fixes/features in v7 while working on v8 led to few issues. We ended up shipping quite a few v7 versions while working on v8, including a series of features and improvements.
-- The pre-release cycle (alpha, beta, rc) of v8 helped us to uncover a series of bugs, fulfilling its purpose.
-- After the release of v8, we worked hard on resolving issues that came up, and were actually able to resolve a series of problems (most of them coming from OpenTelemetry itself) in just a few weeks.
+- The pre-release cycle (alpha, beta, rc) of v8 helped us to uncover countless bugs, fulfilling its purpose.
+- After the release of v8, we worked hard on resolving issues that came up, and resolved a series of problems (many of them coming from the integrations with OpenTelemetry) in just a few weeks.
 
 ## Onwards...
 
