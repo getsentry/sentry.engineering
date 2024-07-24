@@ -42,7 +42,7 @@ We shipped a lot of deprecations in v7, and included replacement variants for al
 
 ### Be critical of adding deprecations
 
-We always try to be critical when adding deprecations to the SDK codebase. However, looking back, there are certainly a few places where we deprecated things that were not _strictly necessary_ to be deprecated. We should always ask ourselves a second and third time if a deprecation is truly required before adding it.
+We always try to be critical when adding deprecations to the SDK codebase. However, looking back, there are certainly a few places where we deprecated things that were not _strictly necessary_ to be deprecated. We should always ask ourselves a second and third time if a deprecation is truly required before adding it. For example, we could have held back on removing the class-based integrations for one more major release, giving users more time to migrate.
 
 ### Be more active in the OpenTelemetry community
 
