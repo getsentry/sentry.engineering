@@ -110,6 +110,9 @@ module.exports = withSentryConfig(
       // for more information.
       hideSourceMaps: true,
     },
+    experimental: {
+      instrumentationHook: true,
+    },
   }),
   sentryWebpackPluginOptions
 )
