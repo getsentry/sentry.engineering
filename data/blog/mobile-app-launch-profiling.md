@@ -10,7 +10,7 @@ canonicalUrl: mobile-app-launch-profiling
 authors: ['andrewmcknight']
 ---
 
-If you use Sentry’s Performance monitoring on Cocoa and Android, you also have the ability to see [profiles](https://docs.sentry.io/product/profiling/) of how your app runs in the wild on real end user devices. Any time an automatic or manual transaction is recorded, that profiling data is attached. But are there times where you can’t record a transaction? 🤔
+If you use Sentry’s Performance monitoring on iOS/macOS and Android, you have the ability to see [profiles](https://docs.sentry.io/product/profiling/) of how your app runs in the wild on real end user devices. Any time an automatic or manual transaction is recorded, that profiling data is attached. But are there times where you can’t record a transaction? 🤔
 
 # App launch performance
 
