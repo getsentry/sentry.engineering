@@ -31,7 +31,7 @@ So, if you or one of your dependencies does some work at launch time, you don’
 
 Now, you can get profiling data from the moment your app starts executing code, before calls to `main` or `appDidFinishLaunching`, where the Sentry SDK is typically initialized and was previously the earliest moment a performance transaction could be recorded.
 
-By enabling `SentryOptions.enableAppLaunchProfiling` in your configuration of `SentrySDK.startWithOptions`, the SDK will automatically profile subsequent launches of your app. If configured, the Sentry profiler is started from one of the SDK’s `+[load]` methods. If you also enabled `SentryOptions.enableTimeToFullDisplayTracing`, the profiling data will be attached to the app start transactions you can find in our App Starts area. Here’s an example of profiling data showing some work being done before `main()` is called, lined up with our app start spans:
+By enabling `SentryOptions.enableAppLaunchProfiling` in your configuration of `SentrySDK.startWithOptions`, the SDK will automatically profile subsequent launches of your app. If configured, the Sentry profiler is started from one of the SDK’s `+[load]` methods. If you also enabled `SentryOptions.enableTimeToFullDisplayTracing`, the profiling data will be attached to the app start transactions you can find in our [App Starts insights](https://docs.sentry.io/product/insights/mobile-vitals/app-starts/). Here’s an example of profiling data showing some work being done before `main()` is called, lined up with our app start spans:
 
 ![A flamechart showing an example launch profile, with work on the main thread before the actual call to `main()`.](/images/mobile-app-launch-profiling/launch-profile.png)
 
