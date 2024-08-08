@@ -43,4 +43,4 @@ Launch profiling can automatically record any launch after you’ve initialized 
 
 # What’s happening in your launches?
 
-Head over to the [docs to enable Launch Profiling](https://docs.sentry.io/platforms/apple/profiling/#enable-launch-profiling) and give app launch profiling a try in your iOS and Android apps today — and [let us know what you think](https://github.com/getsentry/sentry-cocoa/discussions/3721)!
+Head over to the [docs to enable Launch Profiling](https://docs.sentry.io/platforms/apple/profiling/#enable-launch-profiling) and give app launch profiling a try in your Cocoa and Android apps today — and [let us know what you think](https://github.com/getsentry/sentry-cocoa/discussions/3721)!
