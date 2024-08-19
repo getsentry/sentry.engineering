@@ -1,7 +1,8 @@
 ---
 title: 'How we fixed incorrect Codecov bundle size reporting'
 date: '2024-08-09'
-tags: ['javascript', 'react', 'virtual-list', 'codecov']
+tags:
+  ['javascript', 'bundler', 'bundle analysis', 'codecov', 'git', 'github', 'ci', 'github actions']
 draft: false
 summary: 'How we resolved incorrect Codecov bundle size reporting when using GitHub Actions.'
 images: []
