@@ -1,11 +1,11 @@
 ---
 title: 'How we fixed incorrect Codecov bundle size reporting'
-date: '2024-08-09'
+date: '2024-08-19'
 tags:
   ['javascript', 'bundler', 'bundle analysis', 'codecov', 'git', 'github', 'ci', 'github actions']
 draft: false
 summary: 'How we resolved incorrect Codecov bundle size reporting when using GitHub Actions.'
-images: []
+images: ['/images/how-we-fixed-incorrect-codecov-bundle-size-reporting/codecov-classroom-hero.jpg']
 layout: PostLayout
 canonicalUrl:
 authors: ['nicholasdeschenes']
