@@ -11,11 +11,11 @@ canonicalUrl:
 authors: ['nicholasdeschenes']
 ---
 
-## What is bundle analysis?
+## What is Bundle Analysis?
 
 Bundle analysis is a new product offering from Codecov. This product consists of a set of bundler plugins that users can choose from for their specific bundler or meta-framework. Once a plugin is installed and configured in the respective configuration file, the plugins will run when the application is being bundled. During the bundling process the plugins will collect and organize the assets, chunks, and modules for your bundle into a stats file and upload these stats to Codecov. With these stats we enable developers to gain insights into their JavaScript bundles, such as overall bundle size, problematic assets, etc. Bundle analysis relies heavily on your Git workflows similar to any other Codecov product. We closely replicate your Git tree to give you insights at major points in the development lifecycle such as commits and pull requests.
 
-## How Codecov follows along with your Git flows
+## How Codecov Follows Along with your Git Flows
 
 To replicate your Git tree when bundle reports are uploaded to Codecov they are sent along with the corresponding commit SHA so we can create the commit and grab more details about it from GitHub such as the parent commit, the author, commit message, etc. Typically we end up creating commits in Codecov after users have opened a PR and ran their CI. Which at the same time as opening your pull request Codecov receives a webhook from GitHub and will create a pull request entry in our database storing the relevant information such as the base and head commit SHAs.
 
@@ -28,7 +28,7 @@ In typical CI environments this works pretty well, as they expose the correct Gi
 > This is an action that checks out your repository onto the runner, allowing you to run scripts or other actions against your code (such as build and test tools). You should use the checkout action any time your workflow will use the repository's code.
 > ~ [GitHub Docs](https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions)
 
-## Base and Head commit SHA issues with GitHub Actions
+## Base and Head Commit SHA Issues with GitHub Actions
 
 Here on line 73 you can see highlighted in the image this checkout to the merge-commit occurring:
 
@@ -40,7 +40,7 @@ HEAD is now at 3c5c246 Merge 46950b9de2b3ae7e946cc446709d5b42c88416b9 into 8ce50
 
 This flow creates a two big problems for Codecov when we try and determine the correct commit SHA. This new commit that is being created does not belong to any branch inside the repository, which is a limitation for Codecov as we expect commits to belong to a valid branch and to have a single parent rather than two. Secondly, this commit takes the head of your branch and merges it with the head of the comparison branch, not the commit that you originally branched off of. This results in an incorrect comparison because there are changes in the branch you’re merging into that do not appear in the base commit for your branch.
 
-## Solving incorrect head commit SHA’s
+## Solving Incorrect Head Commit SHA’s
 
 Let’s tackle the first problem that arises here, the creation of a new commit SHA. When this action happens it sets the GITHUB_SHA to this new detached commit SHA. Because this commit only exists in this detached state it doesn’t have any useful information to it and we don’t want to use it to create the commit inside of Codecov. To address this issue in the bundler plugins, we utilize the @actions/github package, this enables us to grab details from the GitHub Action context payload. We first need to check and see if the action is running in a pull request. We can do this by checking the context event name to see if it matches that of a pull request. Now that we know we’re running in a pull request, we can grab the pull request details from the context payload which includes information about the head commit and the correct SHA.
 
@@ -63,7 +63,7 @@ function findCommitSHA() {
 
 We have tackled the issue of avoiding the creation of detached commits in Codecov, and can associate the correct bundle stats information with the commit where the changes were made. A new problem now arises in repositories that have a large number of contributors, making large amounts of commits to your default branch, in turn moving quickly. With these fast moving repositories, PRs that are opened have their changes compared to the latest commit on the branch being merged into instead of your branches base commit.
 
-## A second problem arises
+## A Second Problem Arises
 
 The second problem that occurs is one that’s a little more confusing to get your head around, and it took us some time to figure out what was actually going on. During the action, it checkouts to a new commit that is based off of your branch head commit and the current head commit of the comparison branch. To better explain the entire process that happens here is a graphic showing what is actually going on through-out the entire process:
 
@@ -81,7 +81,7 @@ Lets break down what's happening in this graphic:
 
 So with this graphic and how Codecov compares against the parent commit you may be able to see the problem that we were facing. The problem arises when the action checkouts to the detached head (green circle) and uses the latest comparison branch head commit (yellow circle) as the base, however because Codecov sees the detached head commit (green circle) actually as the branch head commit (blue circle) it compares it against the original base commit (red circle) instead of the now correct base commit (yellow circle).
 
-## Solving incorrect base commit SHA’s
+## Solving Incorrect Base Commit SHA’s
 
 So what is the solution here? Well, we are already grabbing the correct head commit SHA, why can we not just grab the correct comparison base commit SHA? It turns out, we can for the bundler plugins. It is not a giant leap away from how we grab the current correct head commit, and it was a fairly small implementation change.
 
