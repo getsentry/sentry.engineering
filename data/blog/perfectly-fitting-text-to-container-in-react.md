@@ -56,32 +56,110 @@ https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queri
 
 ### Bonus Approch: `canvas`
 
-4. BONUS: Canvas. There's a way (I hear) to render text to a canvas and use measureText to get the dimensions, but that's fairly complicated
+There's a way (I hear) to render text to a canvas and use measureText to get the dimensions, but that's fairly complicated
+
+## Iterating on a Solution
+
+### Attempt 1
+
+I always try to do things The React Way if I possibly can. The [first version of the component](https://github.com/getsentry/sentry/pull/76209/commits/6a982d0167a0f290eff32bd46524aa72161184a9) was something like this (content heavily edited for brevity):
 
 ```tsx
-interface Props {
-  value: number;
-}
+function AutoSizedText({ children, minFontSize, maxFontSize, calculationCountLimit }: Props) {
+  // Set up state variables for:
+  // 1. Parent element height and width
+  // 2. The current font size
+  // 3. The most recent font size bounds
+  // 4. Calculation count
 
-function AutoText({value}: Props}) {
-  return <div>{value}</div>;
+  // Set up refs for:
+  // 1. Wrapper HTML element
+  // 2. Container of the `children`
+
+  useResizeObserver({
+    ref: parentRef,
+    onResize: () => {
+      // Reset the font size and its bounds
+      // Store the parent width and height in React state
+    };
+  })
+
+  useLayoutEffect(() => {
+    // Get parent and children dimensions
+    // Check the difference in parent and child dimensions
+    // Run the resizing algorithm (more on this later)
+  })
+
+  return (
+    <ParentElement>
+      <ChildElement>
+        {children}
+      </ChildElement>
+    </ParentElement>
+  )
 }
 ```
 
-`useLayoutEffect` and "blocking paint". Compositing vs. painting, and blocking paint.
+There are a few interesting things in this version:
 
-React 18 and `setState` batching and my fears about re-rendering too many times.
+1. Everything is driven via React state and `useLayoutEffect`. When `useResizeObserver` runs, it updates the state and triggers a re-render that recalculates the size
+2. The `useLayoutEffect` has a dependency on literally every piece of React state, so it runs on pretty much every render
+3. The component uses its own `ParentElement` to wrap the child, for additional control
+
+There were a few interesting other factors.
+
+Firstly, I was afraid that having that many `setState` calls is going to cause a bananas amount of re-renders, but that's not the case. React 18 [very effectively batches `setState` calls](https://react.dev/blog/2022/03/29/react-v18#new-feature-automatic-batching) so this was not an issue.
+
+Secondly, I was afraid that ?? what was this again
+
+Third, I had some problems correctly triggering the resizing in the right order. Using a combination of `useEffect` (the state it reference is from the closure its in) and `useRef` (the state it references is always most recent) caused me some grief, so I had to futz with the code execution order. As often, I referenced [Dan Abramov's "A Complete Guide to useEffect"](https://overreacted.io/a-complete-guide-to-useeffect/) which is my favourite resource on the topic. The result was having to store the parent element dimensions in `useState` so that every render has a correct reference to the most recent known parent dimensions _and_ the most recent known font size and bounds.
+
+This approach looked like it fully worked!
+
+![A dashboard with very many big numbers but they look good](/images/perfectly-fitting-text-to-container-in-react/good-big-numbers.png)
+
+`useLayoutEffect` and "blocking paint". Compositing vs. painting, and blocking paint.
 
 Update order, closures, etc. Setting up a dependency. I think I might need a Mermaid diagram here, which is confusing. It re-renders when `fontSize` changes, but the measurement ref is still the previous iteration.
 
 Temptation to start removing dependencies and how that's usually a mistake.
 
+## The Resizing Algorithm
+
 ```mermaid
-flowchart LR
-  A --> B
+flowchart TD
+
+%% Nodes
+RENDER("Render")
+CHECK("Check child and parent dimensions")
+EXCEED("Did we do > 10 calculations?")
+PERFECT("Child is same size as parent")
+SMALLER("Child is smaller than parent")
+BIGGER("Child is bigger than parent")
+DECREASE("Decrease the font size")
+INCREASE("Increase the font size")
+END("Stop")
+
+%% Edges
+RENDER --> CHECK
+CHECK --> SMALLER --> INCREASE --> RENDER
+CHECK --> BIGGER --> DECREASE --> RENDER
+CHECK --> PERFECT --> END
+CHECK --> EXCEED --> END
 ```
 
-https://overreacted.io/a-complete-guide-to-useeffect/
+Here's a sample run:
+
+- `AutoSizeText` mounts. The font size bounds (`minFontSize` and `maxFontSize`) are provided as 0 and 200 respestively. `fontSize` is set to 100px (the midpoint). It renders the `ChildElement` with a font size of 100px
+- `useLayoutEffect` fires. It checks the child element's width, and finds that it overflows the parent. It's too big! It updates the font size bounds to 0px and 100px respectively (100px is too big). It sets the new font size to halfway between the bounds (50px)
+- `useLayoutEffect` fires. It checks the elements and finds that the child underflows the parent by a lot. It's too small! It updates the font size bounds to 50px and 100px respectively. It sets the new font size to halfway between the bounds (75px)
+- `useLayoutEffect` fires. It checks the elements and find that the child is almost the same size as the parent, within 5px in width. We're done! Stop iterating
+
+This is basically a binary search for the right dimension. This is obviously more efficient than, say, changing the font size by 1px in the right dimension which would have been the naive approach.
+
+It works well! For Sentry dashboard widgets, finding an acceptable fit usually takes about 7 iterations to get a child that's within 5px of the parent.
+
+This result was encouraging, but there were lots of improvement to make. All of the following improvements were suggested by Jonas (thank you Jonas) who is an unstoppable good-ideas-having machine and a resident expert of unusual React rendering strategies.
 
 `MutationObserver` and why that was pointless and didn't work even though I was probably not using it right.
 
