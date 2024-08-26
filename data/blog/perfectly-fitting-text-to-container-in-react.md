@@ -14,11 +14,13 @@ https://web.dev/articles/rendering-performance#1_js_css_style_layout_paint_compo
 
 ## The Problem Space
 
+https://github.com/getsentry/sentry/pull/76209/
+
 [Sentry](https://sentry.io/welcome/) has a Dashboards feature. A dashboard is a customizable page where users can add charts, tables, and other widgets to visualize their data. One of the widgets is the aptly-named "Big Number", because sometimes you just need a big honkin' number to tell you how many issues you have, or how fast your site is. Nothing gets the job done like a Big Number™. The "big" is unfortunately hiding a lot of complexity, because, how big?
 
 ![A dashboard with very many big numbers](/images/perfectly-fitting-text-to-container-in-react/big-bad-numbers.png)
 
-As you can see, it's easy to get it wrong. Sentry only has 6 written values, and one of them is "Pixels Matter", so probably this isn't good enough. What we want is to make the number _exactly as big_ as can fit into the widget.
+As you can see, it's easy to get it wrong. Sentry only has 6 written values, and one of them is "Pixels Matter", so probably this isn't good enough. What we want is to make the number _exactly as big_ as can fit into the widget. This tasks (like a lot of UI tasks) ended up being more complicated than I thought.
 
 ## The Solution Space
 
@@ -161,6 +163,8 @@ It works well! For Sentry dashboard widgets, finding an acceptable fit usually t
 
 This result was encouraging, but there were lots of improvement to make. All of the following improvements were suggested by Jonas (thank you Jonas) who is an unstoppable good-ideas-having machine and a resident expert of unusual React rendering strategies.
 
+## `MutationObserver`
+
 `MutationObserver` and why that was pointless and didn't work even though I was probably not using it right.
 
 reading the source vs. reading a guide, https://en.wikipedia.org/wiki/Emergence
@@ -173,14 +177,56 @@ blocking the UI thread via iterating in a loop
 
 the way the browser profile shows one long-ass task
 
-ref callbacks
+## Perceived Performance
+
+## `ref` Callback Functions
+
+Another interesting tidbit (again, courtesy of [Jonas](https://github.com/jonasba)) is that React supports [`ref` callback functions](https://react.dev/reference/react-dom/components/common#ref-callback) even in recent versions! A `ref` callback _can_ be an effective way to manage React refs, and in some cases can eliminate code. e.g.,
+
+```jsx
+function MyComponent() {
+  return <div ref={(node) => {
+    if (node) {
+      // The component just mounted. This might be a good time to run any just-mounted logic
+    } else {
+      // If node is `null`, the component just unmounted. This might be a good time to run any cleanup logic
+    }
+  }}>
+}
+```
+
+I could have, in theory, dumped a bunch of the mount/unmount logic in the ref callback, but I felt it was less clear than using a `useLayoutEffect` hook where the cleanup logic and re-calculation are clearly expressed.
+
+## Component and Their Props
+
+The first iteration of this component had this kind of setup:
+
+```jsx
+interface Props {
+  minFontSize: number;
+  maxFontSize: number;
+}
+
+function AutoSizeText(props: Props) {
+  const [fontSize, setFontSize] = useState < number > (maxFontSize - minFontSize) / 2
+
+  // More code
+}
+```
+
+I required a manual minimum and maximum for two reasons:
+
+1. Fear. I had some reservations about running this component without size restrictions. What if the algorithm fails, and the font size drops to 0, or otherwise explodes off the page? This fear is unfounded, IMO. Why would such a thing happen? If it happens, I should fix the condition that caused it.
+2. Simplicity. Asking for a manual size restriction makes the code easier to manage because I don't have to calculate the font size bounds myself.
+
+I ended up throwing this out. Requiring manual bounds had too many downsides, and it's a bad api.
+
+First of all, how would developers decide these bounds? Why wouldn't they always set the minimum as `0` and the maximum as some-impractically-large-number? Second of all, it creates unpleasant limits. The problem I ran into immediately is that I set a maximum bound too low, and was then confused why my auto-sized numbers weren't big enough. Third of all, this means there are _two_ APIs. The first API is through CSS, by creating a positioned parent element in HTML. The second API is through React's props. That's no good. I liked the idea of CSS as the main API, so I didn't want to _also_ have a second API to fiddle with.
 
 taking rendering control away from React
 
-the initial API, from Jonas' feedback, guessing the parameters ahead of time, being fearful of the bounds
+## Future Work
 
 Probably this should accept a forward ref in the future, to give control over the element inside?
 
 CSS as an API (sketchy)
-
-https://github.com/getsentry/sentry/pull/76209/
