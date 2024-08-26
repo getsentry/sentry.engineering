@@ -3,7 +3,7 @@ title: 'Perfectly Fitting Text to Container in React'
 date: '2024-08-22'
 tags: ['react', 'web', 'javascript']
 draft: false
-summary: 'Iterating on a React component that automatically sizes its text contents to fill its parent element as fully as possible.'
+summary: 'Building a React component that automatically updates its font size to fill its parent element as fully as possible.'
 images: []
 layout: PostLayout
 canonicalUrl:
@@ -60,11 +60,9 @@ https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queri
 
 There's a way (I hear) to render text to a canvas and use measureText to get the dimensions, but that's fairly complicated
 
-## Iterating on a Solution
+## Driving UI Renders Through UI State
 
-### Attempt 1
-
-I always try to do things The React Way if I possibly can. The [first version of the component](https://github.com/getsentry/sentry/pull/76209/commits/6a982d0167a0f290eff32bd46524aa72161184a9) was something like this (content heavily edited for brevity):
+I always try to do things The React Way if I can. The [first version of the component](https://github.com/getsentry/sentry/pull/76209/commits/6a982d0167a0f290eff32bd46524aa72161184a9) stored everything in React state and drove UI updates through state updates. Here's a pseudocode version:
 
 ```tsx
 function AutoSizedText({ children, minFontSize, maxFontSize, calculationCountLimit }: Props) {
@@ -102,31 +100,24 @@ function AutoSizedText({ children, minFontSize, maxFontSize, calculationCountLim
 }
 ```
 
-There are a few interesting things in this version:
+- Almost everything is driven via React state and `useLayoutEffect`. When `useResizeObserver` runs, it updates the state and triggers a re-render that recalculates the sizes
+- only HTML elements are in `ref`s
+- The `useLayoutEffect` has a dependency on literally every piece of React state, so it runs on pretty much every render
+- The component uses its own `ParentElement` to wrap the child, for additional control
 
-1. Everything is driven via React state and `useLayoutEffect`. When `useResizeObserver` runs, it updates the state and triggers a re-render that recalculates the size
-2. The `useLayoutEffect` has a dependency on literally every piece of React state, so it runs on pretty much every render
-3. The component uses its own `ParentElement` to wrap the child, for additional control
+This, in my opinion, is a natural approach. It uses basic React primitives, generously assigns state, and uses the natural render lifecycle. The only interesting thing, in my opinion is the use of `useLayoutEffect` over `useEffect`. `useLayoutEffect` block browser paint, which is important because we only want to show the numbers after the resizing algorithm runs (more on this later). React 18 [very effectively batches `setState` calls](https://react.dev/blog/2022/03/29/react-v18#new-feature-automatic-batching) so it's not a problem to have a lot of state.
 
-There were a few interesting other factors.
+The problem is that using a combination of `useEffect` (the state it reference is from the closure its in) and `useRef` (the state it references is always most recent) caused me some grief, so I had to futz with the code execution order. As often, I referenced [Dan Abramov's "A Complete Guide to useEffect"](https://overreacted.io/a-complete-guide-to-useeffect/) which is my favourite resource on the topic. The trick was having to store the parent element dimensions in `useState` so that every render has a correct reference to the most recent known parent dimensions _and_ the most recent known font size and bounds.
 
-Firstly, I was afraid that having that many `setState` calls is going to cause a bananas amount of re-renders, but that's not the case. React 18 [very effectively batches `setState` calls](https://react.dev/blog/2022/03/29/react-v18#new-feature-automatic-batching) so this was not an issue.
-
-Secondly, I was afraid that ?? what was this again
-
-Third, I had some problems correctly triggering the resizing in the right order. Using a combination of `useEffect` (the state it reference is from the closure its in) and `useRef` (the state it references is always most recent) caused me some grief, so I had to futz with the code execution order. As often, I referenced [Dan Abramov's "A Complete Guide to useEffect"](https://overreacted.io/a-complete-guide-to-useeffect/) which is my favourite resource on the topic. The result was having to store the parent element dimensions in `useState` so that every render has a correct reference to the most recent known parent dimensions _and_ the most recent known font size and bounds.
-
-This approach looked like it fully worked!
+The result was great!
 
 ![A dashboard with very many big numbers but they look good](/images/perfectly-fitting-text-to-container-in-react/good-big-numbers.png)
 
-`useLayoutEffect` and "blocking paint". Compositing vs. painting, and blocking paint.
-
-Update order, closures, etc. Setting up a dependency. I think I might need a Mermaid diagram here, which is confusing. It re-renders when `fontSize` changes, but the measurement ref is still the previous iteration.
-
-Temptation to start removing dependencies and how that's usually a mistake.
+Sidebar: While I was figuring out my ref vs. state issues I started feeling the temptation to remove items from the `useLayoutEffect` dependency array, and had to remember that it's almost universally a bad idea to lie to React about hook dependencies.
 
 ## The Resizing Algorithm
+
+The crux of the component is the algorithm. Let's talk about how it chooses the font size. Here's a flow diagram of what happens during render (on initial page load, or on resize):
 
 ```mermaid
 flowchart TD
@@ -150,20 +141,26 @@ CHECK --> PERFECT --> END
 CHECK --> EXCEED --> END
 ```
 
-Here's a sample run:
+Here's a sample run of the calculation:
 
 - `AutoSizeText` mounts. The font size bounds (`minFontSize` and `maxFontSize`) are provided as 0 and 200 respestively. `fontSize` is set to 100px (the midpoint). It renders the `ChildElement` with a font size of 100px
 - `useLayoutEffect` fires. It checks the child element's width, and finds that it overflows the parent. It's too big! It updates the font size bounds to 0px and 100px respectively (100px is too big). It sets the new font size to halfway between the bounds (50px)
 - `useLayoutEffect` fires. It checks the elements and finds that the child underflows the parent by a lot. It's too small! It updates the font size bounds to 50px and 100px respectively. It sets the new font size to halfway between the bounds (75px)
 - `useLayoutEffect` fires. It checks the elements and find that the child is almost the same size as the parent, within 5px in width. We're done! Stop iterating
 
-This is basically a binary search for the right dimension. This is obviously more efficient than, say, changing the font size by 1px in the right dimension which would have been the naive approach.
+This is essentially a [binary search](https://en.wikipedia.org/wiki/Binary_search) for the right dimension. This is obviously more efficient than, say, changing the font size by 1px in the right dimension until it hits the bounds.
 
 It works well! For Sentry dashboard widgets, finding an acceptable fit usually takes about 7 iterations to get a child that's within 5px of the parent.
 
 This result was encouraging, but there were lots of improvement to make. All of the following improvements were suggested by Jonas (thank you Jonas) who is an unstoppable good-ideas-having machine and a resident expert of unusual React rendering strategies.
 
 ## `MutationObserver`
+
+Back in my jQuery days, before component queries (or even media queries) it was very common to listen to window resize and run JavaScript to re-layout the page. Those were not very good days, to be honest! It's always a huge pain to basically do the browser's work in JavaScript. These days, [`MutationObserver`](https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver) is the right API to listen for changing element sizes.
+
+A browser resize may or may not need to recalculate the font size in a widget. A _widget_ resize definitely needs a recalculation. `MutationObserver` is great for a few reasons:
+
+-
 
 `MutationObserver` and why that was pointless and didn't work even though I was probably not using it right.
 
@@ -177,7 +174,32 @@ blocking the UI thread via iterating in a loop
 
 the way the browser profile shows one long-ass task
 
-## Perceived Performance
+## `ResizeObserver`
+
+## Removing the `ParentElement` Wrapper
+
+## Managing Performance
+
+Measuring and re-sizing is a notorious cause of UI thrashing and bad performance. Our approach here was two-fold:
+
+1. Focus on reality rather than ideals
+2. Implementing obvious improvements
+
+### Reality
+
+The reality of how this component is used (at least for now) is that it auto-sizes a big number in a dashboard widget. The value of the number is not known at pageload, it's loaded async. The async load can take anywhere from 20ms to 200ms or more, and shows a loading spinner. If the resize happens in under 10ms, it's _so much faster_ than then async load that its performance on page load doesn't matter. It also run on page resize. In my opinion, it does _not_ matter that the resize animation is smooth. In fact, I'm tempted to debounce the resize.
+
+### Obvious Improvements
+
+That said, we made a few
+
+- correct use of `ResizeObserver`
+- `useTransition`
+- binary search iteration management
+
+### Instrumentation
+
+- adding Sentry to measure the actual real times
 
 ## `ref` Callback Functions
 
@@ -223,10 +245,12 @@ I ended up throwing this out. Requiring manual bounds had too many downsides, an
 
 First of all, how would developers decide these bounds? Why wouldn't they always set the minimum as `0` and the maximum as some-impractically-large-number? Second of all, it creates unpleasant limits. The problem I ran into immediately is that I set a maximum bound too low, and was then confused why my auto-sized numbers weren't big enough. Third of all, this means there are _two_ APIs. The first API is through CSS, by creating a positioned parent element in HTML. The second API is through React's props. That's no good. I liked the idea of CSS as the main API, so I didn't want to _also_ have a second API to fiddle with.
 
-taking rendering control away from React
+I ended up setting `minFontSize` to 0, and `maxFontSize` to the height of the parent component. Easy!
 
-## Future Work
+## The Final Result
 
-Probably this should accept a forward ref in the future, to give control over the element inside?
+The final result (as of August 26th, 2024) is here:
 
-CSS as an API (sketchy)
+PR LINK
+
+It looks a little different from the original (different how), but the core bits are still there. Probably this should accept a forward ref in the future, to give control over the element inside? Anyway thanks for reading!
