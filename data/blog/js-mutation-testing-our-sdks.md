@@ -94,13 +94,10 @@ To find this out we used ... well ... Sentry. More specifically, Sentry's tracin
 
 Ultimately, we created added a new script to the packages' `package.json`s so that engineers can run a mutation test with the comfort of a simple `yarn test:mutation` command.
 
-## Results
+## Mutation Test Results
 
-So, how did our tests do? Well, it's complicated. Let's talk about MT results, our interpretations as well as the performance aspects.
-
-### Mutation Test Results
-
-Let's start with the mutation test results. We opted 12 of our packages into MT and got rather mixed results. Take our core SDK package as an example:
+So, how did our tests do? Well, it's complicated, so let's talk about Mutation Test results, our interpretations as well as about runtime performance.
+We opted 12 of our packages into MT and got rather mixed results. Take our core SDK package as an example:
 
 ![Core SDK package mutation test results](/images/js-mutation-testing-our-sdks/mt-result-core.png)
 
