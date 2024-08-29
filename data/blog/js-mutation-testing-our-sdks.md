@@ -11,22 +11,22 @@ authors: [lukasstracke]
 ---
 
 Have you ever thought about testing your tests? Check how good they _really_ are at catching bugs? Welcome to the realms of test suite evaluation!
-Mutation testing is considered the gold standard when it comes to evaluating the fault detection ability (I'm gonna stop with academic terms in a sec!) of your tests.
+Mutation testing is considered the gold standard when it comes to evaluating the fault detection ability (I'm going to stop with academic terms in a sec!) of your tests.
 In this article, we'll explore what Mutation Testing is, why it's a rather niche technique and what we learnt from using it on our JavaScript SDK codebase.
 
 ## Intro to Mutation Testing
 
 You probably heard of _code coverage_ before, which comes in various flavours and granularities (statement, line, branch coverage, etc).
-Perhaps you use it in your code base and you're happy about that green >90% coverage badge in your repo.
+Perhaps you use it in your codebase and you're happy about that green >90% coverage badge in your repo.
 While that is great, coverage has a substantial limitation: It only tells you what units of code (e.g. lines) were executed during a test run.
-It tells you nothing about if the executed lines were actually _checked_ or if - would you introduce a bug into one of these lines - your tests would actually catch the bug.
+It tells you nothing about if the executed lines were actually _checked_ or if—were you to introduce a bug into one of these lines—your tests would actually catch the bug.
 So playing devil's advocate, you could say coverage really only tells you one thing with certainty: Which parts of your code are _not_ covered by any test.
 
-Let's circle back to the part about coverage not telling you if an introduced bug would be caught. What if we could had tool that does exactly that? Enter Mutation Testing.
+Let's circle back to the part about coverage not telling you if an introduced bug would be caught. What if there was a tool that does exactly that? Enter Mutation Testing.
 
 The idea of mutation testing (MT) is fairly simple:
 
-1. Make a slight modification to your code base. In MT terms, apply a _mutant operator_ to your code base, for example, change an equality operator:
+1. Make a slight modification to your codebase. (In MT terms: Apply a _mutant operator_ to your code base.) For example, change an equality operator:
    ```js
    function isEven(num) {
      // return num % 2 === 0; // mutate to:
@@ -37,7 +37,7 @@ The idea of mutation testing (MT) is fairly simple:
 2. Run your tests against the mutant.
    - If at least one of your test fails, crashes or times out, the mutant was _killed_.
    - If all your tests still pass without a crash or timeout, the mutant _survived_.
-3. Repeat 1 and 2 until all possible mutant operators have been applied to your codebase or you reached a pre-defined max number of mutants.
+3. Repeat 1 and 2 until all possible mutant operators have been applied to your codebase or you reached a pre-defined maximum number of mutants.
 
 After this virtual bloodbath, you can calculate a _Mutation Score_ by dividing the number of all created mutants by the number of killed mutants. The score now tells you how likely it is that your tests would catch an actual bug.
 
@@ -49,21 +49,21 @@ Sounds good, right? Well, as with all nice things in life, there are some limita
 
 The entire concept of MT depends on the assumption that [mutants are similar to actual bugs](https://dl.acm.org/doi/abs/10.1145/2635868.2635929) that programmers might introduce into the code base.
 Now the question is, is this true in reality? Luckily, engineers at Google publish papers about mutation testing on a somewhat regular basis. In [one of them](https://dl.acm.org/doi/10.1109/ICSE43902.2021.00087), they
-investigated the similarity assumption by comparing 15 million mutants against against bugfix PRs. They found a high similarity of mutants to bugs, suggesting that the assumption does hold up.
-Does this translate to other code bases? Probably not with certainty but for the sake of trying things out, let's go with "yes".
+investigated the similarity assumption by comparing 15 million mutants against bugfix PRs. They found a high similarity of mutants to bugs, suggesting that the assumption does hold up.
+Does this translate to other code bases? Maybe not, but for the sake of trying things out, let's go with "yes".
 
 ### Performance
 
 You might have already guessed it but what really keeps mutation testing from being widely adopted is its high performance impact. Running 1000s of tests on 1000s of mutants is computationally expensive - much higher than any kind of coverage calculation. Fortunately, modern MT tools provide optimizations that minimize the runtime as much as possible. For example, they use "per-test" mutation coverage to determine which tests cover a mutant and then, only execute this subset of all tests on the specific mutant. Similarly, modern MT tools chain multiple mutants into one modified code base and activate a specific mutant at runtime. This means that the modified code base doesn't have to be re-built for every mutant, but instead only once at the beginning of the MT run.
 
 More recently, we saw the light of _incremental_ mutation testing, where mutants would only be created in _changed_ code files vs in the entire code base.
-The idea is to establish a base line from a previous mutation test, compute the diff or file changes since then and start an incremental MT run on the changed files.
+The idea is to establish a baseline from a previous mutation test, compute the diff or file changes since then and start an incremental MT run on the changed files.
 This significantly decreases MT runtime but is limited in accuracy, depending on how well tools are able to determine what actually changed.
 
 ## JavaScript Tooling
 
-When it comes to Mutation Testing tooling in JavaScript, the by far most popular option is [Stryker](https://stryker-mutator.io/).
-Stryker is available for various language but for JS specifically, it shines with support for all major test frameworks (with one unfortunate exception), support for per-test mutation coverage, chained mutants and even incremental mutation testing.
+When it comes to tooling in JavaScript for Mutation Testing, the by far most popular option is [Stryker](https://stryker-mutator.io/).
+Stryker is available for various languages, but for JS specifically it shines with support for all major test frameworks (with one unfortunate exception), support for per-test mutation coverage, chained mutants and even incremental mutation testing.
 
 The general idea of Stryker is that you specify your MT configuration in a config file and it takes care of everything else, just like a conventional test framework. Similarly, you'll also end up with a mutation test report coming in various flavours like terminal output of the mutation scores, JSON files with the results as well as a convenient HTML-based report which allows you to inspect all intricate details, like the created mutants and which mutants were (not) covered by which test.
 
