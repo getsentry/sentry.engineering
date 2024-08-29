@@ -39,7 +39,7 @@ The idea of mutation testing (MT) is fairly simple:
    - If all your tests still pass without a crash or timeout, the mutant _survived_.
 3. Repeat 1 and 2 until all possible mutant operators have been applied to your codebase or you reached a pre-defined max number of mutants.
 
-After this virtual bloodbath, you can calculate a _Mutation Score_ by dividing the number of all created mutants by the number of killed mutants. The score now tells you how likely it is that your tests could catch an actual bug.
+After this virtual bloodbath, you can calculate a _Mutation Score_ by dividing the number of all created mutants by the number of killed mutants. The score now tells you how likely it is that your tests would catch an actual bug.
 
 ## Limitations
 
@@ -48,8 +48,8 @@ Sounds good, right? Well, as with all nice things in life, there are some limita
 ### Mutant Similarity Assumption
 
 The entire concept of MT depends on the assumption that [mutants are similar to actual bugs](https://dl.acm.org/doi/abs/10.1145/2635868.2635929) that programmers might introduce into the code base.
-Now the question is, is this true in reality? Luckily, engineers at Google published papers about mutation testing on a somewhat regular basis. In [one of them](https://dl.acm.org/doi/10.1109/ICSE43902.2021.00087), they
-investigated the similarity assumption by comparing 15k bugfix PRs against created mutants. They found a high similarity, suggesting that the assumption does hold up.
+Now the question is, is this true in reality? Luckily, engineers at Google publish papers about mutation testing on a somewhat regular basis. In [one of them](https://dl.acm.org/doi/10.1109/ICSE43902.2021.00087), they
+investigated the similarity assumption by comparing 15 million mutants against against bugfix PRs. They found a high similarity of mutants to bugs, suggesting that the assumption does hold up.
 Does this translate to other code bases? Probably not with certainty but for the sake of trying things out, let's go with "yes".
 
 ### Performance
