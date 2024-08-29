@@ -79,11 +79,11 @@ Given our SDKs are used by millions of developers, we go to great lengths (take 
 
 - Every package has unit tests that test individual, package-specific behavior. On this test level, we want to cover individual package exports, edge cases as well as more complicated paths, of course with a sprinkle of general purpose tests. Basically, your typical unit test setup. We mostly use [Vitest](https://vitest.dev/) and [Jest](https://jestjs.io/) (we're slowly moving away from it but [it's complicated](https://github.com/getsentry/sentry-javascript/pull/13458)).
 On the other end of the spectrum, we created an army of [End-to-End test applications](https://github.com/getsentry/sentry-javascript/tree/develop/dev-packages/e2e-tests/test-applications). These are small standalone apps build with various frameworks in which we test our actual NPM packages. Testing here is done on a higher level, as we mostly only check the resulting payloads of errors or other events our SDKs send to Sentry, but they catch a surprisingly high number of bugs and have proven themselves worthy more than once. For E2E tests, we rely on [Playwright](https://playwright.dev/), which we like a lot.
-- Sitting comfortably in between unit and E2E tests, we run an integration test suite against our base browser and Node SDKs to cover more wholistic scenarios. In these tests, we again check for resulting payloads but our SDK setup is far more flexible. Meaning we can test against a variety of differently configured SDKs, giving us a lot of flexibility to check unit-test-like scenarios (with edge case configs) in a more wholistic manner. We use Playwright for browser, and Jest for Node integration tests.
+Sitting comfortably in between unit and E2E tests, we run an integration test suite against our base browser and Node SDKs to cover more wholistic scenarios. In these tests, we also check for resulting payloads but our SDK setup is far more flexible. Meaning, we can test against a variety of differently configured SDKs, giving us a lot of flexibility to check unit-test-like scenarios (with edge case configs) in a more wholistic manner. We use Playwright for browser and Jest for Node integration tests.
 
 ### Implementing Mutation Testing
 
-To get started with MT, we created a [shared Stryker config](https://github.com/getsentry/sentry-javascript/blob/f6a05b83144daf046878306aa9a946380ab56bef/dev-packages/stryker-config/src/stryker.config.mjs) with the base parameters, such as the report formats, as well as some MT behavior-related parameters. For example, to minimize the performance impact, we chose to selectively run tests based on the [per-test coverage](https://stryker-mutator.io/docs/stryker-js/configuration/#coverageanalysis-string) determined by Stryker, as well as that we ignore [static mutants](https://stryker-mutator.io/docs/mutation-testing-elements/static-mutants/).
+To get started with MT, we created a [shared Stryker config](https://github.com/getsentry/sentry-javascript/blob/f6a05b83144daf046878306aa9a946380ab56bef/dev-packages/stryker-config/src/stryker.config.mjs) with the base parameters, such as the report formats, as well as some MT behavior-related parameters. For example, to minimize the performance impact, we chose to selectively run tests based on the [per-test coverage](https://stryker-mutator.io/docs/stryker-js/configuration/#coverageanalysis-string) determined by Stryker and ignored [static mutants](https://stryker-mutator.io/docs/mutation-testing-elements/static-mutants/).
 
 We started opting individual packages into MT by adding Stryker to these packages and importing the shared config.
 Adding Stryker was really easy in almost all cases as the Stryker runner just works (TM). Only in some packages, where we for example use the JSDOM test environment, we had to manually declare the respective [Stryker test environment](https://stryker-mutator.io/docs/stryker-js/jest-runner/#coverage-reporting).
@@ -92,11 +92,11 @@ Now, as we already established, MT runtime is a concern. So we were specifically
 
 To find this out we used ... well ... Sentry. More specifically, Sentry's tracing and performance monitoring capabilities, as well as dashboards to keep track of the MT results. We replaced the simple `npx stryker` command with a [small Node script](https://github.com/getsentry/sentry-javascript/blob/f6a05b83144daf046878306aa9a946380ab56bef/scripts/stryker/run-with-sentry.mjs) that would initialize the Sentry Node SDK, use the Stryker JS API to start the mutation testing run and wrap a couple of Sentry spans around the test operations.
 
-Ultimately, we created added a new script to the packages' `package.json`s so that engineers can run a mutation test with the comfort of a simple `yarn test:mutation` command.
+Ultimately, we added a new script to the packages' `package.json`s, so that engineers can run a mutation test with the comfort of a simple `yarn test:mutation` command.
 
 ## Mutation Test Results
 
-So, how did our tests do? Well, it's complicated, so let's talk about Mutation Test results, our interpretations as well as about runtime performance.
+So, how did our tests do? Well, it's complicated. So let's talk about Mutation Test results, our interpretations as well as about runtime performance.
 We opted 12 of our packages into MT and got rather mixed results. Take our core SDK package as an example:
 
 ![Core SDK package mutation test results](/images/js-mutation-testing-our-sdks/mt-result-core.png)
@@ -104,13 +104,13 @@ We opted 12 of our packages into MT and got rather mixed results. Take our core 
 We achieved a mutation score of 0.62, meaning 62% of the created mutants were killed. Not too shabby but not too great either on first glance. We took a closer look at the results and found two things:
 
 - A good portion of created mutants survived. In Stryker-terms, this specifically means that at least one test covered the mutant but did not detect it. A fair amount could be attributed to edge case code paths, where we'd log warnings (something we just didn't test on too much) or early return in a function. The importance varied from "We should definitely cover this" to "sure, would be nice to cover but not necessary". Some other created mutants were simply a bit unrealistic, for example when an empty string was replaced with a `"Stryker was here"` constant. Some of these cases would have been caught by TypeScript at build time, due to us using string literal types quite a bit.
-- In addition to survived mutants, mutants in an almost equal number were not covered by a any unit test. We were a bit surprised about this number but it makes sense (bear with me!). It's important to keep in mind that creating mutants everywhere in our code base is realistic, given bugs will sneak the easiest into uncovered code.
+- In addition to survived mutants, mutants in an almost equal number were not covered by any unit test. We were a bit surprised about this number, but it makes sense (bear with me!). It's important to keep in mind that creating mutants everywhere in our code base is realistic, given bugs will sneak the easiest into uncovered code.
 
 Does this mean we have a massive test coverage problem? No. As mentioned earlier, we not only use unit testing but also integration and e2e tests. Many of the untested areas in the core package, are covered by integration and e2e tests. While these tests don't explicitly check the core package but higher-level packages, bugs in the core package would manifest very likely by altered SDK payloads which we check on in these higher-level tests.
 
 ![Mutation scores of all packages](/images/js-mutation-testing-our-sdks/mt-results-all.png)
 
-This trend is confirmed to an extent by the mutation scores of higher level packages. With some outliers, higher level packages like our browser package or our NextJS package (inheriting both from Browser and Server SDK packages) had lower mutation scores than the core package. However, for these higher-level packages we have substantially more E2E and integration tests which evens out the missing coverage of unit tests.
+This trend is confirmed to an extent by the mutation scores of higher level packages. With some outliers, higher level packages, like our browser package or our NextJS package (inheriting both from Browser and Server SDK packages), had lower mutation scores than the core package. However, for these higher-level packages we have substantially more E2E and integration tests, which evens out the missing coverage of unit tests.
 
 The obvious problem was that we couldn't get mutation testing to run in our integration and E2E tests. Stryker unfortunately doesn't support our testing framework of choice, Playwright. So for us this means, that the current state of mutation testing in our repo doesn't show the complete picture. It's important to keep this in mind as it explains the lower scores despite us having thousands of tests in the entire repo.
 
@@ -128,11 +128,11 @@ Given we only mutation-tested on a package level, we could easily parallelize ru
 
 Factoring in the dependency installation and build time before the test run, a complete CI run takes around 35-45 minutes, which is shorter than we anticipated. It is definitely too long to run this on every PR or push. However, given the limitations we encountered the value gain wouldn't be substantial enough to justify this anyway. Therefore, we decided to run our mutation testing setup once every week to track the score over time. We'll use Sentry's Dashboards and Alerts features to for example alert us when there's a significant drop in mutation score.
 
-As a further experiment, we switched from Jest to Vitest in the Core SDK package. While the conversion was relatively easy, it really improved the MT runtime by reducing it from 60 minutes to now much more manageable 25 minutes. We generally want to switch over to Vitest and already did so in several packages. Unfortunately, given our Node SDK still supports Node 14 and hence test on Node 14 as well, we cannot convert all our packages to Vitest yet. This is because Vitest only supports Node 18 and above. We found it also works for us in Node 16 but unfortunately not in Node 14. So Jest will stay a bit longer with us than we hoped.
+As a further experiment, we switched from Jest to Vitest in the Core SDK package. While the conversion was relatively easy, it reduced the MT runtime from 60 minutes to now much more manageable 25 minutes. We generally want to switch over to Vitest and already did so in several packages. Unfortunately, given our Node SDK still supports Node 14 and hence we test on Node 14 as well, we cannot convert all our packages to Vitest yet. This is because Vitest only supports Node 18 and above. We found it also works for us in Node 16, but unfortunately not in Node 14. So Jest will stay a bit longer with us than we hoped.
 
 ## Conclusion
 
-Let's wrap this lengthy blog post (congrats if you made it this far!) up with some conclusions what we learned from experimenting with mutation testing.
+Let's wrap this lengthy blog post (congrats if you made it this far!) up with some learnings we had from experimenting with mutation testing.
 
 Mutation Testing is a great asset for checking the quality of tests and we definitely found some areas where test improvements would be beneficial.
 In our particular monorepo and testing setup, where we cover a lot of test scenarios in E2E and integration tests, we unfortunately came across some limitations.
