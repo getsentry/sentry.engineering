@@ -118,7 +118,7 @@ While this is an unfortunate limitation, we could also identify some areas that 
 
 ### Performance
 
-As for mutation testing runtime, we were quite positively surprised. Larger packages like our core, browser and node packages took on average 20-30 minutes to run in our GitHub CI.
+As for mutation testing runtime, we were quite positively surprised. Larger packages like our core and node packages took on average 20-25 minutes to run in our GitHub CI.
 
 ![Performance Trace Waterfall of an entire Mutation Test run](/images/js-mutation-testing-our-sdks/mt-trace.png)
 
@@ -161,7 +161,7 @@ As you can see there are a lot of unknowns here. It would be great to give this 
 
 Something that might be more easily achievable is incremental mutation testing. The idea would be to only create mutants on the changed files in a PR and run Stryker on these files. While in theory this sounds good, we'd still need to answer some questions as well:
 
-- Can we accurately detect changes, again across multiple packages?
+- Can Stryker accurately detect changes across multiple packages?
 - The Playwright and E2E/Integration testing limitation still applies, so how useful would this even be?
 - What can we take from the score and does it provide value for engineers? Can we meaningfully show test deficiencies in the GitHub PR UI?
 
