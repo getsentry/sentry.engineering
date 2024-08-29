@@ -1,9 +1,9 @@
 ---
 title: 'Mutation Testing our JavaScript SDKs'
 date: '2024-08-23'
-tags: ['javascript', 'testing', 'coverage']
+tags: ['javascript', 'testing', 'coverage', 'mutation-testing']
 draft: false
-summary: "Let's dive into mutation testing. We discuss the state of mutation testing tooling in JS and how well it worked for our JavaScript SDK code base"
+summary: "Let's dive into mutation testing. In this post we talk about how mutation testing works, the state of it in JavaScript and we share our results of applying it to our JavaScript SDK repository"
 images: [/images/js-mutation-testing-our-sdks/hero.jpg]
 layout: PostLayout
 canonicalUrl: mutation-testing-js-sdks
@@ -135,12 +135,13 @@ As a further experiment, we switched from Jest to Vitest in the Core SDK package
 
 ## Conclusion
 
-Let's wrap this lengthy blog post (Congrats if you made it this far!) up with some conclusions what we learned from experimenting with mutation testing.
+Let's wrap this lengthy blog post (congrats if you made it this far!) up with some conclusions what we learned from experimenting with mutation testing.
 
 Mutation Testing is a great asset for checking the quality of tests and we definitely found some areas where test improvements would be beneficial.
-In our particular monorepo and testing setup, where we cover a lot of test scenarios in E2E and integration tests, we unfortunately came across some limitations. This results in the fact that the mutation scores were lower than anticipated but also simply did not fully represent our combined test suites' ability to detect bugs.
+In our particular monorepo and testing setup, where we cover a lot of test scenarios in E2E and integration tests, we unfortunately came across some limitations.
+This manifested itself by the fact that the mutation scores were lower than anticipated but also simply did not fully represent our combined test suites' ability to detect bugs.
 
-Performance-wise, we were positively surprised about the runtimes, given that a complete MT run on all packages takes less than an hour. We'll continue to run mutation testing once every week to track the mutation score and see how it develops over time.
+Performance-wise, we were positively surprised about the runtime, given that a complete MT run on all packages takes less than an hour. We'll continue to run mutation testing once every week to track the mutation score and see how it develops over time.
 
 ## Future Improvements
 
