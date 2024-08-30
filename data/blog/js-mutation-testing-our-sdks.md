@@ -1,7 +1,7 @@
 ---
 title: 'Mutation-testing our JavaScript SDKs'
 date: '2024-08-23'
-tags: ['javascript', 'testing', 'coverage', 'mutation-testing']
+tags: ['javascript', 'web', 'testing', 'coverage', 'mutation-testing']
 draft: false
 summary: "Let's dive into mutation testing. In this post we talk about how mutation testing works, the state of it in JavaScript and we share our results of applying it to our JavaScript SDK repository"
 images: [/images/js-mutation-testing-our-sdks/hero.jpg]
