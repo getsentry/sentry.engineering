@@ -1,5 +1,5 @@
 ---
-title: 'Mutation Testing our JavaScript SDKs'
+title: 'Mutation-testing our JavaScript SDKs'
 date: '2024-08-23'
 tags: ['javascript', 'testing', 'coverage', 'mutation-testing']
 draft: false
