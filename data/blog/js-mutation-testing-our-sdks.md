@@ -11,20 +11,20 @@ authors: [lukasstracke]
 ---
 
 Have you ever thought about testing your tests? Check how good they _really_ are at catching bugs? Welcome to the realms of test suite evaluation!
-Mutation testing is considered the gold standard when it comes to evaluating the fault detection ability (I'm going to stop with academic terms in a sec!) of your tests.
-In this article, we'll explore what Mutation Testing is, why it's a rather niche technique and what we learnt from using it on our JavaScript SDK codebase.
+Mutation testing (MT) is considered the gold standard when it comes to evaluating the fault detection ability (I'm going to stop with academic terms in a sec!) of your tests.
+In this article, we'll explore what mutation testing is, why it's a rather niche technique and what we learnt from using it on our JavaScript SDK codebase.
 
 ## Intro to Mutation Testing
 
 You probably heard of _code coverage_ before, which comes in various flavours and granularities (statement, line, branch coverage, etc).
 Perhaps you use it in your codebase and you're happy about that green >90% coverage badge in your repo.
-While that is great, coverage has a substantial limitation: It only tells you what units of code (e.g. lines) were executed during a test run.
+While that is great, coverage has a substantial limitation: It only tells you which units of code (e.g. lines) were executed during a test run.
 It tells you nothing about if the executed lines were actually _checked_ or if—were you to introduce a bug into one of these lines—your tests would actually catch the bug.
 So playing devil's advocate, you could say coverage really only tells you one thing with certainty: Which parts of your code are _not_ covered by any test.
 
-Let's circle back to the part about coverage not telling you if an introduced bug would be caught. What if there was a tool that does exactly that? Enter Mutation Testing.
+Let's circle back to the part about coverage not telling you if an introduced bug would be caught. What if there was a tool that does exactly that? Enter mutation testing.
 
-The idea of mutation testing (MT) is fairly simple:
+The idea of mutation testing is fairly simple:
 
 1. Make a slight modification to your codebase. (In MT terms: Apply a _mutant operator_ to your code base.) For example, change an equality operator:
    ```js
@@ -39,7 +39,7 @@ The idea of mutation testing (MT) is fairly simple:
    - If all your tests still pass without a crash or timeout, the mutant _survived_.
 3. Repeat 1 and 2 until all possible mutant operators have been applied to your codebase or you reached a pre-defined maximum number of mutants.
 
-After this virtual bloodbath, you can calculate a _Mutation Score_ by dividing the number of all created mutants by the number of killed mutants. The score now tells you how likely it is that your tests would catch an actual bug.
+After this virtual bloodbath, you can calculate a _Mutation Score_ by dividing the number of killed mutants by the number of all created mutants. The score now tells you how likely it is that your tests would catch an actual bug.
 
 ## Limitations
 
@@ -62,12 +62,12 @@ This significantly decreases MT runtime but is limited in accuracy, depending on
 
 ## JavaScript Tooling
 
-When it comes to tooling in JavaScript for Mutation Testing, the by far most popular option is [Stryker](https://stryker-mutator.io/).
+When it comes to tooling in JavaScript for mutation testing, the by far most popular option is [Stryker](https://stryker-mutator.io/).
 Stryker is available for various languages, but for JS specifically it shines with support for all major test frameworks (with one unfortunate exception), support for per-test mutation coverage, chained mutants and even incremental mutation testing.
 
 The general idea of Stryker is that you specify your MT configuration in a config file and it takes care of everything else, just like a conventional test framework. Similarly, you'll also end up with a mutation test report coming in various flavours like terminal output of the mutation scores, JSON files with the results as well as a convenient HTML-based report which allows you to inspect all intricate details, like the created mutants and which mutants were (not) covered by which test.
 
-## Mutation Testing the Sentry JavaScript SDKs
+## Mutation-testing the Sentry JavaScript SDKs
 
 Now let's get down to business. Every year, Sentry celebrates "Hackweek", a one-week period where everyone in the company can escape their actual work obligations and work on whatever project or idea they feel passionate about. I've always wanted to give mutation testing a try in a production code base, so for this year, I decided to spend my Hackweek [experimenting](https://github.com/getsentry/sentry-javascript/pull/13439) with Stryker in the repo I work most in - Sentry's JavaScript SDKs.
 
@@ -78,25 +78,25 @@ Our [Sentry JavaScript SDK repository](https://github.com/getsentry/sentry-javas
 Given our SDKs are used by millions of developers, we go to great lengths (take a look at our [CI config](https://github.com/getsentry/sentry-javascript/blob/develop/.github/workflows/build.yml), we take length quite literally) in terms of testing to ensure we break folks as little as possible. We employ various testing techniques of different granularities:
 
 - Every package has unit tests that test individual, package-specific behavior. On this test level, we want to cover individual package exports, edge cases as well as more complicated paths, of course with a sprinkle of general purpose tests. Basically, your typical unit test setup. We mostly use [Vitest](https://vitest.dev/) and [Jest](https://jestjs.io/) (we're slowly moving away from it but [it's complicated](https://github.com/getsentry/sentry-javascript/pull/13458)).
-On the other end of the spectrum, we created an army of [End-to-End test applications](https://github.com/getsentry/sentry-javascript/tree/develop/dev-packages/e2e-tests/test-applications). These are small standalone apps build with various frameworks in which we test our actual NPM packages. Testing here is done on a higher level, as we mostly only check the resulting payloads of errors or other events our SDKs send to Sentry, but they catch a surprisingly high number of bugs and have proven themselves worthy more than once. For E2E tests, we rely on [Playwright](https://playwright.dev/), which we like a lot.
-Sitting comfortably in between unit and E2E tests, we run an integration test suite against our base browser and Node SDKs to cover more wholistic scenarios. In these tests, we also check for resulting payloads but our SDK setup is far more flexible. Meaning, we can test against a variety of differently configured SDKs, giving us a lot of flexibility to check unit-test-like scenarios (with edge case configs) in a more wholistic manner. We use Playwright for browser and Jest for Node integration tests.
+  On the other end of the spectrum, we created an army of [End-to-End test applications](https://github.com/getsentry/sentry-javascript/tree/develop/dev-packages/e2e-tests/test-applications). These are small standalone apps build with various frameworks in which we test our actual NPM packages. Testing here is done on a higher level, as we mostly only check the resulting payloads of errors or other events our SDKs send to Sentry, but they catch a surprisingly high number of bugs and have proven themselves worthy more than once. For E2E tests, we rely on [Playwright](https://playwright.dev/), which we like a lot.
+  Sitting comfortably in between unit and E2E tests, we run an integration test suite against our base browser and Node SDKs to cover more wholistic scenarios. In these tests, we also check for resulting payloads but our SDK setup is far more flexible. Meaning, we can test against a variety of differently configured SDKs, giving us a lot of flexibility to check unit-test-like scenarios (with edge case configs) in a more wholistic manner. We use Playwright for browser and Jest for Node integration tests.
 
 ### Implementing Mutation Testing
 
-To get started with MT, we created a [shared Stryker config](https://github.com/getsentry/sentry-javascript/blob/f6a05b83144daf046878306aa9a946380ab56bef/dev-packages/stryker-config/src/stryker.config.mjs) with the base parameters, such as the report formats, as well as some MT behavior-related parameters. For example, to minimize the performance impact, we chose to selectively run tests based on the [per-test coverage](https://stryker-mutator.io/docs/stryker-js/configuration/#coverageanalysis-string) determined by Stryker and ignored [static mutants](https://stryker-mutator.io/docs/mutation-testing-elements/static-mutants/).
+To get started with mutation testing, we created a [shared Stryker config](https://github.com/getsentry/sentry-javascript/blob/f6a05b83144daf046878306aa9a946380ab56bef/dev-packages/stryker-config/src/stryker.config.mjs) with the base parameters, such as the report formats, as well as some MT behavior-related parameters. For example, to minimize the performance impact, we chose to selectively run tests based on the [per-test coverage](https://stryker-mutator.io/docs/stryker-js/configuration/#coverageanalysis-string) determined by Stryker and ignored [static mutants](https://stryker-mutator.io/docs/mutation-testing-elements/static-mutants/).
 
 We started opting individual packages into MT by adding Stryker to these packages and importing the shared config.
 Adding Stryker was really easy in almost all cases as the Stryker runner just works (TM). Only in some packages, where we for example use the JSDOM test environment, we had to manually declare the respective [Stryker test environment](https://stryker-mutator.io/docs/stryker-js/jest-runner/#coverage-reporting).
 
 Now, as we already established, MT runtime is a concern. So we were specifically interested in how long MT runs would take for individual packages as well as how long it would take overall in CI. Could we run it on every PR? Every day? Once a week?
 
-To find this out we used ... well ... Sentry. More specifically, Sentry's tracing and performance monitoring capabilities, as well as dashboards to keep track of the MT results. We replaced the simple `npx stryker` command with a [small Node script](https://github.com/getsentry/sentry-javascript/blob/f6a05b83144daf046878306aa9a946380ab56bef/scripts/stryker/run-with-sentry.mjs) that would initialize the Sentry Node SDK, use the Stryker JS API to start the mutation testing run and wrap a couple of Sentry spans around the test operations.
+To find this out we used ... well ... Sentry. More specifically, Sentry's tracing and performance monitoring capabilities, as well as dashboards to keep track of the MT results. We replaced the simple `npx stryker` command with a [small Node script](https://github.com/getsentry/sentry-javascript/blob/f6a05b83144daf046878306aa9a946380ab56bef/scripts/stryker/run-with-sentry.mjs) that would initialize the Sentry Node SDK, use the Stryker JS API to start the MT run and wrap a couple of Sentry spans around the test operations.
 
-Ultimately, we added a new script to the packages' `package.json`s, so that engineers can run a mutation test with the comfort of a simple `yarn test:mutation` command.
+Ultimately, we added a new script to the packages' `package.json`s, so that engineers can start an MT run with the comfort of a simple `yarn test:mutation` command.
 
 ## Mutation Test Results
 
-So, how did our tests do? Well, it's complicated. So let's talk about Mutation Test results, our interpretations as well as about runtime performance.
+So, how did our tests do? Well, it's complicated. So let's talk about mutation test results, our interpretations as well as about runtime performance.
 We opted 12 of our packages into MT and got rather mixed results. Take our core SDK package as an example:
 
 ![Core SDK package mutation test results](/images/js-mutation-testing-our-sdks/mt-result-core.png)
@@ -112,7 +112,7 @@ Does this mean we have a massive test coverage problem? No. As mentioned earlier
 
 This trend is confirmed to an extent by the mutation scores of higher level packages. With some outliers, higher level packages, like our browser package or our NextJS package (inheriting both from Browser and Server SDK packages), had lower mutation scores than the core package. However, for these higher-level packages we have substantially more E2E and integration tests, which evens out the missing coverage of unit tests.
 
-The obvious problem was that we couldn't get mutation testing to run in our integration and E2E tests. Stryker unfortunately doesn't support our testing framework of choice, Playwright. So for us this means, that the current state of mutation testing in our repo doesn't show the complete picture. It's important to keep this in mind as it explains the lower scores despite us having thousands of tests in the entire repo.
+The obvious problem was that we couldn't get MT to run in our integration and E2E tests. Stryker unfortunately doesn't support our testing framework of choice, Playwright. So for us this means, that the current state of mutation testing in our repo doesn't show the complete picture. It's important to keep this in mind as it explains the lower scores despite us having thousands of tests in the entire repo.
 
 While this is an unfortunate limitation, we could also identify some areas that should be better tested. Which is great because this means to an extent, mutation testing did what it was supposed to do: It showed us how good our tests are at catching bugs and where we should do better. Just not for all tests.
 
@@ -120,11 +120,11 @@ While this is an unfortunate limitation, we could also identify some areas that 
 
 As for mutation testing runtime, we were quite positively surprised. Larger packages like our core and node packages took on average 20-25 minutes to run in our GitHub CI.
 
-![Performance Trace Waterfall of an entire Mutation Test run](/images/js-mutation-testing-our-sdks/mt-trace.png)
+![Performance Trace Waterfall of an entire mutation test run](/images/js-mutation-testing-our-sdks/mt-trace.png)
 
 Given we only mutation-tested on a package level, we could easily parallelize running the tests in individual jobs. Consequently, a complete mutation test run across all packages wouldn't take much longer than the longest lasting individual run:
 
-![Mutation Testing CI Setup](/images/js-mutation-testing-our-sdks/ci-setup.png)
+![Mutation testing CI Setup](/images/js-mutation-testing-our-sdks/ci-setup.png)
 
 Factoring in the dependency installation and build time before the test run, a complete CI run takes around 35-45 minutes, which is shorter than we anticipated. It is definitely too long to run this on every PR or push. However, given the limitations we encountered the value gain wouldn't be substantial enough to justify this anyway. Therefore, we decided to run our mutation testing setup once every week to track the score over time. We'll use Sentry's Dashboards and Alerts features to for example alert us when there's a significant drop in mutation score.
 
@@ -142,7 +142,7 @@ Performance-wise, we were positively surprised about the runtime, given that a c
 
 ## Future Improvements
 
-Well, Hackweek is over and so is the time we can spend on experimental tech like this one. But there are definitely some interesting things to try out in the future.
+Well, Hackweek is over and so is the time we can spend on experimental tech like MT. But there are definitely some interesting things to try out in the future.
 
 ### Running Stryker on E2E and Integration tests
 
