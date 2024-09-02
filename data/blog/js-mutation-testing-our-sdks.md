@@ -41,14 +41,10 @@ The idea of mutation testing is fairly simple:
 
 After this virtual bloodbath, you can calculate a _Mutation Score_ by dividing the number of killed mutants by the number of all created mutants. The score now tells you how likely it is that your tests would catch an actual bug.
 
-## Limitations
-
-Sounds good, right? Well, as with all nice things in life, there are some limitations to keep in mind.
-
 ### Mutant Similarity Assumption
 
 The entire concept of MT depends on the assumption that [mutants are similar to actual bugs](https://dl.acm.org/doi/abs/10.1145/2635868.2635929) that programmers might introduce into the code base.
-Now the question is, is this true in reality? Luckily, engineers at Google publish papers about mutation testing on a somewhat regular basis. In [one of them](https://dl.acm.org/doi/10.1109/ICSE43902.2021.00087), they
+Now the question is, is this true in reality? Luckily, engineers at Google publish papers about mutation testing every now and then. In [one of them](https://dl.acm.org/doi/10.1109/ICSE43902.2021.00087), they
 investigated the similarity assumption by comparing 15 million mutants against bugfix PRs. They found a high similarity of mutants to bugs, suggesting that the assumption does hold up.
 Does this translate to other code bases? Maybe not, but for the sake of trying things out, let's go with "yes".
 
@@ -78,8 +74,8 @@ Our [Sentry JavaScript SDK repository](https://github.com/getsentry/sentry-javas
 Given our SDKs are used by millions of developers, we go to great lengths (take a look at our [CI config](https://github.com/getsentry/sentry-javascript/blob/develop/.github/workflows/build.yml), we take length quite literally) in terms of testing to ensure we break folks as little as possible. We employ various testing techniques of different granularities:
 
 - Every package has unit tests that test individual, package-specific behavior. On this test level, we want to cover individual package exports, edge cases as well as more complicated paths, of course with a sprinkle of general purpose tests. Basically, your typical unit test setup. We mostly use [Vitest](https://vitest.dev/) and [Jest](https://jestjs.io/) (we're slowly moving away from it but [it's complicated](https://github.com/getsentry/sentry-javascript/pull/13458)).
-  On the other end of the spectrum, we created an army of [End-to-End test applications](https://github.com/getsentry/sentry-javascript/tree/develop/dev-packages/e2e-tests/test-applications). These are small standalone apps built with various frameworks in which we test our actual NPM packages. Testing here is done on a higher level, as we mostly only check the resulting payloads of errors or other events our SDKs send to Sentry, but they catch a surprisingly high number of bugs and have proven themselves worthy more than once. For E2E tests, we rely on [Playwright](https://playwright.dev/), which we like a lot.
-  Sitting comfortably in between unit and E2E tests, we run an integration test suite against our base browser and Node SDKs to cover more wholistic scenarios. In these tests, we also check for resulting payloads but our SDK setup is far more flexible. Meaning, we can test against a variety of differently configured SDKs, giving us a lot of flexibility to check unit-test-like scenarios (with edge case configs) in a more wholistic manner. We use Playwright for browser and Jest for Node integration tests.
+- On the other end of the spectrum, we created a small army of [End-to-End test applications](https://github.com/getsentry/sentry-javascript/tree/develop/dev-packages/e2e-tests/test-applications). These are small standalone apps built with various frameworks in which we test our actual NPM packages. Testing here is done on a higher level, as we mostly only check the resulting payloads of errors or other events our SDKs send to Sentry, but they catch a surprisingly high number of bugs and have proven themselves valuable more than once. For E2E tests, we rely on [Playwright](https://playwright.dev/), which we like a lot.
+- Sitting comfortably in between unit and E2E tests, we run integration test suites against our base browser and Node SDKs to cover more wholistic scenarios. In these tests, we also check for resulting payloads but our SDK setup is far more flexible. Meaning, we can test against a variety of differently configured SDKs, giving us a lot of flexibility to check unit-test-like scenarios (with edge case configs) in a more wholistic manner. We use Playwright for browser and Jest for Node integration tests.
 
 ### Implementing Mutation Testing
 
