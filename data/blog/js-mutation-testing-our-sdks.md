@@ -59,7 +59,7 @@ This significantly decreases MT runtime but is limited in accuracy, depending on
 ## JavaScript Tooling
 
 When it comes to tooling in JavaScript for mutation testing, the by far most popular option is [Stryker](https://stryker-mutator.io/).
-Stryker is available for various languages, but for JS specifically it shines with support for all major test frameworks (with one unfortunate exception), support for per-test mutation coverage, chained mutants and even incremental mutation testing.
+Stryker is available for various languages, but for JS specifically it shines with support for all major test frameworks (with one unfortunate exception as we'd learn soon), support for per-test mutation coverage, chained mutants and even incremental mutation testing.
 
 The general idea of Stryker is that you specify your MT configuration in a config file and it takes care of everything else, just like a conventional test framework. Similarly, you'll also end up with a mutation test report coming in various flavours like terminal output of the mutation scores, JSON files with the results as well as a convenient HTML-based report which allows you to inspect all intricate details, like the created mutants and which mutants were (not) covered by which test.
 
