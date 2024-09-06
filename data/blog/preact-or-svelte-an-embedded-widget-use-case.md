@@ -2,7 +2,7 @@
 title: 'Preact or Svelte? An Embedded Widget Use Case'
 date: '2024-09-06'
 tags: ['javascript', 'sdk']
-draft: true
+draft: false
 summary: 'Preact or Svelte, which framework is best for building an embedded user feedback widget?'
 images: []
 layout: PostLayout
