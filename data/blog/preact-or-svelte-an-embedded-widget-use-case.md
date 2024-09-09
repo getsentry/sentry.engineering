@@ -9,7 +9,7 @@ layout: PostLayout
 authors: ['catherinelee']
 ---
 
-Our [user feedback widget](https://docs.sentry.io/product/user-feedback/#user-feedback-widget) allows anyone to submit feedback quickly and easily any time they encounter something that isn’t working as expected. It’s a form with a name, email, and description field. However, sometimes a description just isn’t enough to describe an issue in detail. Therefore, we decided to add a button that allows the user to take a screenshot of their web page and crop it, allowing the user to better illustrate their issue.
+Sentry's [user feedback widget](https://docs.sentry.io/product/user-feedback/#user-feedback-widget) allows anyone to submit feedback quickly and easily any time they encounter something that isn’t working as expected. It’s a form with a name, email, and description fields. However, sometimes a description just isn’t enough to describe an issue in detail. Therefore, we decided to add a button that allows the user to take a screenshot of their web page and crop it, allowing the user to better illustrate their issue.
 
 The original user feedback widget was built with vanilla JavaScript, which was a good choice at the time since it’s a basic form and button. However, incorporating screenshot and annotation features using only vanilla JSJavaScript would overly complicate and hinder code maintainability. To address this, we explored three lightweight frameworks to find a suitable solution for implementing screenshots and annotations: [Preact](https://preactjs.com/) and [Svelte](https://svelte.dev/).
 
