@@ -9,9 +9,9 @@ layout: PostLayout
 authors: ['catherinelee']
 ---
 
-Sentry's [user feedback widget](https://docs.sentry.io/product/user-feedback/#user-feedback-widget) allows anyone to submit feedback quickly and easily any time they encounter something that isn’t working as expected. It’s a form with a name, email, and description fields. However, sometimes a description just isn’t enough to describe an issue in detail. Therefore, we decided to add a button that allows the user to take a screenshot of their web page and crop it, allowing the user to better illustrate their issue.
+Sentry's [user feedback widget](https://docs.sentry.io/product/user-feedback/#user-feedback-widget) allows anyone to submit feedback quickly and easily any time they encounter something that isn’t working as expected. It’s a form with a name, email, and description fields. However, sometimes a description just isn’t enough to describe an issue in detail. As the saying goes, a picture is worth a thousand words. Therefore, we decided to add a button that allows the user to take a screenshot of their web page and crop it, allowing the user to better illustrate their issue.
 
-The original user feedback widget was built with vanilla JavaScript, which was a good choice at the time since it’s a basic form and button. However, incorporating screenshot and annotation features using only vanilla JSJavaScript would overly complicate and hinder code maintainability. To address this, we explored two lightweight frameworks to find a suitable solution for implementing screenshots and annotations: [Preact](https://preactjs.com/) and [Svelte](https://svelte.dev/).
+The original user feedback widget was built with vanilla JavaScript, which was a good choice at the time since it’s a basic form and button. However, incorporating screenshot and annotation features using only vanilla JavaScript would overly complicate and hinder code maintainability. To address this, we explored two lightweight frameworks to find a suitable solution for implementing screenshots and annotations: [Preact](https://preactjs.com/) and [Svelte](https://svelte.dev/).
 
 We recreated the form and dialog of the existing user feedback widget to compare the bundle size, maintainability, and learning curve between the frameworks.
 
@@ -45,11 +45,11 @@ _Vite bundle visualizer for the Preact build — almost half the build is just t
 
 _Vite bundle visualizer for the Svelte build — majority of the build is the feedback dialog and form_
 
-After looking at the builds more closely with the Vite bundle visualizer tool, I noticed that nearly half of the Preact implementation's build size was attributed to the framework itself. Considering our future plans to incorporate screenshots and annotation capabilities, which would significantly increase the build size, the marginal difference in framework size would become negligible, so the slightly smaller build size with Svelte would not help with the final bundle size. Additionally, Preact closely resembles React, which aligns well with our developers' familiarity with React and would greatly improve code maintainability. As a result, we chose Preact as the framework for expanding our User Feedback product to include screenshot and annotation functionalities.
+After looking at the builds more closely with the [Vite bundle visualizer tool](https://www.npmjs.com/package/vite-bundle-visualizer), I noticed that nearly half of the Preact implementation's build size was attributed to the framework itself. Considering our future plans to incorporate screenshots and annotation capabilities, which would significantly increase the build size, the marginal difference in framework size would become negligible, so the slightly smaller build size with Svelte would not help with the final bundle size. Additionally, Preact closely resembles React, which aligns well with our developers' familiarity with React and would greatly improve code maintainability. As a result, we chose Preact as the framework for expanding our User Feedback product to include screenshot and annotation functionalities.
 
 ## The Aftermath
 
-In the end, adding Preact and screenshotting functionality to our user feedback widget increased the bundle size of `[@sentry/browser](https://www.npmjs.com/package/@sentry/browser)` with the user feedback integration by 22.93%, from 30.81KB to 37.88KB. Although it’s a pretty large bundle size increase, using Preact allowed us to go from writing code like this:
+In the end, adding Preact and screenshotting functionality to our user feedback widget increased the bundle size of [`@sentry/browser`](https://www.npmjs.com/package/@sentry/browser) with the user feedback integration by 22.93%, from 30.81KB to 37.88KB. Note that [our SDKs use treeshaking](https://blog.sentry.io/sentry-bundle-size-how-we-reduced-replay-sdk-by-35/), so any unused packages are not included in the bundle size. Although it’s a pretty large bundle size increase, using Preact allowed us to go from writing code like this:
 
 ```js
 const emailEl = createElement('input', {
