@@ -49,7 +49,7 @@ After looking at the builds more closely with the [Vite bundle visualizer tool](
 
 ## The Aftermath
 
-In the end, adding Preact and screenshotting functionality to our user feedback widget increased the bundle size of [`@sentry/browser`](https://www.npmjs.com/package/@sentry/browser) with the user feedback integration by 22.93%, from 30.81KB to 37.88KB. Note that [our SDKs use treeshaking](https://blog.sentry.io/sentry-bundle-size-how-we-reduced-replay-sdk-by-35/), so any unused packages are not included in the bundle size. Although it’s a pretty large bundle size increase, using Preact allowed us to go from writing code like this:
+In the end, adding Preact and screenshotting functionality to our user feedback widget increased the bundle size of [`@sentry/browser`](https://www.npmjs.com/package/@sentry/browser) with the user feedback integration by 22.93%, from 30.81KB to 37.88KB. Note that [our SDKs use treeshaking](https://blog.sentry.io/sentry-bundle-size-how-we-reduced-replay-sdk-by-35/), so any unused code from the Sentry package is not bundled into the application bundle. Although it’s a pretty large bundle size increase, using Preact allowed us to go from writing code like this:
 
 ```js
 const emailEl = createElement('input', {
