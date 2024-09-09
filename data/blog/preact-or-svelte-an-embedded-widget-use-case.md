@@ -107,7 +107,7 @@ to this:
 }
 ```
 
-With our end goal of [adding screenshotting and cropping capabilities](https://sentry.io/changelog/user-feedback-widget-screenshots/) to our user feedback widget, using a framework was a necessity. With the use of Preact, implementing screenshotting and cropping became much easier and much more readable. One of our interns was even able to make a surprise contribution and improve on the cropping capabilities. Seeing how our feedback widget turned out in the end, I think we made a great choice in framework.
+With our end goal of [adding screenshotting and cropping capabilities](https://sentry.io/changelog/user-feedback-widget-screenshots/) to our user feedback widget, using a framework was a necessity. With the use of Preact, implementing screenshotting and cropping became much easier and much more readable. One of our interns was even able to make a [surprise contribution and improve on the cropping capabilities](https://github.com/getsentry/sentry-javascript/pull/13071). Seeing how our feedback widget turned out in the end, I think we made a great choice in framework.
 
 ![User feedback widget with screenshotting and cropping capabilities](/images/preact-or-svelte-an-embedded-widget-use-case/user-feedback-screenshot-crop.png)
 
