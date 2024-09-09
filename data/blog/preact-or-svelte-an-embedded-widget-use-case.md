@@ -113,4 +113,5 @@ With our end goal of [adding screenshotting and cropping capabilities](https://s
 
 _User feedback widget with screenshotting and cropping capabilities_
 
-You can learn more about Sentry’s User Feedback widget [here](https://docs.sentry.io/product/user-feedback/#user-feedback-widget).
+You can learn more about Sentry’s [User Feedback widget on the docs](https://docs.sentry.io/product/user-feedback/#user-feedback-widget).
+And if you'd like to [read (or contribute) code, the widget is open source](https://github.com/getsentry/sentry-javascript/tree/develop/packages/feedback), all [Sentry's SDKs are](https://github.com/getsentry/).
