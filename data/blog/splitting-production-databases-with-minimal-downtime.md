@@ -1,6 +1,6 @@
 ---
 title: 'Splitting production databases with minimal downtime'
-date: '2024-06-28'
+date: '2024-09-18'
 tags: ['multiregion', 'building sentry']
 draft: false
 summary: 'As we scale Sentry, we need to expand Postgres capacity by splitting up workloads across multiple primaries.'
@@ -99,8 +99,6 @@ In order to split a Postgres primary, we have to take a short maintenance window
 Because each application pod includes a `pgbouncer` our final result looks like:
 
 ![physical separation and cutover part three](/images/splitting-production-databases-with-minimal-downtime/physical-separation-pt3.png)
-
-We’ve done a few of these splits now and can complete them in a mostly automated fashion.
 
 ## In closing
 
