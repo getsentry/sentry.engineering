@@ -1,7 +1,7 @@
 ---
 title: 'A $3,000,000 Dropdown'
 date: '2023-11-15'
-tags: ['building sentry']
+tags: ['building sentry', 'multiregion']
 draft: false
 summary: Almost 2 years ago, Sentry embarked on a project to bring true EU data residency to Sentry's customers. We decided to do it the hard way.
 images: ['/images/locking-war-story-title.png']

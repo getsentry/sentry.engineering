@@ -1,13 +1,13 @@
 ---
 title: 'Splitting production databases with minimal downtime'
-date: '2024-09-18'
+date: '2023-09-18'
 tags: ['multiregion', 'building sentry']
 draft: false
 summary: 'As we scale Sentry, we need to expand Postgres capacity by splitting up workloads across multiple primaries.'
 images:
   [
-    '/images/splitting-production-databases-with-minimal-downtime/initial-operations.png',
     '/images/splitting-production-databases-with-minimal-downtime/physical-separation-pt1.png',
+    '/images/splitting-production-databases-with-minimal-downtime/initial-operations.png',
     '/images/splitting-production-databases-with-minimal-downtime/physical-separation-pt2.png',
     '/images/splitting-production-databases-with-minimal-downtime/physical-separation-pt3.png',
   ]
@@ -27,7 +27,7 @@ There are many ways to scale Postgres horizontally. You can divide workloads by 
 
 Splitting by product area instead of customer has allowed us to segment our infrastructure along product lines and isolate failure domains. If our billing system overwhelms Postgres, that can’t impact other products as they run on separate infrastructure.
 
-Our largest region (the US region) is currently operating with 14 Postgres primaries, and during our work to add the EU region, we needed to do another Postgres primary partition along the silo boundaries that we would have in our multi-region deployment.
+Our largest region (the US region) is currently operating with 14 Postgres primaries. During our work to add the EU region, we needed to do another Postgres primary partition along the silo boundaries that we would have in our [multi-region deployment](/blog/3m-dollar-dropdown).
 
 ## Django with multiple databases
 
