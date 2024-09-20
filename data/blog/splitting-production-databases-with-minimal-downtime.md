@@ -79,7 +79,7 @@ For the control silo split more than 80 such foreign keys needed to be removed. 
 
 With our foreign keys separated, we add a new database mapping in `pgbouncer` (e.g. `control`) and a connection configuration in django. Initially, the new `control` connection points to the Postgres primary that the table is in before the split. We then update Django’s database router to route the tables that are moving to the new `control` connection.
 
-After these changes are made, the application treats the two connections as distinct connections and no transactions can be performed across the connections. Once the application is table in this state, we begin the physical separation.
+After these changes are made, the application treats the two connections as distinct connections and no transactions can be performed across the connections. Once the application is stable in this state, we begin the physical separation.
 
 ## Physical Separation and Cutover
 
