@@ -1,6 +1,6 @@
 ---
 title: 'Splitting production databases with minimal downtime'
-date: '2023-09-18'
+date: '2023-09-23'
 tags: ['multiregion', 'building sentry']
 draft: false
 summary: 'As we scale Sentry, we need to expand Postgres capacity by splitting up workloads across multiple primaries.'
