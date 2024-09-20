@@ -15,7 +15,7 @@ layout: PostLayout
 authors: ['markstory']
 ---
 
-At Sentry, our relational datastore is Postgres. We’re a write heavy application and we’ve had to scale Postgres both vertically and horizontally as Sentry has grown. In this post we’ll be covering how we operate Postgres and how we Postgres to enable higher write throughput.
+At Sentry, our relational datastore is Postgres. We’re a write heavy application and we’ve had to scale Postgres both vertically and horizontally as Sentry has grown. In this post we’ll be covering how we operate Postgres to get higher write throughput.
 
 ## How we operate postgres
 
