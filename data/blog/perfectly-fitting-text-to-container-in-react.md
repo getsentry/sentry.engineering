@@ -14,8 +14,6 @@ https://web.dev/articles/rendering-performance#1_js_css_style_layout_paint_compo
 
 ## The Problem Space
 
-https://github.com/getsentry/sentry/pull/76209/
-
 [Sentry](https://sentry.io/welcome/) has a Dashboards feature. A dashboard is a customizable page where users can add charts, tables, and other widgets to visualize their data. One of the widgets is the aptly-named "Big Number", because sometimes you just need a big honkin' number to tell you how many issues you have, or how fast your site is. Nothing gets the job done like a Big Number™. The "big" is unfortunately hiding a lot of complexity, because, how big?
 
 ![A dashboard with very many big numbers](/images/perfectly-fitting-text-to-container-in-react/big-bad-numbers.png)
@@ -200,6 +198,33 @@ That said, we made a few
 ### Instrumentation
 
 - adding Sentry to measure the actual real times
+- checking the iteration counts
+- checking the converging criteria
+
+I wouldn't ship a feature like this without some pretty extensive instrumentation. It is _critical_ to know a few things:
+
+1. How fast does the resize iteration run in the wild on real computers?
+2. How often and why does the resize iteration fail to converge?
+
+I instrumented the code by wrapping the iteration algorithm in a custom span with a few attributes:
+
+- final difference between parent and child width in pixels
+- final difference between parent and child heigt in pixels
+- iteration count before fit is achieved
+
+This lets me plot the p50, p95, and p99 of the iteration as well as track any runs that exceeded the iteration maximum.
+
+The results were fascinating! The instrumentation revealed some interesting performance numbers, and also a few bugs.
+
+- p50 is 0.90ms
+- p95 is 6.00ms
+- p99 is 17.58ms
+- p100 is 75.90ms
+- the max iteration count is around 10
+
+This performance is acceptable to me. The resize happens fast enough to be imperceptable (faster than 100ms) is all cases. Since the data for the widgets loads async, the UI has to watch for a `fetch()` call before the resize, and compared to the `fetch()` duration, this resize is meaningless.
+
+Success! I can ship, an reduce the max iteration count to 20, just to be generous.
 
 ## `ref` Callback Functions
 
@@ -219,7 +244,7 @@ function MyComponent() {
 
 I could have, in theory, dumped a bunch of the mount/unmount logic in the ref callback, but I felt it was less clear than using a `useLayoutEffect` hook where the cleanup logic and re-calculation are clearly expressed.
 
-## Component and Their Props
+## Components and Their Props
 
 The first iteration of this component had this kind of setup:
 
@@ -251,6 +276,6 @@ I ended up setting `minFontSize` to 0, and `maxFontSize` to the height of the pa
 
 The final result (as of August 26th, 2024) is here:
 
-PR LINK
+https://github.com/getsentry/sentry/pull/76209/
 
 It looks a little different from the original (different how), but the core bits are still there. Probably this should accept a forward ref in the future, to give control over the element inside? Anyway thanks for reading!
