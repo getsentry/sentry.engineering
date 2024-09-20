@@ -27,7 +27,7 @@ There are many ways to scale Postgres horizontally. You can divide workloads by 
 
 Splitting by product area instead of customer has allowed us to segment our infrastructure along product lines and isolate failure domains. If our billing system overwhelms Postgres, that can’t impact other products as they run on separate infrastructure.
 
-Our largest region (the US region) is currently operating with 14 Postgres primaries, and during our work to add the EU region, we needed to do another Postgres primary partition along the silo boundaries that we would have in our multi-region deployment
+Our largest region (the US region) is currently operating with 14 Postgres primaries, and during our work to add the EU region, we needed to do another Postgres primary partition along the silo boundaries that we would have in our multi-region deployment.
 
 ## Django with multiple databases
 
