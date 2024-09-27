@@ -21,6 +21,8 @@ As you can see, it's easy to get it wrong. Sentry only has 6 written values, and
 Collab with
 At this point I got a bunch of advice from [Jonas](https://github.com/jonasba) who gave me a bunch of advice
 
+This task ended up covering a lot of surprising ground, so I wrote it up.
+
 ## The Solution Space
 
 `ResizeObserver` is a very important API but common hooks around it (e.g., React ARIA) get it wrong. The observer's callbacks receive back the parents dimensions, which means you don't have to re-measure. Measuring the DOM blocks rendering, so it should be done as sparingly as possible
@@ -154,7 +156,9 @@ Sidebar: While I was figuring out my ref vs. state issues I started feeling the 
 
 ### Detour: `useTransition`
 
-`useTransition` is an important thing while doing this sort of thing, a new API available in React 18.
+`useTransition` is an important thing while doing this sort of thing, a new API available in React 18. I dropped in that, and it prevents the thing
+
+I should just link to the API documentation, and let people know what's going on in this case.
 
 ## Driving UI Changes Through `ResizeObserver`
 
@@ -187,6 +191,8 @@ This version is a little different:
 - one `ResizeObserver` drives the resize algorithm
 - the resize algorithm does not update the React state. It selects a new font size, and updates the DOM manually, avoiding a re-render
 
+This is a lot simpler, and avoids React re-renders at a sensitive time. A lot less state, much clearer dependencies.
+
 ### Detour: Delaying Renders
 
 blocking the UI thread via iterating in a loop
@@ -207,13 +213,15 @@ while (iterationCount <= ITERATION_LIMIT) {
 The key thing here is the `while` loop. This prevents screen flicker.
 Need to make sure the screen didn't flicker.
 
+I should paste some documentation from Google about blocking the main thread, or whatever.
+
 ### Detour: `requestAnimationFrame`
 
-This is not useful in this case, my b.
+This is not useful in this case, my b. In fact we are, on purpose, doing the _opposite_ which is funny. Kind of? I should read up on this a little.
 
 ## Removing `ParentElement`
 
-`ParentElement` is not needed here, to be honest, we can just a native DOM API.
+`ParentElement` is not needed here, to be honest, we can just a native DOM API. Small improvement or whatever.
 
 ### Detour: `ref` Callback Functions
 
@@ -241,7 +249,11 @@ Measuring and re-sizing is a notorious cause of UI thrashing and bad performance
 
 ![Profile](/images/perfectly-fitting-text-to-container-in-react/profile.png)
 
-### Real User Telemetry
+TODO: DELETE THIS AND THE IMAGE
+
+Yeah, it takes a while, I guess, but like, yeah, it's fine.
+
+### Telemetry
 
 - adding Sentry to measure the actual real times
 - checking the iteration counts
@@ -305,8 +317,8 @@ I ended up setting `minFontSize` to 0, and `maxFontSize` to the height of the pa
 
 The final result (as of August 26th, 2024) is here:
 
-https://github.com/getsentry/sentry/pull/76209/
-
-TODO: Link to the actual file, or paste the source.
+https://github.com/getsentry/sentry/blob/083f5c78a58a4ee4f9cfa51526f29924adc14f09/static/app/views/dashboards/widgetCard/autoSizedText.tsx
 
 It looks a little different from the original (different how), but the core bits are still there. Probably this should accept a forward ref in the future, to give control over the element inside? Anyway thanks for reading!
+
+https://github.com/getsentry/sentry/pull/76209/ has the discussion
