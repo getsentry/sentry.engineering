@@ -10,8 +10,6 @@ canonicalUrl:
 authors: [georgegritsouk]
 ---
 
-https://web.dev/articles/rendering-performance#1_js_css_style_layout_paint_composite
-
 ## The Problem Space
 
 [Sentry](https://sentry.io/welcome/) has a Dashboards feature. A dashboard is a customizable page where users can add charts, tables, and other widgets to visualize their data. One of the widgets is the aptly-named "Big Number", because sometimes you just need a big honkin' number to tell you how many issues you have, or how fast your site is. Nothing gets the job done like a Big Number™. The "big" is unfortunately hiding a lot of complexity, because, how big?
@@ -20,13 +18,14 @@ https://web.dev/articles/rendering-performance#1_js_css_style_layout_paint_compo
 
 As you can see, it's easy to get it wrong. Sentry only has 6 written values, and one of them is "Pixels Matter", so probably this isn't good enough. What we want is to make the number _exactly as big_ as can fit into the widget. This tasks (like a lot of UI tasks) ended up being more complicated than I thought.
 
+Collab with
+At this point I got a bunch of advice from [Jonas](https://github.com/jonasba) who gave me a bunch of advice
+
 ## The Solution Space
 
-`IntersectionObserver` is a very important API but common hooks around it (e.g., React ARIA) get it wrong. The observer's callbacks receive back the parents dimensions, which means you don't have to re-measure. Measuring the DOM blocks rendering, so it should be done as sparingly as possible
+`ResizeObserver` is a very important API but common hooks around it (e.g., React ARIA) get it wrong. The observer's callbacks receive back the parents dimensions, which means you don't have to re-measure. Measuring the DOM blocks rendering, so it should be done as sparingly as possible
 
 TODO: Verify this re-rendering because of measuring claim
-
-At this point I got a bunch of advice from [Jonas](https://github.com/jonasba)
 
 The algorithm is basically a binary search. It continually evaluates the known bounds and narrows the search space by half until it finds an acceptable match.
 
@@ -57,61 +56,6 @@ https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queri
 ### Bonus Approch: `canvas`
 
 There's a way (I hear) to render text to a canvas and use measureText to get the dimensions, but that's fairly complicated
-
-## Driving UI Renders Through UI State
-
-I always try to do things The React Way if I can. The [first version of the component](https://github.com/getsentry/sentry/pull/76209/commits/6a982d0167a0f290eff32bd46524aa72161184a9) stored everything in React state and drove UI updates through state updates. Here's a pseudocode version:
-
-```tsx
-function AutoSizedText({ children, minFontSize, maxFontSize, calculationCountLimit }: Props) {
-  // Set up state variables for:
-  // 1. Parent element height and width
-  // 2. The current font size
-  // 3. The most recent font size bounds
-  // 4. Calculation count
-
-  // Set up refs for:
-  // 1. Wrapper HTML element
-  // 2. Container of the `children`
-
-  useResizeObserver({
-    ref: parentRef,
-    onResize: () => {
-      // Reset the font size and its bounds
-      // Store the parent width and height in React state
-    };
-  })
-
-  useLayoutEffect(() => {
-    // Get parent and children dimensions
-    // Check the difference in parent and child dimensions
-    // Run the resizing algorithm (more on this later)
-  })
-
-  return (
-    <ParentElement>
-      <ChildElement>
-        {children}
-      </ChildElement>
-    </ParentElement>
-  )
-}
-```
-
-- Almost everything is driven via React state and `useLayoutEffect`. When `useResizeObserver` runs, it updates the state and triggers a re-render that recalculates the sizes
-- only HTML elements are in `ref`s
-- The `useLayoutEffect` has a dependency on literally every piece of React state, so it runs on pretty much every render
-- The component uses its own `ParentElement` to wrap the child, for additional control
-
-This, in my opinion, is a natural approach. It uses basic React primitives, generously assigns state, and uses the natural render lifecycle. The only interesting thing, in my opinion is the use of `useLayoutEffect` over `useEffect`. `useLayoutEffect` block browser paint, which is important because we only want to show the numbers after the resizing algorithm runs (more on this later). React 18 [very effectively batches `setState` calls](https://react.dev/blog/2022/03/29/react-v18#new-feature-automatic-batching) so it's not a problem to have a lot of state.
-
-The problem is that using a combination of `useEffect` (the state it reference is from the closure its in) and `useRef` (the state it references is always most recent) caused me some grief, so I had to futz with the code execution order. As often, I referenced [Dan Abramov's "A Complete Guide to useEffect"](https://overreacted.io/a-complete-guide-to-useeffect/) which is my favourite resource on the topic. The trick was having to store the parent element dimensions in `useState` so that every render has a correct reference to the most recent known parent dimensions _and_ the most recent known font size and bounds.
-
-The result was great!
-
-![A dashboard with very many big numbers but they look good](/images/perfectly-fitting-text-to-container-in-react/good-big-numbers.png)
-
-Sidebar: While I was figuring out my ref vs. state issues I started feeling the temptation to remove items from the `useLayoutEffect` dependency array, and had to remember that it's almost universally a bad idea to lie to React about hook dependencies.
 
 ## The Resizing Algorithm
 
@@ -152,50 +96,152 @@ It works well! For Sentry dashboard widgets, finding an acceptable fit usually t
 
 This result was encouraging, but there were lots of improvement to make. All of the following improvements were suggested by Jonas (thank you Jonas) who is an unstoppable good-ideas-having machine and a resident expert of unusual React rendering strategies.
 
-## `MutationObserver`
+## Driving UI Renders Through React State
 
-Back in my jQuery days, before component queries (or even media queries) it was very common to listen to window resize and run JavaScript to re-layout the page. Those were not very good days, to be honest! It's always a huge pain to basically do the browser's work in JavaScript. These days, [`MutationObserver`](https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver) is the right API to listen for changing element sizes.
+I always try to do things The React Way if I can. The [first version of the component](https://github.com/getsentry/sentry/pull/76209/commits/6a982d0167a0f290eff32bd46524aa72161184a9) stored everything in React state and drove UI updates through state updates. Here's a pseudocode version:
 
-A browser resize may or may not need to recalculate the font size in a widget. A _widget_ resize definitely needs a recalculation. `MutationObserver` is great for a few reasons:
+```tsx
+function AutoSizedText({ children, minFontSize, maxFontSize, calculationCountLimit }: Props) {
+  // Set up state variables for:
+  // 1. Parent element height and width
+  // 2. The current font size
+  // 3. The most recent font size bounds
+  // 4. Calculation count
 
--
+  // Set up refs for:
+  // 1. Wrapper of `ParentElement`
+  // 2. Wrapper of `ChildElement`
 
-`MutationObserver` and why that was pointless and didn't work even though I was probably not using it right.
+  useResizeObserver({
+    ref: parentRef,
+    onResize: () => {
+      // Reset the font size and its bounds
+      // Store the parent width and height in React state
+    };
+  })
 
-reading the source vs. reading a guide, https://en.wikipedia.org/wiki/Emergence
+  useLayoutEffect(() => {
+    // Get parent and children dimensions
+    // Check the difference in parent and child dimensions
+    // Run the resizing algorithm
+  })
 
-`requestAnimationFrame` is probably not the thing here (in fact it's the opposite)
+  return (
+    <ParentElement>
+      <ChildElement>
+        {children}
+      </ChildElement>
+    </ParentElement>
+  )
+}
+```
+
+- Almost everything is driven via React state and `useLayoutEffect`. When `useResizeObserver` runs, it updates the state and triggers a re-render that recalculates the sizes
+- only HTML elements are in `ref`s
+- The `useLayoutEffect` has a dependency on literally every piece of React state, so it runs on pretty much every render
+- each iteration of the resize algorithm updates the state, which triggers another run of the algorithm
+- The component uses its own `ParentElement` to wrap the child, for additional control
+
+This, in my opinion, is a natural approach. It uses basic React primitives, generously assigns state, and uses the natural render lifecycle. The only interesting thing, in my opinion is the use of `useLayoutEffect` over `useEffect`. `useLayoutEffect` block browser paint, which is important because we only want to show the numbers after the resizing algorithm runs (more on this later). React 18 [very effectively batches `setState` calls](https://react.dev/blog/2022/03/29/react-v18#new-feature-automatic-batching) so it's not a problem to have a lot of state.
+
+The problem is that using a combination of `useEffect` (the state it reference is from the closure its in) and `useRef` (the state it references is always most recent) caused me some grief, so I had to futz with the code execution order. As often, I referenced [Dan Abramov's "A Complete Guide to useEffect"](https://overreacted.io/a-complete-guide-to-useeffect/) which is my favourite resource on the topic. The trick was having to store the parent element dimensions in `useState` so that every render has a correct reference to the most recent known parent dimensions _and_ the most recent known font size and bounds.
+
+The result was great!
+
+![A dashboard with very many big numbers but they look good](/images/perfectly-fitting-text-to-container-in-react/good-big-numbers.png)
+
+Sidebar: While I was figuring out my ref vs. state issues I started feeling the temptation to remove items from the `useLayoutEffect` dependency array, and had to remember that it's almost universally a bad idea to lie to React about hook dependencies.
+
+### Detour: `useTransition`
+
+`useTransition` is an important thing while doing this sort of thing, a new API available in React 18.
+
+## Driving UI Changes Through `ResizeObserver`
+
+The React state approach was fine, but a better, simpler approach emerged!
+
+```tsx
+function AutoSizedText({ children, minFontSize, maxFontSize, calculationCountLimit }: Props) {
+  // Set up refs for
+  // 1. The current font size
+  // 2. The most recent font size bounds
+  // 3. Wrapper of `ChildElement`
+
+  useLayoutEffect(() => {
+    // Manually set up a `ResizeObserver`
+    // Reset the font size bounds
+    // Run the resizing algorithm
+  }, [])
+
+  return (
+    <ParentElement>
+      <ChildElement>{children}</ChildElement>
+    </ParentElement>
+  )
+}
+```
+
+This version is a little different:
+
+- no state, only refs! The component does _not_ re-render during the resize algorithm. It only re-renders if the props change
+- one `ResizeObserver` drives the resize algorithm
+- the resize algorithm does not update the React state. It selects a new font size, and updates the DOM manually, avoiding a re-render
+
+### Detour: Delaying Renders
 
 blocking the UI thread via iterating in a loop
+https://web.dev/articles/rendering-performance#1_js_css_style_layout_paint_composite
 
-`useTransition` to mitigate other resize events
+```jsx
+while (iterationCount <= ITERATION_LIMIT) {
+  // Get child dimenstions
+  // Calculate difference between child and parent
+  // If the difference is within 1px, stop iteration
+  // Update the font size
+  // Increase the iteration count
+}
 
-the way the browser profile shows one long-ass task
+// End the iteration
+```
 
-## `ResizeObserver`
+The key thing here is the `while` loop. This prevents screen flicker.
+Need to make sure the screen didn't flicker.
 
-## Removing the `ParentElement` Wrapper
+### Detour: `requestAnimationFrame`
 
-## Managing Performance
+This is not useful in this case, my b.
+
+## Removing `ParentElement`
+
+`ParentElement` is not needed here, to be honest, we can just a native DOM API.
+
+### Detour: `ref` Callback Functions
+
+Another interesting tidbit (again, courtesy of [Jonas](https://github.com/jonasba)) is that React supports [`ref` callback functions](https://react.dev/reference/react-dom/components/common#ref-callback) even in recent versions! A `ref` callback _can_ be an effective way to manage React refs, and in some cases can eliminate code. e.g.,
+
+```jsx
+function MyComponent() {
+  return <div ref={(node) => {
+    if (node) {
+      // The component just mounted. This might be a good time to run any just-mounted logic
+    } else {
+      // If node is `null`, the component just unmounted. This might be a good time to run any cleanup logic
+    }
+  }}>
+}
+```
+
+I could have, in theory, dumped a bunch of the mount/unmount logic in the ref callback, but I felt it was less clear than using a `useLayoutEffect` hook where the cleanup logic and re-calculation are clearly expressed.
+
+## Performance
 
 Measuring and re-sizing is a notorious cause of UI thrashing and bad performance. Our approach here was two-fold:
 
-1. Focus on reality rather than ideals
-2. Implementing obvious improvements
+### Local Profiling
 
-### Reality
+![Profile](/images/perfectly-fitting-text-to-container-in-react/profile.png)
 
-The reality of how this component is used (at least for now) is that it auto-sizes a big number in a dashboard widget. The value of the number is not known at pageload, it's loaded async. The async load can take anywhere from 20ms to 200ms or more, and shows a loading spinner. If the resize happens in under 10ms, it's _so much faster_ than then async load that its performance on page load doesn't matter. It also run on page resize. In my opinion, it does _not_ matter that the resize animation is smooth. In fact, I'm tempted to debounce the resize.
-
-### Obvious Improvements
-
-That said, we made a few
-
-- correct use of `ResizeObserver`
-- `useTransition`
-- binary search iteration management
-
-### Instrumentation
+### Real User Telemetry
 
 - adding Sentry to measure the actual real times
 - checking the iteration counts
@@ -225,24 +271,7 @@ The results were fascinating! The instrumentation revealed some interesting perf
 This performance is acceptable to me. The resize happens fast enough to be imperceptable (faster than 100ms) is all cases. Since the data for the widgets loads async, the UI has to watch for a `fetch()` call before the resize, and compared to the `fetch()` duration, this resize is meaningless.
 
 Success! I can ship, an reduce the max iteration count to 20, just to be generous.
-
-## `ref` Callback Functions
-
-Another interesting tidbit (again, courtesy of [Jonas](https://github.com/jonasba)) is that React supports [`ref` callback functions](https://react.dev/reference/react-dom/components/common#ref-callback) even in recent versions! A `ref` callback _can_ be an effective way to manage React refs, and in some cases can eliminate code. e.g.,
-
-```jsx
-function MyComponent() {
-  return <div ref={(node) => {
-    if (node) {
-      // The component just mounted. This might be a good time to run any just-mounted logic
-    } else {
-      // If node is `null`, the component just unmounted. This might be a good time to run any cleanup logic
-    }
-  }}>
-}
-```
-
-I could have, in theory, dumped a bunch of the mount/unmount logic in the ref callback, but I felt it was less clear than using a `useLayoutEffect` hook where the cleanup logic and re-calculation are clearly expressed.
+The reality of how this component is used (at least for now) is that it auto-sizes a big number in a dashboard widget. The value of the number is not known at pageload, it's loaded async. The async load can take anywhere from 20ms to 200ms or more, and shows a loading spinner. If the resize happens in under 10ms, it's _so much faster_ than then async load that its performance on page load doesn't matter. It also run on page resize. In my opinion, it does _not_ matter that the resize animation is smooth. In fact, I'm tempted to debounce the resize.
 
 ## Components and Their Props
 
@@ -277,5 +306,7 @@ I ended up setting `minFontSize` to 0, and `maxFontSize` to the height of the pa
 The final result (as of August 26th, 2024) is here:
 
 https://github.com/getsentry/sentry/pull/76209/
+
+TODO: Link to the actual file, or paste the source.
 
 It looks a little different from the original (different how), but the core bits are still there. Probably this should accept a forward ref in the future, to give control over the element inside? Anyway thanks for reading!
