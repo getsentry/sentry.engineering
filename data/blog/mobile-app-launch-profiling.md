@@ -1,6 +1,6 @@
 ---
 title: 'Mobile App Launch Profiling'
-date: '2024-04-17'
+date: '2024-09-27'
 tags: ['mobile', 'ios', 'android', 'profiling']
 draft: false
 summary: "See what's happening in your app before your first line of code can even run."
@@ -25,7 +25,7 @@ Apple places special focus on good [performance of an app’s launch](https://de
 
 > The launch-time metric measures the time from the user tapping the app icon on their Home screen to the app drawing its first frame to the screen. If your app still has to run code after it has drawn its first frame, but before the user can begin using the app, that time doesn’t contribute to the launch-time metric. **Extra startup activities still contribute to the user’s perception of the app’s responsiveness**.
 
-So, if you or one of your dependencies does some work at launch time, you don’t necessarily see that in the Xcode Organizer.
+So, if you or one of your dependencies does some work at launch time, you don’t necessarily see that in the Xcode Organizer. These are things like splash screens, loading spinners or empty states with animations indicating that content is on its way.
 
 # Sentry app launch profiling
 
