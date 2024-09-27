@@ -15,7 +15,7 @@ If you use Sentry’s Performance monitoring on Cocoa and Android, you have the 
 # App launch performance
 
 <aside>
-💡 This post will focus on our Cocoa app launch profiling feature. You can read more about the Android counterpart by heading over to that area of our docs: https://docs.sentry.io/platforms/android/profiling/#app-start-profiling
+💡 This post will focus on our iOS app launch profiling feature, including apps built on [Flutter](https://docs.sentry.io/platforms/flutter/profiling/) and [.NET](https://docs.sentry.io/platforms/dotnet/guides/maui/profiling/). You can read more about the Android counterpart by heading over to [that area of our docs](https://docs.sentry.io/platforms/android/profiling/#app-start-profiling).
 </aside>
 
 Apple places special focus on good [performance of an app’s launch](https://developer.apple.com/documentation/xcode/reducing-your-app-s-launch-time). They even built an entire process to enforce good performance: the [watchdog](https://developer.apple.com/documentation/xcode/addressing-watchdog-terminations). There are two ways you can monitor launch performance today:
