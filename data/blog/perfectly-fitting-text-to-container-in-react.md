@@ -48,7 +48,7 @@ There is prior art for this. jQuery plugins like [textFix](https://github.com/ST
 
 There's a way (I hear) to render text to a canvas and use `measureText` to get the dimensions, but I don't have a lot of `canvas` experience, I don't know what the A11y implications are, I'm loath to jump out of React too much, etc.
 
-## Attempt 1: Driving UI Renders Through React State
+## Attempt 1: Driving UI Through React State
 
 The [first version of the component](https://github.com/getsentry/sentry/pull/76209/commits/6a982d0167a0f290eff32bd46524aa72161184a9) stored everything in React state and drove UI updates through state updates. Here's a pseudocode version:
 
@@ -149,7 +149,7 @@ This result was encouraging, but there were lots of improvement to make.
 
 [`useTransition`](https://react.dev/reference/react/useTransition) is a new API in React 18. It allows deferring non-urgent updates. It's a useful technique in this kind of situation, since updating the dimensions of text is not as important as other UI updates (e.g., navigation), so I wrapped the state updates in `useTransition`. This yields to the main render cycle every now and again in case more urgent updates are needed.
 
-## Attempt 2: Driving UI Changes Through `ResizeObserver`
+## Attempt 2: Driving UI Through `ResizeObserver`
 
 The React state approach was fine, but a better, [simpler approach](https://github.com/getsentry/sentry/pull/76209/commits/4bab86701675bb6eb19589bd0d4249b8c9206d38) emerged!
 
