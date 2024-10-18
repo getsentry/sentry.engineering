@@ -128,27 +128,7 @@ I could have, in theory, put some of the mount/unmount logic in the ref callback
 
 The crux is the algorithm. Let's talk about how it chooses the font size. Here's a flow diagram of what happens during render (on initial page load, or on resize):
 
-```mermaid
-flowchart TD
-
-%% Nodes
-RENDER("Render")
-CHECK("Check child and parent dimensions")
-EXCEED("Did we do > 10 calculations?")
-PERFECT("Child is same size as parent")
-SMALLER("Child is smaller than parent")
-BIGGER("Child is bigger than parent")
-DECREASE("Decrease the font size")
-INCREASE("Increase the font size")
-END("Stop")
-
-%% Edges
-RENDER --> CHECK
-CHECK --> SMALLER --> INCREASE --> RENDER
-CHECK --> BIGGER --> DECREASE --> RENDER
-CHECK --> PERFECT --> END
-CHECK --> EXCEED --> END
-```
+![Render flow](/images/perfectly-fitting-text-to-container-in-react/render-flow.png)
 
 Here's a sample run of the calculation, and the React renders that result:
 
