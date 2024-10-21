@@ -288,7 +288,11 @@ I required a manual minimum and maximum for two reasons:
 
 I ended up throwing those prop requirements. Requiring manual bounds had too many downsides, and it's a bad API.
 
-First of all, how would developers decide these bounds? Why wouldn't they always set the minimum as `0` and the maximum as some-impractically-large-number? Second of all, it creates unpleasant limits. The problem I ran into immediately is that I set a maximum bound too low, and was then confused why my auto-sized numbers weren't big enough. Third of all, this means there are _two_ APIs. The first API is through CSS, by creating a positioned parent element in HTML. The second API is through React's props. That's no good. I liked the idea of CSS as the main API, so I didn't want to _also_ have a second API to fiddle with.
+First of all, how would developers decide these bounds? Why wouldn't they always set the minimum as `0` and the maximum as some-impractically-large-number? What's the point of and _auto_ sized text if it's not fully auto?
+
+Second of all, it creates unpleasant limits. The problem I ran into immediately is that I set a maximum bound too low, and was then confused why my auto-sized numbers weren't big enough.
+
+Third of all, this means there are _two_ APIs. The first API is through CSS, by creating a positioned parent element in HTML. The second API is through React's props. That's no good. I liked the idea of CSS as the main API, so I didn't want to _also_ have a second API to fiddle with.
 
 I ended up setting `minFontSize` to 0, and `maxFontSize` to the height of the parent component. Easy! The API is to set `position: relative;` (or any other position) on the parent, and `AutoSizedText` naturally fills the parent completely.
 
