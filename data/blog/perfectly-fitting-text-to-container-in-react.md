@@ -140,7 +140,7 @@ The crux is the algorithm. Let's talk about how it chooses the font size. Here's
 
 Here's a sample run of the calculation, and the React renders that result:
 
-- `AutoSizeText` mounts. The font size bounds (`minFontSize` and `maxFontSize`) are provided as 0 and 200 respectively. `fontSize` state is set to 100px (the midpoint). It renders the `ChildElement` with a font size of 100px
+- `AutoSizedText` mounts. The font size bounds (`minFontSize` and `maxFontSize`) are provided as 0 and 200 respectively. `fontSize` state is set to 100px (the midpoint). It renders the `ChildElement` with a font size of 100px
 - `useLayoutEffect` fires because the font size changed. It checks the child element's width, and finds that it overflows the parent. It's too big! It updates the font size bounds to 0px and 100px respectively (100px is too big). It sets the new font size state to halfway between the bounds (50px)
 - `useLayoutEffect` fires because the font size changed. It checks the elements and finds that the child underflows the parent by a lot. It's too small! It updates the font size bounds to 50px and 100px respectively. It sets the new font size to halfway between the bounds (75px)
 - `useLayoutEffect` fires because the font size changed. It checks the elements and find that the child is almost the same size as the parent, within 5px in width. We're done! Stop iterating
@@ -274,7 +274,7 @@ interface Props {
   maxFontSize: number;
 }
 
-function AutoSizeText(props: Props) {
+function AutoSizedText(props: Props) {
   const [fontSize, setFontSize] = useState < number > (maxFontSize - minFontSize) / 2
 
   // More code
