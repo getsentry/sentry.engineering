@@ -256,7 +256,7 @@ Success! I can ship, and reduce the max iteration count to 20, just to be genero
 
 Oh wait, I mentioned there were bugs. It's true! I found some non-converging conditions that I caused with faulty logic. Easy enough.
 
-## Components and Their Props
+## Component API Design
 
 A small note on component API design. The first iteration of this component had this kind of setup:
 
