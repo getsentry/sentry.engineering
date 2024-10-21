@@ -32,7 +32,7 @@ As far as I could figure out, there are 4 and a half viable approaches.
 
 ### Approach 1: SVGs
 
-SVGs are naturally scalable, that's what the "S" stands for. I figured a combination of `viewBox` trickery and with `object-fit: contain;` would do the trick, since `<svg>` supports a `<text>` element. `<text>` elements are selectable, and hopefully a screen reader can announce them? This appeals, but linearly scaling text and choosing the correct font size aren't the same.
+[Scalable Vector Graphics](https://developer.mozilla.org/en-US/docs/Web/SVG) or SVGs literally start with "scalable", which seems like a great potential solution. I figured a combination of `viewBox` trickery and with `object-fit: contain;` would do the trick, since `<svg>` supports a `<text>` element. `<text>` elements are selectable, and hopefully a screen reader can announce them? This appeals, but linearly scaling text and choosing the correct font size aren't the same.
 
 Rubik's [type tester page on Google Fonts](https://fonts.google.com/specimen/Rubik/tester) illustrates the point. Try changing the font size and you'll see how the font subtly changes characteristics. Type designers are very careful about this, especially at small sizes where legibility is a problem. Scaling an SVG does not do this, so the fonts would not look right at any size except the natural size.
 
