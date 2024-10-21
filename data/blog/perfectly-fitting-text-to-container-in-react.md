@@ -4,7 +4,7 @@ date: '2024-10-18'
 tags: ['react', 'web', 'javascript']
 draft: false
 summary: 'Building a React component that automatically updates its font size to fill its parent element as fully as possible.'
-images: [/images/perfectly-fitting-text-to-container-in-react/big-bad-numbers.png]
+images: [/images/perfectly-fitting-text-to-container-in-react/hero.png]
 layout: PostLayout
 canonicalUrl:
 authors: [georgegritsouk]
