@@ -16,7 +16,7 @@ In [Sentry](https://sentry.io/welcome/), a dashboard is a customizable page wher
 
 ![A dashboard with very many big numbers](/images/perfectly-fitting-text-to-container-in-react/big-bad-numbers.png)
 
-It's easy to get "big" wrong. The ideal "big" is _as big as possible_ but _never too big_. That's the whole problem space, there's not much to it. The _solution space_ to this problem (like many UI problems) ended up [more complicated](https://github.com/getsentry/sentry/pull/76209/) than I expected. I chipped away at it with help from [Jonas](https://github.com/jonasba) (resident expert of unusual React rendering strategies) for a while, and here I'm documenting the lessons learned.
+It's easy to get "big" wrong. The ideal "big" is _as big as possible_ but _never too big_. That's the whole problem space. The _solution space_ to this problem (like many UI problems) ended up [more complicated](https://github.com/getsentry/sentry/pull/76209/) than I expected. I chipped away at it with help from [Jonas](https://github.com/jonasba) (resident expert of unusual React rendering strategies) for a while, and here I'm documenting the lessons learned.
 
 ## The Solution Space
 
