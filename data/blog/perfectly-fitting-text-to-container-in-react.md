@@ -38,7 +38,7 @@ Rubik's [type tester page on Google Fonts](https://fonts.google.com/specimen/Rub
 
 Aside: There's a tricky related effect where the larger a number is, the tighter the [tracking](https://en.wikipedia.org/wiki/Letter_spacing) has to be, but we'll pretend this isn't a problem for now.
 
-SVGs are a no-go, in a "pixels matter" way.
+SVGs are a no-go. These will _not_ look great, and "Pixels Matter" is one of literally [only 6 values at Sentry](https://sentry.io/careers/).
 
 ### Approach 2: CSS Transforms
 
