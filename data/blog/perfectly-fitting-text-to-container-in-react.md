@@ -20,6 +20,14 @@ It's easy to get "big" wrong. The ideal "big" is _as big as possible_ but _never
 
 ## The Solution Space
 
+There are a few aspects to the solution that I consider "requirements":
+
+1. Definitely: The numbers in the widgets are nearly perfectly sized. I'd be open to a mismatch in the 1-2% range, but not more
+2. Definitely: The numbers _never_ overflow the widgets. No scrollbars or cut-off numbers
+3. Definitely: The sizing algorithm does not meaningfully contribute to perceptible page load time (let's say faster than 100ms)
+4. Hopefully: The number text looks great (subjective but I know it when I don't see it)
+5. Hopefully: The numbers in the widgets are selectable, announceable by A11y tools, etc.
+
 As far as I could figure out, there are 4 and a half viable approaches.
 
 ### Approach 1: SVGs
