@@ -54,7 +54,7 @@ There is prior art for this. jQuery plugins like [textFix](https://github.com/ST
 
 ### Bonus Half Approch: `canvas`
 
-There's a way (I hear) to render text to a canvas and use `measureText` to get the dimensions, but I don't have a lot of `canvas` experience, I don't know what the A11y implications are, I'm loath to jump out of React too much, etc.
+There's a way (I hear) to render text to a canvas and use `measureText` to get the dimensions, but I don't have a lot of `canvas` experience, handling device pixel ratios is apparently tricky, etc. The upside is avoiding layout thrashing by re-using a single `<canvas>` element. I'm keeping this in my back pocket if other approaches fail.
 
 ## Attempt 1: Driving UI Through React State
 
