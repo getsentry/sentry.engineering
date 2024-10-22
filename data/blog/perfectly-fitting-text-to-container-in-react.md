@@ -145,7 +145,7 @@ Here's a sample run of the calculation, and the React renders that result:
 - `useLayoutEffect` fires because the font size changed. It checks the elements and finds that the child underflows the parent by a lot. It's too small! It updates the font size bounds to 50px and 100px respectively. It sets the new font size to halfway between the bounds (75px)
 - `useLayoutEffect` fires because the font size changed. It checks the elements and find that the child is almost the same size as the parent, within 5px in width. We're done! Stop iterating
 
-Note: Iteration only stops when the element _fits inside_, on that _tick_ of the algorithm
+Note: At any given step of the iterations, the content might be overflowing or underflowing the parent. Regardless of how close the contents are to the parent size, the algorithm only stops if the children fit fully within the parent.
 
 If the parent element changes size (window resize, or toggling the application sidebar) it triggers a full re-calculation.
 
