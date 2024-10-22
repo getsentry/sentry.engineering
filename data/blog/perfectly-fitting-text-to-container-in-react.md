@@ -286,7 +286,7 @@ I required a manual minimum and maximum for two reasons:
 1. Fear. I had some reservations about running this component without size restrictions. What if the algorithm fails, and the font size drops to 0, or otherwise explodes off the page? This fear is unfounded, I think. Why would such a thing happen? If it happens, I have telemetry that will catch it. If I see it in the wild, I should fix the condition that caused it.
 2. Simplicity. Asking for a manual size restriction makes the code easier to manage because I don't have to calculate the font size bounds myself. This is valid reason, but I don't think it's as important as DX.
 
-I ended up throwing those prop requirements. Requiring manual bounds had too many downsides, and it's a bad API.
+I ended up throwing out those prop requirements. Requiring manual bounds had too many downsides, and it's a bad API.
 
 First of all, how would developers decide these bounds? Why wouldn't they always set the minimum as `0` and the maximum as some-impractically-large-number? What's the point of and _auto_ sized text if it's not fully auto?
 
