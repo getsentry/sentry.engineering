@@ -260,9 +260,9 @@ This performance is acceptable to me. The resize happens fast enough to be imper
 
 In the case of a page resize, they _do_ have to run all at once, but in my opinion that experience is still acceptable. Waiting a few hundred milliseconds on page resize is normal, and there are other more expensive operations running during a resize anyway.
 
-Success! I can ship, and reduce the max iteration count to 20, just to be generous.
+Success! I can ship.
 
-Oh wait, I mentioned there were bugs. It's true! I found some non-converging conditions that I caused with faulty logic. Easy enough. That's the reason for the 20 iteration limit. In theory the limit is both _very generous_ and _unnecessary_ since the algorithm converges _very_ quickly, it's $log(n)$. In practice, there are lots of minor code mistakes that cause this algorithm to never converge (I caused a few during development) and I want to completely eliminate the chance of a runaway algorithm.
+Oh wait, I mentioned there were bugs. It's true! I found some non-converging conditions that I caused with faulty logic. Easy enough. That's the reason for the having an iteration limit. I set the limit to 20 before releasing. In theory that limit is both _very generous_ and _unnecessary_ since the algorithm converges _very_ quickly, it's $log(n)$. In practice, there are lots of minor code mistakes that cause this algorithm to never converge (I caused a few during development) and I want to completely eliminate the chance of a runaway algorithm. 20 is a good sweet spot since I didn't see many cases of >10 iterations in production, but folks could have all kinds of giant screens and widgets. 20 feels fair.
 
 ## Component API Design
 
