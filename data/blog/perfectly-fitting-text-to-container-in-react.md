@@ -288,7 +288,7 @@ I required a manual minimum and maximum for two reasons:
 
 I ended up throwing out those prop requirements. Requiring manual bounds had too many downsides, and it's a bad API.
 
-First of all, how would developers decide these bounds? Why wouldn't they always set the minimum as `0` and the maximum as some-impractically-large-number? What's the point of and _auto_ sized text if it's not fully auto?
+First of all, how would developers decide these bounds? Why wouldn't they always set the minimum as `0` and the maximum as some-impractically-large-number? What's the point of an _auto_ sized text if it's not fully auto?
 
 Second of all, it creates unpleasant limits. The problem I ran into immediately is that I set a maximum bound too low, and was then confused why my auto-sized numbers weren't big enough.
 
