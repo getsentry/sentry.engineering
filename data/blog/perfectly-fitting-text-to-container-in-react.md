@@ -256,7 +256,7 @@ The results were fascinating! The instrumentation revealed some interesting perf
 - p100 is 75.90ms
 - the max iteration count is around 10
 
-This performance is acceptable to me. The resize happens fast enough to be imperceptible (faster than 100ms) is all cases. Moreover, since the data for the widgets loads async via HTTP, the UI has to watch for a `fetch()` call before the resize anyway, and compared to the `fetch()` duration, this resize duration is meaningless. Lastly, the `fetch()` calls all finish at different times, which amortizes the cost of the resize since they don't have to happen for all the elements at once.
+This performance is acceptable to me. The resize happens fast enough to be imperceptible (faster than 100ms) in all cases. Moreover, since the data for the widgets loads async via HTTP, the UI has to watch for a `fetch()` call before the resize anyway, and compared to the `fetch()` duration, this resize duration is meaningless. Lastly, the `fetch()` calls all finish at different times, which amortizes the cost of the resize since they don't have to happen for all the elements at once.
 
 In the case of a page resize, they _do_ have to run all at once, but in my opinion that experience is still acceptable. Waiting a few hundred milliseconds on page resize is normal, and there are other more expensive operations running during a resize anyway.
 
