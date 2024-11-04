@@ -1,5 +1,5 @@
 ---
-title: 'Autoinstrumentation in the Unity SDK via IL Weaving'
+title: 'Enabling Out-of-the-Box Performance Insights in Unity Games with the Sentry SDK'
 date: '2024-11-04'
 tags: ['unity', 'sdk', 'c#']
 draft: false
@@ -9,8 +9,6 @@ layout: PostLayout
 canonicalUrl:
 authors: []
 ---
-
-# Enabling Out-of-the-Box Performance Insights in Unity Games with the Sentry SDK
 
 ## Introduction: From Crash Reporting to Performance Insights
 
