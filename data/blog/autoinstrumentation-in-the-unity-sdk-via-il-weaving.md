@@ -10,8 +10,6 @@ canonicalUrl:
 authors: []
 ---
 
-# IL Weaving
-
 ## Outline: What we wanted to have and how we got it
 
 Our Unity SDK was super complete from the crash reporting point of view. It had support for line numbers in C# exceptions on IL2CPP (in release mode!), captured native crashes on Windows, macOS, Linux Android and iOS, context set via C# would show up on any type of event, including minidumps, debug symbols are magically uploaded when you build the game with the editor. And more. We were confident we had the best crash reporting solution out there. Now we were looking towards offering some out-of-the-box insights into the game’s performance. Right out of the gate we hit the first question: What would auto-instrumentation for Unity games look like?
@@ -39,7 +37,7 @@ The game works in a super tight loop, typically updating anywhere from 30 to 60 
 
 ## The problem of finding discrete points to start and stop transactions and spans
 
-For measuring how long something takes Sentry has two working concepts: Transactions and Spans. Transactions are single [instances of an activity or a service](https://docs.sentry.io/product/performance/transaction-summary/#what-is-a-transaction), like loading of a page or some async task. Spans are individual measurements that are nested within a transaction. Conceptionally, we're trying to find places to start and stop a big stopwatch for bigger, specific actions that we want to measure. And then we are looking for sup-tasks within that action that'd we'd would capture with smaller stopwatches. But how does a transaction fit within the the frame of a game? What instance of a service, that is already built into the engine, could a transaction represent?
+For measuring how long something takes Sentry has two working concepts: Transactions and Spans. Transactions are single [instances of an activity or a service](https://docs.sentry.io/product/performance/transaction-summary/#what-is-a-transaction), like loading of a page or some async task. Spans are individual measurements that are nested within a transaction. Conceptionally, we're trying to find places to start and stop a big stopwatch for bigger, and very specific actions that we want to measure. And then we are looking for sup-tasks within that action that we could capture with smaller stopwatches. But how does a transaction fit within the the frame of a game? What instance of a service, that is already built into the engine, could a transaction represent?
 
 For all its features Unity is still a blank canvas for you to create any kind of game. That means there are, other than the general lifecycle, not very many fixed points that the SDK could hook into to start and stop a span. There are a whole bunch of one-time events like button clicks but how would the SDK hook into whatever happens behind the button click? How would the SDK know when to finish the span?
 
