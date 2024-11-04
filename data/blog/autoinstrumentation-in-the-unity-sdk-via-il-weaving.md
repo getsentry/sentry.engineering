@@ -1,7 +1,7 @@
 ---
 title: 'Autoinstrumentation in the Unity SDK via IL Weaving'
 date: '2024-11-04'
-tags: ['unity', 'sdj', 'c#']
+tags: ['unity', 'sdk', 'c#']
 draft: true
 summary: 'Learn how we built the autoinstrumentation in the Unity SDK via IL Weaving'
 images: []
@@ -10,9 +10,13 @@ canonicalUrl:
 authors: []
 ---
 
-## What we wanted to have and how we got it
+# Enabling Out-of-the-Box Performance Insights in Unity Games with the Sentry SDK
+
+## Introduction: From Crash Reporting to Performance Insights
 
 Our Unity SDK was super complete from the crash reporting point of view. It had support for line numbers in C# exceptions on IL2CPP (in release mode!), captured native crashes on Windows, macOS, Linux Android and iOS, context set via C# would show up on any type of event, including minidumps, debug symbols are magically uploaded when you build the game with the editor. And more. We were confident we had the best crash reporting solution out there. Now we were looking towards offering some out-of-the-box insights into the game’s performance. Right out of the gate we hit the first question: What would auto-instrumentation for Unity games look like?
+
+## Adapting Sentry's Performance UX for Unity
 
 Sentry had built UX for visualization of span trees and the instrumentation for mobile and web is based around screen rendering. We wanted to take those concepts and apply them to Unity. As a result we limited the instrumentation to the game’s startup procedure and scene loading. Every game starts at some point. And every game, no matter how big or small, loads a scene. We might not be able to give insights into the entire game but we can show every developer right after installing the package, what Sentry could offer.
 
@@ -20,7 +24,7 @@ Our ideal scenario would be something that would work out-of-the-box with no to 
 
 ![TraceView](/images/autoinstrumentation-in-unity-via-ilweaving/traceview.png)
 
-## What is the Unity SDK
+## Introducing the Unity SDK: A Multi-Platform Tool
 
 Unity games run on basically all platforms. To provide support for that, the Sentry SDK for Unity became an SDK of SDKs. It ships and integrates via P/Invoke (FFI) with whatever SDK is native for the targeted platform. Running on iOS? Not a problem, we’ll bring the Cocoa SDK to have you covered! Same for Android, WebGL, and all the desktops!
 
@@ -29,29 +33,29 @@ Unity games run on basically all platforms. To provide support for that, the Sen
 After all, this is how we achieved the native crash capturing support. What those SDKs also have in common, other than powering the Unity SDK, they all provide some form of auto instrumentation.
 Unfortunately, this has limited use. A key factor in Unity’s success is its platform abstraction. Developers are free from worrying about platform specifics and that allows them to focus solely on Unity internals. To enable this, Unity games are typically embedded within a super thin launcher. As a result, concepts like navigation events and UI activities are generally unfamiliar to them. For instrumentation to be truly helpful and actionable, the SDK would need to operate directly within Unity.
 
-## How the Unity lifecycle works
+## Understanding the Unity Lifecycle: Finding Key Points for Instrumentation
 
 The game works in a super tight loop, typically updating anywhere from 30 to 60 times per second but the sky is the limit. Creating a span to measure every single tick is not feasible. We needed to look at some overarching actions like some set of logical operations we would want to capture.
 
 ![Unity Lifecycle](/images/autoinstrumentation-in-unity-via-ilweaving/unity-life-cycle.png)
 
-## The problem of finding discrete points to start and stop transactions and spans
+### The Challenge of Defining Transactions and Spans
 
 For measuring how long something takes Sentry has two working concepts: Transactions and Spans. Transactions are single [instances of an activity or a service](https://docs.sentry.io/product/performance/transaction-summary/#what-is-a-transaction), like loading of a page or some async task. Spans are individual measurements that are nested within a transaction. Conceptionally, we're trying to find places to start and stop a big stopwatch for bigger, and very specific actions that we want to measure. And then we are looking for sup-tasks within that action that we could capture with smaller stopwatches. But how does a transaction fit within the the frame of a game? What instance of a service, that is already built into the engine, could a transaction represent?
 
 For all its features Unity is still a blank canvas for you to create any kind of game. That means there are, other than the general lifecycle, not very many fixed points that the SDK could hook into to start and stop a span. There are a whole bunch of one-time events like button clicks but how would the SDK hook into whatever happens behind the button click? How would the SDK know when to finish the span?
 
-## Events that are universal to all Unity games
+## Universal Events in Unity: Startup and Scene Loading
 
 All games need to startup and the startup procedure is the same for all Unity games and consists of loading of systems, the splash-screen (if applicable) and the loading of the initial scene. Scene loading in general is another great fixed point. Everything within Unity exists within the context of a scene. Some games load them additionally, some games swap them, some games only ever have one. But at least that one gets loaded during startup.
 
 With this we had our transaction hooks. We know when the startup is starting and finished. And we can hook into the scene manager to time scene load and scene load finish events.
 
-## More granularity: What to populate those transactions with?
+## Adding Granularity: Populating Transactions with Spans
 
 Now that we have our overarching operation that we’re trying to time we’re now looking for smaller actions that happen within. Looking towards Unity’s lifecycle helps us out once more. The initialization happens for every GameObject during its creation or, if it is an initial part of the scene, during the scene’s loading. For all GameObjects the one method that gets invoked is the `Awake` call. But that’s user’s code. How would the SDK instrument non-SDK code without asking to user to do it for us?
 
-## IL Weaving - The art of.. _insert pun_
+## IL Weaving - The art of... _insert pun_
 
 When working on your Unity game you’re typically writing your code in C#. And no matter what the end-result, even tho it later gets compiled to platform native code via IL2CPP, at some point in the build process that C# code gets compiled to [Intermediate Language](https://learn.microsoft.com/en-us/dotnet/standard/managed-code) (IL). Even tho Unity might transpile the IL to C++ later on, that IL is still there, somewhere. We managed to hook the SDK into the the build pipeline to modify the generated `Assembly-CSharp.dll`.
 
@@ -68,6 +72,8 @@ public class BlogMaterial : MonoBehaviour
     }
 }
 ```
+
+This MonoBehaviour compiles to the following IL:
 
 ```csharp
 .class public auto ansi beforefieldinit BlogMaterial
@@ -92,7 +98,7 @@ public class BlogMaterial : MonoBehaviour
 
 ```
 
-On the left is our `BlogMaterial` and on the right is the IL code that gets generated by the compiler.
+## Writing code that writes code with Cecil
 
 We want to wrap whatever is going on inside the `Awake` with a span. For this we created some helpers that are accessible from anywhere inside the user’s code.
 
@@ -170,15 +176,15 @@ And the result is this Trace View for every Unity game out-of-the-box, without t
 
 ![TraceView](/images/autoinstrumentation-in-unity-via-ilweaving/traceview.png)
 
-### What do we have now?
+## What do we have now?
 
-With this we achieved two things:
+With this IL weaving setup, we accomplished two goals:
 
-1. We’re providing visible, tangible value for users right out of the box. They install the package and get to see the Performance capabilities without having to write a single line of code.
-2. We have a proof of concept that it is not only possible but totally viable to inject custom SDK functionality to wrap user’s code.
+- Immediate, visible performance value: Developers see auto-instrumented performance insights without adding extra code.
+- A foundation for future expansion: We proved it’s viable to inject custom SDK functionality that wraps user code, enabling future opportunities for auto-instrumentation.
 
 ## Where to go from here
 
-What this allows us is to move on towards even more auto-instrumentation. UnityWebRequests are an obvious choice.
+This setup opens the door for even more instrumentation possibilities. For instance, UnityWebRequests could be instrumented automatically, or we could explore adding spans to button clicks by timing actions around them.
 
-Maybe we can add the span to the button click after all. Start the span when a button is clicked and finish it on the start of the next frame?
+Stay tuned as we continue to expand what’s possible with Sentry’s Unity SDK!
