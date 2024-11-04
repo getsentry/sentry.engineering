@@ -1,7 +1,7 @@
 ---
 title: 'Autoinstrumentation in the Unity SDK via IL Weaving'
 date: '2024-11-04'
-tags: []
+tags: ['unity', 'sdj', 'c#']
 draft: true
 summary: 'Learn how we built the autoinstrumentation in the Unity SDK via IL Weaving'
 images: []
@@ -10,7 +10,7 @@ canonicalUrl:
 authors: []
 ---
 
-## Outline: What we wanted to have and how we got it
+## What we wanted to have and how we got it
 
 Our Unity SDK was super complete from the crash reporting point of view. It had support for line numbers in C# exceptions on IL2CPP (in release mode!), captured native crashes on Windows, macOS, Linux Android and iOS, context set via C# would show up on any type of event, including minidumps, debug symbols are magically uploaded when you build the game with the editor. And more. We were confident we had the best crash reporting solution out there. Now we were looking towards offering some out-of-the-box insights into the game’s performance. Right out of the gate we hit the first question: What would auto-instrumentation for Unity games look like?
 
