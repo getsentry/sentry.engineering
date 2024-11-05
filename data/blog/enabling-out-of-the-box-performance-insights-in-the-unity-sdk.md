@@ -22,14 +22,14 @@ Our ideal scenario would be something that would work out-of-the-box with no to 
 
 ![TraceView](/images/autoinstrumentation-in-unity-via-ilweaving/traceview.png)
 
-## Introducing the Unity SDK: A Multi-Platform Tool
+## Introducing Sentry SDK for Unity: A Multi-Platform Tool
 
-Unity games run on basically all platforms. To provide support for that, the Sentry SDK for Unity became an SDK of SDKs. It ships and integrates via P/Invoke (FFI) with whatever SDK is native for the targeted platform. Running on iOS? Not a problem, we’ll bring the Cocoa SDK to have you covered! Same for Android, WebGL, and all the desktops!
+Unity games run on basically all platforms. To provide support for that, the Sentry SDK for Unity became an SDK of SDKs. It ships and integrates via P/Invoke (FFI) with whatever SDK is native for the targeted platform. Running on iOS? Not a problem, we’ll bring the [Sentry SDK for Apple](https://github.com/getsentry/sentry-cocoa) to have you covered! Same for [Android](https://github.com/getsentry/sentry-java), WebGL, and all the desktops!
 
 ![What is the Unity SDK](/images/autoinstrumentation-in-unity-via-ilweaving/what-is-the-unity-sdk.png)
 
 After all, this is how we achieved the native crash capturing support. What those SDKs also have in common, other than powering the Unity SDK, they all provide some form of auto instrumentation.
-Unfortunately, this has limited use. A key factor in Unity’s success is its platform abstraction. Developers are free from worrying about platform specifics and that allows them to focus solely on Unity internals. To enable this, Unity games are typically embedded within a super thin launcher. As a result, concepts like navigation events and UI activities are generally unfamiliar to them. For instrumentation to be truly helpful and actionable, the SDK would need to operate directly within Unity.
+Unfortunately, this has limited use. A key factor in Unity’s success is its platform abstraction. Developers are free from worrying about platform specifics and that allows them to focus solely on Unity internals. To enable this, Unity games are typically embedded within a super thin launcher. As a result, concepts like navigation events and UI activities from the underlying platform are generally unfamiliar to them. For instrumentation to be truly helpful and actionable, the SDK would need to operate directly within Unity.
 
 ## Understanding the Unity Lifecycle: Finding Key Points for Instrumentation
 
@@ -39,7 +39,7 @@ The game works in a super tight loop, typically updating anywhere from 30 to 60 
 
 ### The Challenge of Defining Transactions and Spans
 
-For measuring how long something takes Sentry has two working concepts: Transactions and Spans. Transactions are single [instances of an activity or a service](https://docs.sentry.io/product/performance/transaction-summary/#what-is-a-transaction), like loading of a page or some async task. Spans are individual measurements that are nested within a transaction. Conceptionally, we're trying to find places to start and stop a big stopwatch for bigger, and very specific actions that we want to measure. And then we are looking for sup-tasks within that action that we could capture with smaller stopwatches. But how does a transaction fit within the the frame of a game? What instance of a service, that is already built into the engine, could a transaction represent?
+To measure how long something takes, Sentry has two working concepts: Transactions and Spans. Transactions are single [instances of an activity or a service](https://docs.sentry.io/product/performance/transaction-summary/#what-is-a-transaction), like loading of a page or some async task. Spans are individual measurements that are nested within a transaction. Conceptionally, we're trying to find places to start and stop a big stopwatch for bigger, and very specific actions that we want to measure. And then we are looking for sub-tasks within that action that we could capture with smaller stopwatches. But how does a transaction fit within the the frame of a game? What instance of a service, that is already built into the engine, could a transaction represent?
 
 For all its features Unity is still a blank canvas for you to create any kind of game. That means there are, other than the general lifecycle, not very many fixed points that the SDK could hook into to start and stop a span. There are a whole bunch of one-time events like button clicks but how would the SDK hook into whatever happens behind the button click? How would the SDK know when to finish the span?
 
@@ -183,6 +183,6 @@ With this IL weaving setup, we accomplished two goals:
 
 ## Where to go from here
 
-This setup opens the door for even more instrumentation possibilities. For instance, UnityWebRequests could be instrumented automatically, or we could explore adding spans to button clicks by timing actions around them.
+This setup opens the door for even more instrumentation possibilities. For instance, [UnityWebRequests](https://github.com/getsentry/sentry-unity/issues/737) could be instrumented automatically, or we could explore adding spans to button clicks by timing actions around them.
 
 Stay tuned as we continue to expand what’s possible with Sentry’s Unity SDK!
