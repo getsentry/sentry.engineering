@@ -168,7 +168,7 @@ processor.InsertBefore(method.Body.Instructions[0], processor.Create(OpCodes.Lda
 processor.InsertBefore(method.Body.Instructions[0], processor.Create(OpCodes.Call, getInstanceMethod));
 ```
 
-You can inspect the whole setup of reading, modifying and writing the IL [here](https://github.com/getsentry/sentry-unity/blob/main/src/Sentry.Unity.Editor/AutoInstrumentation/SentryPerformanceAutoInstrumentation.cs).
+You can inspect the whole setup of reading, modifying and writing the IL [here](https://github.com/getsentry/sentry-unity/blob/c646ffcdb7a751663d21f41f88d1f36dfc86361f/src/Sentry.Unity.Editor/AutoInstrumentation/SentryPerformanceAutoInstrumentation.cs).
 
 And the result is this Trace View for every Unity game out-of-the-box, without the user having to write a single line of code.
 
