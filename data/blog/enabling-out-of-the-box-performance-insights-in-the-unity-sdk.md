@@ -7,7 +7,7 @@ summary: 'Learn how we built the autoinstrumentation in the Unity SDK via IL Wea
 images: []
 layout: PostLayout
 canonicalUrl:
-authors: []
+authors: [stefanjandl]
 ---
 
 ## Introduction: From Crash Reporting to Performance Insights
@@ -51,7 +51,7 @@ With this we had our transaction hooks. We know when the startup is starting and
 
 ## Adding Granularity: Populating Transactions with Spans
 
-Now that we have our overarching operation that we’re trying to time we’re now looking for smaller actions that happen within. Looking towards Unity’s lifecycle helps us out once more. The initialization happens for every GameObject during its creation or, if it is an initial part of the scene, during the scene’s loading. For all GameObjects the one method that gets invoked is the `Awake` call. But that’s user’s code. How would the SDK instrument non-SDK code without asking to user to do it for us?
+Now that we have our overarching operation that we’re trying to time we’re now looking for smaller actions that happen within. Looking towards Unity’s lifecycle helps us out once more. The initialization happens for every GameObject during its creation or, if it is an initial part of the scene, during the scene’s loading. For all GameObjects the one method that gets invoked is the `Awake` call. And that’s the user’s code, which is exaclty what we would like to instrument. That's the code the user has control over and where we want to highlight performance opportunities or bottlenecks. But how would the SDK instrument non-SDK code without asking to user to do it for us?
 
 ## IL Weaving - The art of... _insert pun_
 
