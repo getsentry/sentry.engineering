@@ -20,13 +20,13 @@ Sentry had built UX for visualization of span trees and the instrumentation for 
 
 Our ideal scenario would be something that would work out-of-the-box with no to minimal setup from the user. As a sneak-peek and to show off what we got working without you having to read the whole thing before you get as excited as we are: This is what the Unity SDK‘s auto-instrumentation offers OOTB right now. Without a single line of code. For all Unity games.
 
-![TraceView](/images/autoinstrumentation-in-unity-via-ilweaving/traceview.png)
+![TraceView](/images/enabling-out-of-the-box-performance-insights-in-the-unity-sdk/traceview.png)
 
 ## Introducing the Unity SDK: A Multi-Platform Tool
 
 Unity games run on basically all platforms. To provide support for that, the Sentry SDK for Unity became an SDK of SDKs. It ships and integrates via P/Invoke (FFI) with whatever SDK is native for the targeted platform. Running on iOS? Not a problem, we’ll bring the Cocoa SDK to have you covered! Same for Android, WebGL, and all the desktops!
 
-![What is the Unity SDK](/images/autoinstrumentation-in-unity-via-ilweaving/what-is-the-unity-sdk.png)
+![What is the Unity SDK](/images/enabling-out-of-the-box-performance-insights-in-the-unity-sdk/what-is-the-unity-sdk.png)
 
 After all, this is how we achieved the native crash capturing support. What those SDKs also have in common, other than powering the Unity SDK, they all provide some form of auto instrumentation.
 Unfortunately, this has limited use. A key factor in Unity’s success is its platform abstraction. Developers are free from worrying about platform specifics and that allows them to focus solely on Unity internals. To enable this, Unity games are typically embedded within a super thin launcher. As a result, concepts like navigation events and UI activities are generally unfamiliar to them. For instrumentation to be truly helpful and actionable, the SDK would need to operate directly within Unity.
@@ -35,7 +35,7 @@ Unfortunately, this has limited use. A key factor in Unity’s success is its pl
 
 The game works in a super tight loop, typically updating anywhere from 30 to 60 times per second but the sky is the limit. Creating a span to measure every single tick is not feasible. We needed to look at some overarching actions like some set of logical operations we would want to capture.
 
-![Unity Lifecycle](/images/autoinstrumentation-in-unity-via-ilweaving/unity-life-cycle.png)
+![Unity Lifecycle](/images/enabling-out-of-the-box-performance-insights-in-the-unity-sdk/unity-life-cycle.png)
 
 ### The Challenge of Defining Transactions and Spans
 
@@ -172,7 +172,7 @@ You can inspect the whole setup of reading, modifying and writing the IL [here](
 
 And the result is this Trace View for every Unity game out-of-the-box, without the user having to write a single line of code.
 
-![TraceView](/images/autoinstrumentation-in-unity-via-ilweaving/traceview.png)
+![TraceView](/images/enabling-out-of-the-box-performance-insights-in-the-unity-sdk/traceview.png)
 
 ## What do we have now?
 
