@@ -4,7 +4,7 @@ date: '2024-11-04'
 tags: ['unity', 'sdk', 'c#']
 draft: false
 summary: 'Learn how we built the autoinstrumentation in the Unity SDK via IL Weaving'
-images: []
+images: [/images/enabling-out-of-the-box-performance-insights-in-the-unity-sdk/hero.jpg]
 layout: PostLayout
 canonicalUrl:
 authors: [stefanjandl]
