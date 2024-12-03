@@ -309,7 +309,7 @@ If you’re interested in checking out our implementation you can checkout out t
 
 Through virtualizing lists, layering `textarea`'s, and much more, we were able to build a renderer that was easily able to handles TypeScript’s `checker.ts` file. We decided to do some further stress testing to see where the limits would be reached, and we found that to be around 500,000 lines of code. At this point, the browser itself started running into issues running out of memory and crashing.
 
-_insert comparison gif_
+![Gif of the before and after of our code renderers, rendering checker.ts](/images/better-code-rendering-through-virtualization/code-renderers-synced-up.gif)
 
 At the end of the day, the most important thing we accomplished is being able to provide our users with a great experience (even on their phone):
 
