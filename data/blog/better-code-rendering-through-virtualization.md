@@ -4,7 +4,8 @@ date: '2024-12-03'
 tags: ['javascript', 'codecov', 'virtualization', 'react']
 draft: false
 summary: 'How we rebuilt our code renderer from the ground up to be faster and more efficient, utilizing virtualization.'
-images: ['']
+images:
+  ['/images/better-code-rendering-through-virtualization/understanding-root-cause-flamegraph-3.png']
 layout: PostLayout
 canonicalUrl:
 authors: ['nicholasdeschenes']
