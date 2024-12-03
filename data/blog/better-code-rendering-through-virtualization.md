@@ -1,13 +1,14 @@
 ---
-title: 'Better Code Rendering Through Virtualization'
-date: '2024-12-03'
-tags: ['javascript', 'codecov', 'virtualization', 'react']
+title: Better Code Rendering Through Virtualization
+date: 2024-12-03
+tags: [javascript, codecov, virtualization, react]
 draft: false
-summary: 'How we rebuilt Codecov's code renderer from the ground up to be faster and more efficient, utilizing virtualization.'
-images: ['/images/better-code-rendering-through-virtualization/understanding-root-cause-flamegraph-3.png']
+summary: How we rebuilt Codecov's code renderer from the ground up to be faster and more efficient, utilizing virtualization.
+images:
+  [/images/better-code-rendering-through-virtualization/understanding-root-cause-flamegraph-3.png]
 layout: PostLayout
 canonicalUrl:
-authors: ['nicholasdeschenes']
+authors: [nicholasdeschenes]
 ---
 
 **TL;DR: we rebuilt Codecov’s code renderer from the ground up utilizing virtual lists and some other nifty tricks to significantly decrease render blocking time, and unblock customers with files containing tens of thousands of lines.**
