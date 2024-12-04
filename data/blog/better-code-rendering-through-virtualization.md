@@ -23,7 +23,7 @@ We had Jake an engineer at Microsoft working on TypeScript tooling, reach out to
 
 The first step in any debugging scenario was to reproduce the issue that the user was running into. This was fairly simple to do once we found the correct repo and file. You can see below, once we navigate to this file the page starts to _load and load and load_ and finally the tab crashes:
 
-_insert gif of page loading and crashing here_
+![Video of the page crashing the browser while attempting to render](/images/better-code-rendering-through-virtualization/old-renderer-crashing.gif)
 
 Clearly there’s something going on here. If the app is unable to render the file, we should show a message to the user rather than the page becoming unresponsive, and ideally we should be able to render any file. So let’s dive a bit deeper into understanding what is going on.
 
@@ -120,7 +120,7 @@ const CodeBody = ({ tokens, /* other props */}) => {
 }
 ```
 
-With this we’re able to get our code renderer rending the content to the screen:
+With this we’re able to get our code renderer rendering the content to the screen:
 
 ![Unstyled code renderer utilizing virtualization](/images/better-code-rendering-through-virtualization/unstyled-code-renderer.png)
 
