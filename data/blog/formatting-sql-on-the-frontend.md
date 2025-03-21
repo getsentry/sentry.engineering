@@ -4,7 +4,7 @@ date: '2025-03-14'
 tags: ['sql', 'react', 'web', 'javascript']
 draft: false
 summary: "Writing a rudimentary SQL parser and formatter in JavaScript that handles Sentry's need to format invalid SQL and output into JSX."
-images: []
+images: ['/images/formatting-sql-on-the-frontend/header.jpg']
 layout: PostLayout
 canonicalUrl:
 authors: ['georgegritsouk']
