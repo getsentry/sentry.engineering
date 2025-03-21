@@ -1,5 +1,5 @@
 ---
-title: 'Parsing and Formatting SQL in the Browser Using PEG'
+title: 'Formatting SQL in the Browser Using PEG'
 date: '2025-03-14'
 tags: ['sql', 'react', 'web', 'javascript']
 draft: false
@@ -23,7 +23,7 @@ SELECT * FROM users WHERE users.id IN (...) /* Long `IN` condition stripped out 
 SELECT * FROM users WHER... /* Query was too long, we truncated the end */
 ```
 
-We can successfully format all kinds of invalid SQL-looking strings. For example, the string `'SELECT * FROM (SELECT * FROM use..'` is very invalid, but is formatted as:
+We can successfully format all kinds of invalid SQL-looking strings. For example, the string `'SELECT * FROM (SELECT * FROM use..'` is not valid SQL, but is formatted as:
 
 ```sql
 SELECT *
@@ -36,13 +36,21 @@ FROM (
 
 ## Interesting Feature 2: Support for JSX Output
 
-I wanted our formatter to support multiple output types. I had an idea about _gentle_ formatting done via bolding and italics, and I had some ambitions about _interactive_ formatting (e.g., hovering on a table name would show information about that table). Only some of those ambitions actually materialized, but to make them possible at all we needed a formatter that can output JSX that we control.
+I wanted our formatter to support multiple output types. I had an idea about _gentle_ formatting done via bolding and italics, and I had some ambitions about _interactive_ formatting (e.g., hovering on a table name in a query would show information about that table). Only some of those ambitions materialized, but to make them possible at all we needed a formatter that can output JSX nodes that we can attach styling to.
 
-Our formatter supports two output types. The first is plain string, with spacing and indentation. This is well suited for displaying full queries, with syntax highlighting. The second is JSX using `<b>` and `<i>` elements to denote important tokens. This is suitable for showing lists of queries, especially if those queries are also `<a>` elements, or buttons, or have complicated hover states.
+Our formatter supports two output types. The first output type is plain string, with spacing and indentation. This is well suited for displaying full queries, with line breaks, indentation, and syntax highlighting. Here's an example of the UI it enables:
+
+![A screenshot of a fully formatted SQL query with indentation and whitespace](/images/formatting-sql-on-the-frontend/full-query.png)
+
+The second output type is an array of JSX elements, with `<b>` tags wrapping the important tokens. This is suitable for showing long, scannable lists of queries. Each query is shown on a single line, with just a hint of highlighting for the important tokens for readability. Here's an example:
+
+![A screenshot of a list of SQL queries where the keywords are slightly bolder than the other text](/images/formatting-sql-on-the-frontend/query-list.png)
+
+Fully highlighted strings wouldn't make sense here. They'd take up multiple lines, they'be be overwhelming, and we want links to be _blue_, to indicate that they're links.
 
 ## Parse, Format
 
-My knowledge of parsers and grammars is limited and strictly practical, so please forgive my errors and omissions! That said, let's get into how this works, and why it does what it does. First, here's an example of how to use the formatter:
+Let's get into how this works, and why it does what it does. First, here's an example of how to use the formatter:
 
 ```jsx
 const formatter = new SQLishFormatter()
@@ -55,13 +63,13 @@ console.log(output)
 // LIMIT 1;
 ```
 
-Under-the-hood, there are two steps. The first is to **parse** the input string using [a PEG parser](https://en.wikipedia.org/wiki/Parsing_expression_grammar) (more on this soon) into a flat [Abstract Syntax Tree](https://en.wikipedia.org/wiki/Abstract_syntax_tree) (more on this soon). The second is to take the flat AST and either **format** it as a string, or **format** it as JSX.
+Under-the-hood, there are two steps. The first is to **parse** the input string using [a PEG parser](https://en.wikipedia.org/wiki/Parsing_expression_grammar) (more on this soon) into an [Abstract Syntax Tree](https://en.wikipedia.org/wiki/Abstract_syntax_tree) (more on this soon). The second is to take the AST and either **format** it as a string, or **format** it as JSX.
 
-## Parsing to a Flat AST
+## Parsing to an AST
 
 ### A Gentle Introduction to Parsing
 
-In order to transform a raw string of SQL to a rich output format, first one must parse the string. Parsing is usually done in two steps. The first step is to lexically analyze the string and split it into small chunks called "tokens". The second is to take those tokens and construct a tree structure that describes the code in a way it could be transformed to bytecode and executed. This tree is called as ["abstract syntax tree"](https://en.wikipedia.org/wiki/Abstract_syntax_tree).
+In order to transform a raw string of SQL to a rich output format, first one must parse the string. Parsing is usually done in two steps. The first step is to lexically analyze the string and split it into small chunks called "tokens". The second is to take those tokens and construct a tree structure that describes the code in a way it could be transformed to bytecode and executed. This tree is called an ["abstract syntax tree"](https://en.wikipedia.org/wiki/Abstract_syntax_tree).
 
 For example, consider the query:
 
@@ -71,10 +79,10 @@ FROM users
 LIMIT 1;
 ```
 
-Tokenizing this would produce an array of strings, something like:
+Tokenizing this would produce this array of strings:
 
 ```javascript
-["SELECT", " ", "hello", "\n", "FROM", " ", "users", "\n"...etc
+;['SELECT', ' ', 'hello', '\n', 'FROM', ' ', 'users', '\n', 'LIMIT', ' ', '1', ';']
 ```
 
 The key thing to notice is that it's an array that contains all the characters from the input string.
@@ -115,9 +123,9 @@ Transforming it into a tree would create an AST, which is a structure that looks
                 },
 ```
 
-The key thing to notice is that it's a deeply nested tree. Each token is given semantic structural meaning (is it a command? Is it a parameter?), its content (e.g. `"SELECT"`), its position in the original string (e.g., `7, 12`) and other important metadata. If the query was more complicated (e.g., with nesting) the tree would be _very deeply_ nested.
+The key thing to notice is that it's a deeply nested tree. Each token is given semantic structural meaning (is it a command? Is it a parameter?), its content (e.g. `"SELECT"`), its position in the original string (e.g., `7, 12`) and other important metadata.
 
-One way to accomplish this is to write a tokenizer and an AST constructor that would look at the string, split it, and output the tokens, and create a tree structure.
+One way to accomplish this is to write a tokenizer that would split the string, and also write a parser that would create a tree structure from the tokens.
 
 Another way to do this is to write a _grammar_. A grammar is a formal definition of a language, in a special syntax. The neat thing about grammars is that _some_ grammars can be _automatically converted to a parser_! PEG is one such grammar. PEG parsers have some constraints and some known benefits that were acceptable to us, so that's the route we took. Plus, we already use PEG in some other places in the app.
 
@@ -223,7 +231,7 @@ If you're thinking "this is just a tokenizer with extra steps" you're not wrong.
 
 ### Improving a Grammar
 
-The difference between this grammar, and what we're using in production is not huge:
+The difference between this grammar and what we're using in production is not huge:
 
 - More keywords. Our full grammar supports about 30 common ones
 - Parentheses. In order to know where to indent and add newlines, we want to know where parentheses are
@@ -260,19 +268,21 @@ String formatting needs to do four main things.
 
 Turns out, it's pretty simple to do those things with simple heuristics! By checking the current token, the preceding token, the current indentation level, and the current nesting level, we can handle very sophisticated queries.
 
-The pseudocode for formatting is pretty simple. Go token-by-token. An open parenthesis increases the indentation level. A meaningful keyword (e.g., `SELECT`) creates a newline. A closed parenthesis decreases the indentation level. After initial formatting, go through the formatted lines, and wrap them if needed. There are many edge cases to cover, but that's the gist!
+The pseudocode for formatting is pretty simple. Go token-by-token. An open parenthesis increases the indentation level. A meaningful keyword (e.g., `SELECT`) creates a newline. A closed parenthesis decreases the indentation level. After initial formatting, go through the formatted lines, and wrap them if needed. There are many edge cases to cover, but that's the gist! You can see the full code [on GitHub](https://github.com/getsentry/sentry/blob/master/static/app/utils/sqlish/formatters/string.tsx).
 
 The last piece is syntax highlighting. We have enough information to do this ourselves (we know which strings are important keywords), but there's no need. [Prism](https://prismjs.com) is a very popular open-source non-validating syntax highlighter that suits our needs just fine. That's it!
 
-Here's an example of the output:
+A reminder of what the output looks like:
 
 ![A screenshot of a fully formatted SQL query with indentation and whitespace](/images/formatting-sql-on-the-frontend/full-query.png)
 
 ## Formatting as JSX
 
-JSX formatting is even simpler. It's _very_ simple. Go token-by-token. If the token is known to be a keyword, return it wrapped in `<b>`. If it's whitespace, return a single space. If it's something else, return it wrapped in a `<span>`. That's it! That's the whole formatter. Then we can use CSS to style the output however we like, add click handlers, and so on. It's enough to output something like:
+JSX formatting is even simpler. It's _very_ simple. Go token-by-token. If the token is known to be a keyword, return it wrapped in `<b>`. If it's whitespace, return a single space. If it's something else, return it wrapped in a `<span>`. That's it! That's the whole formatter. Then we can use CSS to style the output however we like, add click handlers, and so on. Here's the same screenshot as above as a reminder of the output format:
 
 ![A screenshot of a list of SQL queries where the keywords are slightly bolder than the other text](/images/formatting-sql-on-the-frontend/query-list.png)
+
+You can see the full code, again, on [GitHub](https://github.com/getsentry/sentry/blob/master/static/app/utils/sqlish/formatters/simpleMarkup.ts)
 
 ## Telemetry
 
