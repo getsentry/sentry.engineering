@@ -23,7 +23,14 @@ SELECT * FROM users WHERE users.id IN (...) /* Long `IN` condition stripped out 
 SELECT * FROM users WHER... /* Query was too long, we truncated the end */
 ```
 
-Our SQL formatter is _very_ permissive, and is able to parse and format all kinds of SQL-looking strings.
+We can successfully format all kinds of invalid SQL-looking strings. For example, the string `'SELECT * FROM (SELECT * FROM use..'` is very invalid, but is formatted as:
+
+```sql
+SELECT *
+FROM (
+  SELECT *
+  FROM use..
+```
 
 **Aside:** You can learn more about Relay in our [documentation](https://develop.sentry.dev/ingestion/relay/) and if you're curious about SQL parameterization, we have [some documentation](https://docs.sentry.io/product/insights/backend/queries/#query-parameterization) about that, too.
 
