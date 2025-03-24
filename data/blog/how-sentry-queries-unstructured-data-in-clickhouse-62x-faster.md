@@ -12,6 +12,9 @@ authors: [colinchartier]
 
 Sentry’s users send us many billions of ‘spans’ to measure the performance of their products - these are essentially a measurement of how long a particular operation took.
 
+![Screenshot of Sentry Tracing displaying several spans](/images/how-sentry-queries-unstructured-data-in-clickhouse-62x-faster/hero.png)
+
+
 Since our users are so varied, we can’t assume anything about the structure of the spans they send. They might send one which corresponds to how long a webpage took to load, and one which measures how long a phone call took.
 
 We need to handle completely *unstructured* data.
