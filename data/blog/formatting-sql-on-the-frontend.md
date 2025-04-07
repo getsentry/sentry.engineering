@@ -23,7 +23,7 @@ SELECT * FROM users WHERE users.id IN (...) /* Long `IN` condition stripped out 
 SELECT * FROM users WHER... /* Query was too long, we truncated the end */
 ```
 
-We can successfully format all kinds of invalid SQL-looking strings. For example, the string `'SELECT * FROM (SELECT * FROM use..'` is not valid SQL, but is formatted as:
+Our formatter successfully formats all kinds of invalid SQL-looking strings. For example, the string `'SELECT * FROM (SELECT * FROM use..'` is not valid SQL, but is formatted as:
 
 ```sql
 SELECT *
@@ -123,7 +123,7 @@ Transforming it into a parse tree would create a structure that looks something 
                 },
 ```
 
-The key thing to notice is that it's a deeply nested tree. Each token is given semantic structural meaning (is it a command? Is it a parameter?), its content (e.g. `"SELECT"`), its position in the original string (e.g., `7, 12`) and other important metadata.
+The key thing to notice is that it's a deeply nested tree that accounts for the intricacies of SQL. Each token is given semantic structural meaning (is it a command? Is it a parameter?), its content (e.g. `"SELECT"`), its position in the original string (e.g., `7, 12`) and other important metadata.
 
 One way to accomplish this is to write a tokenizer that would split the string, and also write a parser that would create a tree structure from the tokens.
 
@@ -278,7 +278,7 @@ A reminder of what the output looks like:
 
 ## Formatting as JSX
 
-JSX formatting is even simpler. It's _very_ simple. Go token-by-token. If the token is known to be a keyword, return it wrapped in `<b>`. If it's whitespace, return a single space. If it's something else, return it wrapped in a `<span>`. That's it! That's the whole formatter. Then we can use CSS to style the output however we like, add click handlers, and so on. Here's the same screenshot as above as a reminder of the output format:
+JSX formatting is even simpler. It's _very_ simple. Go token-by-token. If the token is known to be a keyword, return it wrapped in `<b>`. If it's whitespace, return a single space. If it's something else, return it wrapped in a `<span>`. That's the whole formatter. Then we can use CSS to style the output however we like, add click handlers, and so on. Here's the same screenshot as above as a reminder of the output format:
 
 ![A screenshot of a list of SQL queries where the keywords are slightly bolder than the other text](/images/formatting-sql-on-the-frontend/query-list.png)
 
@@ -360,7 +360,7 @@ Not bad!
 
 ## Conclusion
 
-If you're using Sentry's "Queries" feature, and you're looking at formatted queries, you're looking at the output of this formatter! I read online somewhere that once you understand parsers, you start to see everything as a parsing problem. After this project, I'm starting to agree.
+If you're using Sentry's "Queries" feature, and you're looking at formatted queries, you're looking at the output of this formatter. I read online somewhere that once you understand parsers, you start to see everything as a parsing problem. After this project, I'm starting to agree.
 
 ## Resources
 
