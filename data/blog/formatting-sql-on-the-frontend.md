@@ -63,13 +63,13 @@ console.log(output)
 // LIMIT 1;
 ```
 
-Under-the-hood, there are two steps. The first is to **parse** the input string using [a PEG parser](https://en.wikipedia.org/wiki/Parsing_expression_grammar) (more on this soon) into an [Abstract Syntax Tree](https://en.wikipedia.org/wiki/Abstract_syntax_tree) (more on this soon). The second is to take the AST and either **format** it as a string, or **format** it as JSX.
+Under-the-hood, there are two steps. The first is to **parse** the input string using [a PEG parser](https://en.wikipedia.org/wiki/Parsing_expression_grammar) (more on this soon) into a [parse tree](https://en.wikipedia.org/wiki/Parse_tree) (more on this soon). The second is to take the parse tree and either **format** it as a string, or **format** it as JSX.
 
-## Parsing to an AST
+## Parsing
 
 ### A Gentle Introduction to Parsing
 
-In order to transform a raw string of SQL to a rich output format, first one must parse the string. Parsing is usually done in two steps. The first step is to lexically analyze the string and split it into small chunks called "tokens". The second is to take those tokens and construct a tree structure that describes the code in a way it could be transformed to bytecode and executed. This tree is called an ["abstract syntax tree"](https://en.wikipedia.org/wiki/Abstract_syntax_tree).
+In order to transform a raw string of SQL to a rich output format, first one must parse the string. Parsing is usually done in two steps. The first step is to lexically analyze the string and split it into small chunks called "tokens". The second is to take those tokens and construct a tree structure that describes the code in a way it could be transformed to bytecode and executed. This tree is called a ["parse tree"](https://en.wikipedia.org/wiki/Parse_tree).
 
 For example, consider the query:
 
@@ -87,7 +87,7 @@ Tokenizing this would produce this array of strings:
 
 The key thing to notice is that it's an array that contains all the characters from the input string.
 
-Transforming it into a tree would create an AST, which is a structure that looks something like:
+Transforming it into a parse tree would create a structure that looks something like:
 
 ```json
 {
@@ -129,7 +129,7 @@ One way to accomplish this is to write a tokenizer that would split the string, 
 
 Another way to do this is to write a _grammar_. A grammar is a formal definition of a language, in a special syntax. The neat thing about grammars is that _some_ grammars can be _automatically converted to a parser_! PEG is one such grammar. PEG parsers have some constraints and some known benefits that were acceptable to us, so that's the route we took. Plus, we already use PEG in some other places in the app.
 
-**Aside:** The AST above was made using https://astexplorer.net, a really great AST exploration tool.
+**Aside:** The tree above was made using https://astexplorer.net, a really great AST exploration tool.
 
 ### Constructing a Grammar
 
@@ -158,7 +158,7 @@ Unknown
 
 The specific syntax might look foreign to you, but even at a glance you can see the basics:
 
-- the grammar consists of a flat list of tokens
+- the grammar consists of a flat list of tokens, rather than a recursive definition
 - each token can be whitespace, a "keyword", or something unknown
 - whitespace is one of several known whitespace characters
 - a "keyword" is one of a few known SQL keywords
@@ -194,7 +194,7 @@ function peg$parse(input, options) {
 
 You can see some some familiar tokens in the parser code, concepts we defined in the grammar.
 
-This grammar knows about `SELECT` and `FROM` keywords, about whitespace, and a few other character. Here's the AST it spits out for the SQL string `SELECT * FRO`:
+This grammar knows about `SELECT` and `FROM` keywords, about whitespace, and a few other character. Here's the tree it spits out for the SQL string `SELECT * FRO`:
 
 ```js
 ;[
