@@ -1,6 +1,6 @@
 ---
 title: 'Formatting SQL in the Browser Using PEG'
-date: '2025-03-14'
+date: '2025-04-08'
 tags: ['sql', 'react', 'web', 'javascript']
 draft: false
 summary: "Writing a rudimentary SQL parser and formatter in JavaScript that handles Sentry's need to format invalid SQL and output into JSX."
