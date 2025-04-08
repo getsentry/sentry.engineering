@@ -268,7 +268,7 @@ String formatting needs to do four main things.
 
 Turns out, it's pretty simple to do those things with simple heuristics! By checking the current token, the preceding token, the current indentation level, and the current nesting level, we can handle very sophisticated queries.
 
-The pseudocode for formatting is pretty simple. Go token-by-token. An open parenthesis increases the indentation level. A meaningful keyword (e.g., `SELECT`) creates a newline. A closed parenthesis decreases the indentation level. After initial formatting, go through the formatted lines, and wrap them if needed. There are many edge cases to cover, but that's the gist! You can see the full code [on GitHub](https://github.com/getsentry/sentry/blob/master/static/app/utils/sqlish/formatters/string.tsx).
+The pseudocode for formatting is pretty simple. Go token-by-token. An open parenthesis increases the indentation level. A meaningful keyword (e.g., `SELECT`) creates a newline. A closed parenthesis decreases the indentation level. After initial formatting, go through the formatted lines, and wrap them if needed. There are many edge cases to cover, but that's the gist! You can see the full code [on GitHub](https://github.com/getsentry/sentry/blob/master/static/app/utils/sqlish/formatters/string.ts).
 
 The last piece is syntax highlighting. We have enough information to do this ourselves (we know which strings are important keywords), but there's no need. [Prism](https://prismjs.com) is a very popular open-source non-validating syntax highlighter that suits our needs just fine. That's it!
 
