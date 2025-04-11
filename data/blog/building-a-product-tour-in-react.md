@@ -2,7 +2,7 @@
 title: "Building a Product Tour in React"
 date: "2025-04-11"
 tags: ['react', 'typescript', 'web', 'css']
-draft: true
+draft: false
 summary: "How we went about building a performant, in-app product tour API using only React"
 images: []
 layout: PostLayout
