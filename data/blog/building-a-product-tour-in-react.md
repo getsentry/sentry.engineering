@@ -3,10 +3,10 @@ title: "Building a Product Tour in React"
 date: "2025-04-11"
 tags: ['react', 'typescript', 'web', 'css']
 draft: true
-summary: "TODO"
+summary: "How we went about building a performant, in-app product tour API using only React"
 images: []
 layout: PostLayout
-authors: [leeandher]
+authors: [leanderrodrigues]
 ---
 
 # Building a Product Tour in React
@@ -41,7 +41,7 @@ That last engineering goal is an interesting one. At Sentry, we actually already
 
 One of [the core values at Sentry](https://sentry.io/careers/) is that *Pixels Matter*. Even though a product tour is a short, ephemeral moment in the iconic ‘User Journey’, we still want to make it appealing, and unique — that’s just how we do. The design we had arrived at definitely had an impact on the approach I’m going to describe, so maybe it’ll help fill in the gaps for some of the odder choices.
 
-![image.png](image.png)
+![The stylish final look we're going to build for our product tour](/images/building-a-product-tour-in-react/final-look.png)
 
 Let’s break down the styling approach to get to this design:
 
