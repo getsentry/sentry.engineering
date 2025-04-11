@@ -45,48 +45,48 @@ Let’s break down the styling approach to get to this design:
 
 1. To give the rest of the app a frosted glass look, need to have an element appear above it all when the tour starts. I opted to use visual layering (via `z-index` ) rather than DOM hierarchy since this way, it could be easily omitted or altered for each tour.
     
-    ```css
-    .frosted-glass {
-      /* Cover the whole webpage... */
-      content: '';
-      inset: 0;
-      position: absolute;
-      /* and float above everything... */
-    	z-index: 10000;
-      /* and prevent mouse interactions... */
-    	user-select: none;
-      /* and make it look neat! */
-    	backdrop-filter: blur(3px);
-    }
-    ```
+```css
+.frosted-glass {
+  /* Cover the whole webpage... */
+  content: '';
+  inset: 0;
+  position: absolute;
+  /* and float above everything... */
+  z-index: 10000;
+  /* and prevent mouse interactions... */
+  user-select: none;
+  /* and make it look neat! */
+  backdrop-filter: blur(3px);
+}
+```
     
 2. Then, we’ll want to apply some CSS to a wrapper surrounding the tour element to give it a slick border. By using a higher `z-index` , and pseudo-element (e.g. `::after`) for the border. This will give it the floating, bordered appearance we’re after without layout changes.
     
-    ```css
-    .cool-border {
-      /* We're floating the tour element with CSS, not JS! */
-      &[aria-expanded='true'] {
-    		/* Float the element and create a new stacking context... */
-    	  position: relative;
-    	  z-index: 10001;
-    	  /* and ignore user interaction for now. */
-    	  user-select: none;
-    	  pointer-events: none;
-    		/* Use a pseudo-element to avoid layout shifts... */
-    	  &:after {
-    		  /* and cover the entire tour element... */
-    		  content: '';
-    		  inset: 0;
-    		  position: absolute;
-    		  /* while float above it... */
-    		  z-index: 1; 
-    		  /* with a cool border! */
-    		  border-radius: 6px
-    		  box-shadow: inset 0 0 0 3px #2C2433
-    	  }
-      }
+```css
+.cool-border {
+  /* We're floating the tour element with CSS, not JS! */
+  &[aria-expanded='true'] {
+    /* Float the element and create a new stacking context... */
+    position: relative;
+    z-index: 10001;
+    /* and ignore user interaction for now. */
+    user-select: none;
+    pointer-events: none;
+    /* Use a pseudo-element to avoid layout shifts... */
+    &:after {
+      /* and cover the entire tour element... */
+      content: '';
+      inset: 0;
+      position: absolute;
+      /* while float above it... */
+      z-index: 1; 
+      /* with a cool border! */
+      border-radius: 6px
+      box-shadow: inset 0 0 0 3px #2C2433
     }
-    ```
+  }
+}
+```
     
 3. Next, we need to pop a tooltip above both (yes, a higher `z-index`) with some controls to navigate the rest of the tour and draw focus to it. We currently use [`react-popper`](https://popper.js.org/react-popper/v2/) for our tooltips, but we’re probably due for an upgrade it seems.
 
@@ -109,7 +109,6 @@ On its face, this seems pretty onerous on the developer building out a new tour 
 
 ```tsx
 import {createContext, useContext} from 'react';
-
 import type {TourContextType} from 'sentry/components/tours/tourContext';
 
 export const enum IssueDetailsTour {
@@ -130,8 +129,7 @@ export const ORDERED_ISSUE_DETAILS_TOUR = [
   IssueDetailsTour.SIDEBAR,
 ];
 
-export const IssueDetailsTourContext =
-  createContext<TourContextType<IssueDetailsTour> | null>(null);
+export const IssueDetailsTourContext = createContext<TourContextType<IssueDetailsTour> | null>(null);
 ```
 
 This helps create some rigidity for our types that will avoid bugs as we build out the tours themselves (e.g. not noticing you misspelled `aggraggates`, or forgetting a tour element for `sidebar`), though most of the types have been removed from the snippets for simplicity.  
@@ -142,24 +140,24 @@ The solution for this involves a provider that *doesn’t know what context it�
 
 ```tsx
 export function TourContextProvider<T>(props) {
-	// It's a little odd to accept context as a prop, but that's how we pass it 
-	// along to the element consumers. TourContext here is the result React.createContext(...).
-	const {TourContext: React.Context<TourContextType | null>} = props;
-	  
+  // It's a little odd to accept context as a prop, but that's how we pass it 
+  // along to the element consumers. TourContext here is the result React.createContext(...).
+  const {TourContext: React.Context<TourContextType | null>} = props;
+    
   // 1. Create some state for managing this specific tour
   // 2. Create some helpful callbacks to navigate (e.g. nextStep(), prevStep())
   // 3. Create a registry for the tour steps
-	
-	return (
-		<TourContext value={someContextValue}>
-			{/* 
-			It's ALSO a little odd to render actual DOM elements in a provider, but it's 
-			a nice way to prevent a tour from omitting the blurring.
-			*/}
-			<div className="frosted-glass" />
-			{children}
-		</TourContext>
-	)
+
+  return (
+    <TourContext value={someContextValue}>
+      {/* 
+        It's ALSO a little odd to render actual DOM elements in a provider, but it's 
+        a nice way to prevent a tour from omitting the blurring.
+      */}
+      <div className="frosted-glass" />
+      {children}
+    </TourContext>
+  )
 }
 ```
 
@@ -172,13 +170,13 @@ There’s quite a lot we’re going to be doing here, but we can leverage the ex
 function tourReducer(state, action) {
   switch (action.type) {
     case 'START_TOUR': {
-	    // Prevent starting the tour until we've fully registered!
-	    if (!state.isRegistered) {
-		    return state
-	    }
-	    return {...state, isCompleted: false, currentStepId: action.stepId}
+      // Prevent starting the tour until we've fully registered!
+      if (!state.isRegistered) {
+        return state
+      }
+      return {...state, isCompleted: false, currentStepId: action.stepId}
     }
-    ...
+  ...
   }
 }
 
@@ -187,13 +185,13 @@ export function TourContextProvider<T>(props) {
   const [state, dispatch] = useReducer(tourReducer, {})
   
   // 3. Create a registry for the tour steps
-	
-	return (
-		<TourContext value={{state, dispatch}}>
-			<div className="frosted-glass" hidden={state.currentStepId === null} />
-			{children}
-		</TourContext>
-	)
+  
+  return (
+    <TourContext value={{state, dispatch}}>
+      <div className="frosted-glass" hidden={state.currentStepId === null} />
+      {children}
+    </TourContext>
+  )
 }
 ```
 
@@ -210,33 +208,30 @@ export function TourContextProvider<T>(props) {
 
   const [isRegistered, setIsRegistered] = useState(false);
   const registry = useRef<TourRegistry>(new Set<string>())
-	
-	// We can add a new helper method to register new step elementss
-	const handleRegistration = useCallback((stepId: string) => {
-	  registry.current.add(stepId)
-	        
-	  const isCompletelyRegistered = orderedStepIds.every(stepId =>
-      registry.current.has(stepId)
-    );
-    
+
+  // We can add a new helper method to register new step elements
+  const handleRegistration = useCallback((stepId: string) => {
+    registry.current.add(stepId)
+    const isCompletelyRegistered = orderedStepIds.every(stepId => registry.current.has(stepId));
+
     // Only update provider state when all elements are registered
     if (isCompletelyRegistered) {
       setIsRegistered(true)
     }
-	  
-	  // and we can return a cleanup function if the step is unmounted
-	  return () => {
-	    registry.current.remove(stepId)
-	    setIsRegistered(false)
-	  }
-	}, [])
-	
-	return (
-	  <TourContext value={{state, dispatch, handleRegistration, isRegistered}}>
-			<div className="frosted-glass" hidden={state.currentStepId === null} />
-			{children}
-		</TourContext>
-	)
+    
+    // and we can return a cleanup function if the step is unmounted
+    return () => {
+      registry.current.remove(stepId)
+      setIsRegistered(false)
+    }
+  }, [orderedStepIds])
+
+  return (
+    <TourContext value={{state, dispatch, handleRegistration, isRegistered}}>
+      <div className="frosted-glass" hidden={state.currentStepId === null} />
+      {children}
+    </TourContext>
+  )
 }
 ```
 
@@ -267,7 +262,6 @@ export function TourElement<T>({
   TourContext,
   ...props
 }) {
-
   // Check the context from props
   const tourContextValue = useContext(TourContext);
   // If we don't find anything, fallback to the children
@@ -276,18 +270,18 @@ export function TourElement<T>({
   }
   // Otherwise, render the custom component wrapping the children
   return (
-	  <TourElementContent<T> {...props} tourContextValue={tourContextValue}>
-		  {children}
-	  </TourElementContent>
-	);
+    <TourElementContent<T> {...props} tourContextValue={tourContextValue}>
+      {children}
+    </TourElementContent>
+  );
 }
 
 export function TourElementContent<T>({
   children,
   tourContextValue,
-	title,
-	description,
-	stepId,
+  title,
+  description,
+  stepId,
 }) {
   // Add this step to the register
   const {handleStepRegistration} = tourContextValue
@@ -297,19 +291,19 @@ export function TourElementContent<T>({
   );
   
   // Manage the tour from the passed in context
-	const {dispatch, state} = tourContextValue  
-	const isActive = state.currentStepId === stepId
+  const {dispatch, state} = tourContextValue  
+  const isActive = state.currentStepId === stepId
   return (
-	  <Fragment>
-	    <div className="cool-border" aria-expanded={isActive}>{children}</div>
+    <Fragment>
+      <div className="cool-border" aria-expanded={isActive}>{children}</div>
       {isActive && (
-		    <FloatingTooltip>
-			    <h3>{title}<h3>
-			    <p>{description}</p>
-			    <button onclick={() => dispatch({type: 'PREV_STEP'})}>Prev</button>
-			    <button onclick={() => dispatch({type: 'NEXT_STEP'})}>Next</button>
-		    </FloatingTooltip>
-			)}
+        <FloatingTooltip>
+          <h3>{title}</h3>
+          <p>{description}</p>
+          <button onClick={() => dispatch({type: 'PREV_STEP'})}>Prev</button>
+          <button onClick={() => dispatch({type: 'NEXT_STEP'})}>Next</button>
+        </FloatingTooltip>
+      )}
     </Fragment>
   )
 }
@@ -321,9 +315,9 @@ I want to highlight a consideration we’ve made with how we’ve chosen to rend
 
 ```tsx
 if (isActive) {
-	return children
+  return children
 } else {
-	return <div className="cool-border">{children}</div>
+  return <div className="cool-border">{children}</div>
 }
 ```
 
@@ -338,7 +332,7 @@ To use what we’ve built, it’s as easy as wrapping the focused element:
 +	 title="Check out the new graph"
 +	 description="Add filters, pick a date range, and watch it change"
 +>
-	<AggregateGraph />
+  <AggregateGraph />
 +</TourElement>
 ```
 
