@@ -4,12 +4,10 @@ date: "2025-04-11"
 tags: ['react', 'typescript', 'web', 'css']
 draft: false
 summary: "How we went about building a performant, in-app product tour API using only React"
-images: []
+images: [/images/building-a-product-tour-in-react/final-look.png]
 layout: PostLayout
 authors: [leanderrodrigues]
 ---
-
-# Building a Product Tour in React
 
 So you made a great app, and are ready to start bringing users in. Obviously you feel your design is intuitive, but it’d help to have an onboarding experience to set everyone up for success. We at [Sentry](https://sentry.io/welcome/) found this to be the case while developing a new user interface for our issue details product. To help transition existing power users, newcomers and infrequent visitors, we opted to build out an in-product tour, to provide some pointers on getting around the new look. But, as we’re evolving other parts of the app we wanted to make it generalizable; and I am going to share how we did it.
 
