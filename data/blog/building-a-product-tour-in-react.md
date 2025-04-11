@@ -9,7 +9,7 @@ layout: PostLayout
 authors: [leanderrodrigues]
 ---
 
-So you made a great app, and are ready to start bringing users in. Obviously you feel your design is intuitive, but it’d help to have an onboarding experience to set everyone up for success. We at [Sentry](https://sentry.io/welcome/) found this to be the case while developing a new user interface for our issue details product. To help transition existing power users, newcomers and infrequent visitors, we opted to build out an in-product tour, to provide some pointers on getting around the new look. But, as we’re evolving other parts of the app we wanted to make it generalizable; and I am going to share how we did it.
+So you made a great app and are ready to start bringing users in. Obviously you feel your design is intuitive, but it’d help to have an onboarding experience to set everyone up for success. We at [Sentry](https://sentry.io/welcome/) found this to be the case while developing a new user interface for our issue details product. To help transition existing power users, newcomers and infrequent visitors, we opted to build out an in-product tour, to provide some pointers on getting around the new look. But, as we’re evolving other parts of the app we wanted to make it generalizable; and I am going to share how we did it.
 
 ## Defining Terminology
 
@@ -39,7 +39,7 @@ That last engineering goal is an interesting one. At Sentry, we actually already
 
 One of [the core values at Sentry](https://sentry.io/careers/) is that *Pixels Matter*. Even though a product tour is a short, ephemeral moment in the iconic ‘User Journey’, we still want to make it appealing, and unique — that’s just how we do. The design we had arrived at definitely had an impact on the approach I’m going to describe, so maybe it’ll help fill in the gaps for some of the odder choices.
 
-![The stylish final look we're going to build for our product tour](/images/building-a-product-tour-in-react/final-look.png)
+![The stylish final look we're going to build for our product tour](/images/building-a-product-tour-in-react/look.png)
 
 Let’s break down the styling approach to get to this design:
 
@@ -78,7 +78,7 @@ Let’s break down the styling approach to get to this design:
       content: '';
       inset: 0;
       position: absolute;
-      /* while float above it... */
+      /* while floating above it... */
       z-index: 1; 
       /* with a cool border! */
       border-radius: 6px
@@ -174,9 +174,9 @@ function tourReducer(state, action) {
       if (!state.isRegistered) {
         return state
       }
-      return {...state, isCompleted: false, currentStepId: action.stepId}
+      return {...state, currentStepId: action.stepId}
     }
-  ...
+  // ...all the other action declarations (e.g. NEXT_STEP, PREV_STEP, SET_REGISTRATION)
   }
 }
 
@@ -342,6 +342,8 @@ And now, we can start the tour however we want from within our provider by dispa
 const {dispatch, isRegistered} = useContext(IssueDetailsTourContext)
 return <button onclick={dispatch({type: "START_TOUR"})} disabled={!isRegistered}>Start</button>
 ```
+
+![A demo of the final in-app product tour](/images/building-a-product-tour-in-react/demo.gif)
 
 ## So, it’s done?
 
