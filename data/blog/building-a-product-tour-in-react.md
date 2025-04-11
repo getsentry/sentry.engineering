@@ -4,7 +4,7 @@ date: "2025-04-11"
 tags: ['react', 'typescript', 'web', 'css']
 draft: false
 summary: "How we went about building a performant, in-app product tour API using only React"
-images: [/images/building-a-product-tour-in-react/final-look.png]
+images: [/images/building-a-product-tour-in-react/hero.png]
 layout: PostLayout
 authors: [leanderrodrigues]
 ---
@@ -47,7 +47,7 @@ Let’s break down the styling approach to get to this design:
     
     ```css
     .frosted-glass {
-    	/* Cover the whole webpage... */
+      /* Cover the whole webpage... */
       content: '';
       inset: 0;
       position: absolute;
@@ -199,7 +199,7 @@ export function TourContextProvider<T>(props) {
 
 Next, we need a step registry. This registry will allow individual elements to indicate to the tour provider that they are mounted and ready for focusing. By allowing the step elements to do this themselves we can handle complicated scenarios, like pausing access to the tour, while a graph is recalculating, or holding off on starting a tour until after an API call resolves.
 
-Initially I gravitated toward [`React.useState`](https://react.dev/reference/react/useState) for this, but @Malachi Willey pointed out that we don’t want these steps to cause re-renders of one another as they update the registry, especially with our performance goals. It’s expected these tour steps wrap large (and expensive) portions of the application, so we can swap the state for [`React.useRef`](https://react.dev/reference/react/useRef), and only update state when all of the steps are registered.
+Initially I gravitated toward [`React.useState`](https://react.dev/reference/react/useState) for this, but [@Malachi Willey](https://github.com/malwilley) pointed out that we don’t want these steps to cause re-renders of one another as they update the registry, especially with our performance goals. It’s expected these tour steps wrap large (and expensive) portions of the application, so we can swap the state for [`React.useRef`](https://react.dev/reference/react/useRef), and only update state when all of the steps are registered.
 
 ```tsx
 type TourRegistry = Set<string>;
@@ -351,7 +351,7 @@ return <button onclick={dispatch({type: "START_TOUR"})} disabled={!isRegistered}
 
 ## So, it’s done?
 
-Nope. I was the first ‘user’ of the new tour API for the issue details page, so I missed some of the usability pitfalls. I had put together the basics; some tests, a [storybook](https://storybook.js.org/) page and doc strings where they were relevant, but an outside perspective helps quite a bit. Soon after the first tour launched, we wanted to build another for some new navigation updates, and @Malachi Willey  found a few quality of life improvements:
+Nope. I was the first ‘user’ of the new tour API for the issue details page, so I missed some of the usability pitfalls. I had put together the basics; some tests, a [storybook](https://storybook.js.org/) page and doc strings where they were relevant, but an outside perspective helps quite a bit. Soon after the first tour launched, we wanted to build another for some new navigation updates, and [Malachi](https://github.com/malwilley) found a few quality of life improvements:
 
 - [[#87810](https://github.com/getsentry/sentry/pull/87810)] Often times, `dispatch(...)` calls would need to be followed by some callback (perhaps tracking analytics, making an API request, etc.) but side-effects are not permitted in a reducer function. Instead, we can allow the hook to couple the action dispatch + callback, and we could use the function without repeating ourselves all over!
 - [[#87805](https://github.com/getsentry/sentry/pull/87805)] I had coupled some state for whether or not a tour was actually available to the current user that ended up complicating things. The tour itself doesn’t need to keep track of it’s availability, since that’s highly dependent on the tour. Instead, let it worry about managing the steps, and navigation, while we control access to the tour from outside these components.
@@ -365,7 +365,7 @@ Probably, but at the same time, ‘better’ is a moving target. For our purpose
 
 ## Wrapping Up
 
-Thanks to [the many reviewers](https://github.com/getsentry/sentry/pull/85900) who helped shape the API, and another callout for @Malachi Willey  who sanded down some of the rougher edges.
+Thanks to [the many reviewers](https://github.com/getsentry/sentry/pull/85900) who helped shape the API, and another callout for [Malachi](https://github.com/malwilley) who sanded down some of the rougher edges.
 The current (April 9, 2025) version of the tour provider is available to inspect [on GitHub](https://github.com/getsentry/sentry/tree/054082d90608639d513838ec6bd17985fd06e4cd/static/app/components/tours), and you may have already taken a few of these tours in Sentry already (and if you have some thoughts please let us know!). We added some nice-to-haves, like navigation via keyboard, focus scoping and new styles, but the bones still match what we’ve gone over today. 
 
 The important part, is that it’s live and being used as you read this (probably) and teaching users something new (hopefully).
