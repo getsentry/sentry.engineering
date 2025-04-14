@@ -266,7 +266,7 @@ export function TourElement<T>({
   const tourContextValue = useContext(TourContext);
   // If we don't find anything, fallback to the children
   if (!tourContextValue) {
-    children
+    return children
   }
   // Otherwise, render the custom component wrapping the children
   return (
@@ -287,7 +287,7 @@ export function TourElementContent<T>({
   const {handleStepRegistration} = tourContextValue
   useEffect(
     () => handleStepRegistration(stepId),
-    [id, element, handleStepRegistration]
+    [stepId, handleStepRegistration]
   );
   
   // Manage the tour from the passed in context
