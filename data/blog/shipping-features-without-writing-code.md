@@ -1,6 +1,6 @@
 ---
 title: 'Shipping Features Without Writing Code'
-date: '2025-07-02'
+date: '2025-07-07'
 tags: ['pr-comments', 'ai']
 draft: false
 summary: "How Cursor's background agent added C# support to Sentry with minimal prompting."
