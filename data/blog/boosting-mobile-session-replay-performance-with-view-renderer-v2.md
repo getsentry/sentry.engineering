@@ -27,13 +27,7 @@ Higher frame rates make videos smoother, but have downsides:
 - More storage and network bandwidth required
 - Less time to capture per frame available, requiring better hardware
 
-When reducing the frame rate to a minimum, the recordings look like **stop motion videos**.
-
-<div align="center">
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/MEglOulvgSY?si=fNtN_ooDixcZJ-sO" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-</div>
-
-As visible in the YouTube video, the frames are just sequential photos, yet they still feel like a moving photo — essentially a video.
+When reducing the frame rate to a minimum, the recordings look like **stop motion videos**, with a great example for this style visible in this [YouTube video](https://www.youtube.com/watch?v=MEglOulvgSY). The frames are just sequential photos, yet they still feel like a moving photo — essentially a video.
 
 **This is essentially what we are doing with Session Replay on Mobile!**
 
