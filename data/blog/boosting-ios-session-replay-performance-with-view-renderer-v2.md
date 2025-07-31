@@ -1,12 +1,12 @@
 ---
-title: 'Boosting Mobile Session Replay Performance with View Renderer V2'
-date: '2025-07-28'
-tags: ['cocoa', 'session-replay', 'mobile', 'sdk', 'replay']
+title: 'Boosting iOS Session Replay Performance with View Renderer V2'
+date: '2025-08-04'
+tags: ['apple', 'cocoa', 'ios', 'mobile', 'replay', 'sdk', 'session-replay']
 draft: false
 summary: 'A detailed analysis of iOS rendering bottlenecks led to a custom solution that achieved 4-5x better performance.'
-images: [/images/boosting-mobile-session-replay-performance-with-view-renderer-v2/hero.jpg]
+images: [/images/boosting-ios-session-replay-performance-with-view-renderer-v2/hero.jpg]
 layout: PostSimple
-canonicalUrl: boosting-mobile-session-replay-performance-with-view-renderer-v2
+canonicalUrl: boosting-ios-session-replay-performance-with-view-renderer-v2
 authors: ['philniedertscheider']
 ---
 
@@ -14,7 +14,7 @@ After making Session Replay GA for Mobile, the adoption rose quickly and more fe
 
 So we went on the journey to find the culprit and found a solution that yielded **4-5x better performance** in our benchmarks 🔎📈
 
-![Session Replay on Mobile](/images/boosting-mobile-session-replay-performance-with-view-renderer-v2/hero.jpg)
+![Session Replay on Mobile](/images/boosting-ios-session-replay-performance-with-view-renderer-v2/hero.jpg)
 
 To understand what's happening under the hood of Session Replay on Mobile, let's first explore how mobile screen recording works before diving into the technical details.
 
@@ -42,7 +42,7 @@ Our investigation began with reproducing the performance issues in a controlled 
 Using Xcode Instruments on our Sentry Cocoa SDK sample application, we immediately reproduced the reported performance issues and noticed a consistent pattern of main thread hangs **every second**.
 
 <div align="center">
-  <img src="/images/boosting-mobile-session-replay-performance-with-view-renderer-v2/xcode-instruments-app-hangs.png" alt="Xcode Instruments showing an app hang warning every second"/>
+  <img src="/images/boosting-ios-session-replay-performance-with-view-renderer-v2/xcode-instruments-app-hangs.png" alt="Xcode Instruments showing an app hang warning every second"/>
   _Xcode Instruments showing an app hang warning every second._
 </div>
 
@@ -55,7 +55,7 @@ To better understand the exact implications for time-to-render per frame in mill
 _You can find a full table of refresh rates and timings in the [Apple Documentation](https://developer.apple.com/documentation/quartzcore/optimizing-promotion-refresh-rates-for-iphone-13-pro-and-ipad-pro#Understand-refresh-rates)._
 
 <div align="center">
-  <img src="/images/boosting-mobile-session-replay-performance-with-view-renderer-v2/frame-rate-timing-comparison.jpg" alt="Time per Frame Rate"/>
+  <img src="/images/boosting-ios-session-replay-performance-with-view-renderer-v2/frame-rate-timing-comparison.jpg" alt="Time per Frame Rate"/>
   _The blue boxes represent the amount of available time to calculate and render the view._
 </div>
 
@@ -68,8 +68,8 @@ As animations are not coupled to frames but to time, the app cannot simply conti
 To correct the timing the system **skips** the frames that should already have been rendered at this point in time (the _dropped frames)_. This correction behavior is commonly known as _frame drops_ and has the undesired side effect of intermittent frame rate changes that can be noticed as visual stutters (i.e. not scrolling smoothly).
 
 <div align="center">
-  <img src="/images/boosting-mobile-session-replay-performance-with-view-renderer-v2/frame-drops.jpg" alt="Dropped Frames"/>
-  _When workload takes longer than available time, we need to drop frames_
+  <img src="/images/boosting-ios-session-replay-performance-with-view-renderer-v2/frame-drops.jpg" alt="Dropped Frames"/>
+  _When workload takes longer than the available time, we need to drop frames_
 </div>
 
 Frame drops were also the unintended side effect of the previous implementation for Session Replay, as the once-per-second screenshot simply took too long.
@@ -270,7 +270,7 @@ Because it actually is too good to be true ☹️
 During testing we noticed that the rendering using `layer.render(in:)` is **incomplete**, in particular the icons used in the tab bar did not show up in the rendered screenshot at all.
 
 <div align="center">
-  <img src="/images/boosting-mobile-session-replay-performance-with-view-renderer-v2/render-comparison.png" alt="Render Failure"/>
+  <img src="/images/boosting-ios-session-replay-performance-with-view-renderer-v2/render-comparison.png" alt="Render Failure"/>
   _Tab bar icons missing when using layer.render(in:) approach_
 </div>
 
@@ -294,8 +294,7 @@ This experimental approach allowed early adopters to test the new renderer in th
 
 # What's Next
 
-We've already received new reports of users challenging our new implementation, especially when working with graphics heavy animations.
-In addition new edge cases arose, such as supporting a different color space when capturing HDR content.
+While the new renderer improves performance in a vast majority of scenarios, we've already received new reports indicating specific limitations of this new implementation, especially when working with graphics heavy animations or specific use cases such as supporting a different color space when capturing HDR content.
 
 All of these are great feedback and we are working on addressing them in the upcoming releases.
 If you are interested in following along, make sure to follow our [GitHub Releases](https://github.com/getsentry/sentry-cocoa/releases) and [Engineering Blog](https://sentry.engineering) to stay updated.
