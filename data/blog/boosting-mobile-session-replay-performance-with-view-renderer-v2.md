@@ -102,14 +102,14 @@ After adding some code to calculate the execution time and adding a basic sampli
 
 **The step _Render_ takes `~155ms` per frame, causing ~9-10 of 60 frames being dropped every second of using Session Replay** 💀
 
-| 120 samples | Redact        | Render          | Total           |
-| ----------- | ------------- | --------------- | --------------- |
-| Min         | 3.0583 ms     | 145.3815 ms     | 148.4398 ms     |
-| Avg         | 5.8453 ms     | 149.8243 ms     | 155.6696 ms     |
-| p50         | 6.0484 ms     | 149.2103 ms     | 155.2587 ms     |
-| p75         | 6.1136 ms     | 151.9487 ms     | 158.0623 ms     |
-| p95         | **6.2567 ms** | **155.3496 ms** | **161.6063 ms** |
-| Max         | 6.5138 ms     | 155.8338 ms     | 162.3476 ms     |
+| 120 samples                                             | Redact                                                        | Render                                                          | Total                                                           |
+| ------------------------------------------------------- | ------------------------------------------------------------- | --------------------------------------------------------------- | --------------------------------------------------------------- |
+| Min                                                     | 3.0583 ms                                                     | 145.3815 ms                                                     | 148.4398 ms                                                     |
+| Avg                                                     | 5.8453 ms                                                     | 149.8243 ms                                                     | 155.6696 ms                                                     |
+| p50                                                     | 6.0484 ms                                                     | 149.2103 ms                                                     | 155.2587 ms                                                     |
+| p75                                                     | 6.1136 ms                                                     | 151.9487 ms                                                     | 158.0623 ms                                                     |
+| <span className="text-primary-500 font-bold">p95</span> | <span className="text-primary-500 font-bold">6.2567 ms</span> | <span className="text-primary-500 font-bold">155.3496 ms</span> | <span className="text-primary-500 font-bold">161.6063 ms</span> |
+| Max                                                     | 6.5138 ms                                                     | 155.8338 ms                                                     | 162.3476 ms                                                     |
 
 As the duration of _Redact_ with `~6.3ms` is comparatively small, we will optimize it in the future and focus on improving _Render_.
 
@@ -149,14 +149,14 @@ Our default view renderer creates a new instance every single time the render me
 
 Looking at the output of the benchmark test, there is no significant change compared to the baseline. This recommendation does not help and so we discarded it.
 
-| **120 samples** | **Render (Baseline)** | **Render (UIGraphicsImageRenderer Cache)** | **± Time** | **± %**  |
-| --------------- | --------------------- | ------------------------------------------ | ---------- | -------- |
-| Min             | 145.3815 ms           | 146.9310 ms                                | 1.5495 ms  | +1.07 %  |
-| Avg             | 149.8243 ms           | 149.5189 ms                                | -0.3054 ms | -0.20 %  |
-| p50             | 149.2103 ms           | 148.0545 ms                                | -1.1558 ms | -0.77 %  |
-| p75             | 151.9487 ms           | 151.6945 ms                                | -0.2542 ms | -0.17 %  |
-| p95             | 155.3496 ms           | 155.3220 ms                                | -0.0276 ms | -0.02 %  |
-| Max             | 155.8338 ms           | 156.0019 ms                                | 0.1681 ms  | + 0.11 % |
+| **120 samples**                                         | **Render (Baseline)**                                           | **Render (UIGraphicsImageRenderer Cache)**                      | **± Time**                                                     | **± %**                                                     |
+| ------------------------------------------------------- | --------------------------------------------------------------- | --------------------------------------------------------------- | -------------------------------------------------------------- | ----------------------------------------------------------- |
+| Min                                                     | 145.3815 ms                                                     | 146.9310 ms                                                     | 1.5495 ms                                                      | +1.07 %                                                     |
+| Avg                                                     | 149.8243 ms                                                     | 149.5189 ms                                                     | -0.3054 ms                                                     | -0.20 %                                                     |
+| p50                                                     | 149.2103 ms                                                     | 148.0545 ms                                                     | -1.1558 ms                                                     | -0.77 %                                                     |
+| p75                                                     | 151.9487 ms                                                     | 151.6945 ms                                                     | -0.2542 ms                                                     | -0.17 %                                                     |
+| <span className="text-primary-500 font-bold">p95</span> | <span className="text-primary-500 font-bold">155.3496 ms</span> | <span className="text-primary-500 font-bold">155.3220 ms</span> | <span className="text-primary-500 font-bold">-0.0276 ms</span> | <span className="text-primary-500 font-bold">-0.02 %</span> |
+| Max                                                     | 155.8338 ms                                                     | 156.0019 ms                                                     | 0.1681 ms                                                      | + 0.11 %                                                    |
 
 ## Idea 2: Custom View Renderer
 
@@ -213,27 +213,27 @@ let image = context.makeImage()
 
 _You can find the full implementation of [SentryGraphicsImageRenderer](https://github.com/getsentry/sentry-cocoa/blob/13bc1aa144c7a1df38a5a1dd5862e74cbbb78175/Sources/Swift/Core/Tools/ViewCapture/SentryGraphicsImageRenderer.swift) on GitHub._
 
-| 120 samples | **Render (Baseline)** | **Render (SentryGraphicsImageRenderer @ 2x scale)** | **± Time to Baseline** | **± % to Baseline** |
-| ----------- | --------------------- | --------------------------------------------------- | ---------------------- | ------------------- |
-| Min         | 145.38 ms             | 14.76 ms                                            | -130.62 ms             | -89.95 %            |
-| Avg         | 149.82 ms             | 25.42 ms                                            | -124.41 ms             | -83.04 %            |
-| p50         | 149.21 ms             | 24.56 ms                                            | -124.65 ms             | -83.54 %            |
-| p75         | 151.95 ms             | 27.34 ms                                            | -124.61 ms             | -82.01 %            |
-| p95         | 155.35 ms             | 30.32 ms                                            | -125.03 ms             | -80.48 %            |
-| Max         | 155.83 ms             | 32.58 ms                                            | -123.26 ms             | -79.09 %            |
+| 120 samples                                             | **Render (Baseline)**                                         | **Render (SentryGraphicsImageRenderer @ 2x scale)**          | **± Time to Baseline**                                         | **± % to Baseline**                                          |
+| ------------------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------- | ------------------------------------------------------------ |
+| Min                                                     | 145.38 ms                                                     | 14.76 ms                                                     | -130.62 ms                                                     | -89.95 %                                                     |
+| Avg                                                     | 149.82 ms                                                     | 25.42 ms                                                     | -124.41 ms                                                     | -83.04 %                                                     |
+| p50                                                     | 149.21 ms                                                     | 24.56 ms                                                     | -124.65 ms                                                     | -83.54 %                                                     |
+| p75                                                     | 151.95 ms                                                     | 27.34 ms                                                     | -124.61 ms                                                     | -82.01 %                                                     |
+| <span className="text-primary-500 font-bold">p95</span> | <span className="text-primary-500 font-bold">155.35 ms</span> | <span className="text-primary-500 font-bold">30.32 ms</span> | <span className="text-primary-500 font-bold">-125.03 ms</span> | <span className="text-primary-500 font-bold">-80.48 %</span> |
+| Max                                                     | 155.83 ms                                                     | 32.58 ms                                                     | -123.26 ms                                                     | -79.09 %                                                     |
 
 We have our first win and reduced the average time by **~125ms** or **~80%**! 🎉
 
 As you might have noticed in the code snippet above, we had to explicitly declare the scale of the window. **This was essential** as we were able to notice a performance loss when using window scale of `1.0` instead of the screen-native scale of `2.0`:
 
-| 120 samples | **Render (SentryGraphicsImageRenderer @ 2x scale)** | **Render (SentryGraphicsImageRenderer @ 1x scale)** | **± Time to 2x scale** | **± % to 2x scale** |
-| ----------- | --------------------------------------------------- | --------------------------------------------------- | ---------------------- | ------------------- |
-| Min         | 14.76 ms                                            | 27.05 ms                                            | + 12.29 ms             | + 83.28 %           |
-| Avg         | 25.42 ms                                            | 38.80 ms                                            | + 13.39 ms             | + 52.67 %           |
-| p50         | 24.56 ms                                            | 38.47 ms                                            | + 13.92 ms             | + 56.67 %           |
-| p75         | 27.34 ms                                            | 40.37 ms                                            | + 13.02 ms             | + 47.63 %           |
-| p95         | 30.32 ms                                            | 44.42 ms                                            | + 14.10 ms             | + 46.50 %           |
-| Max         | 32.58 ms                                            | 48.66 ms                                            | + 16.08 ms             | + 49.37 %           |
+| 120 samples                                             | **Render (SentryGraphicsImageRenderer @ 2x scale)**          | **Render (SentryGraphicsImageRenderer @ 1x scale)**          | **± Time to 2x scale**                                         | **± % to 2x scale**                                           |
+| ------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | -------------------------------------------------------------- | ------------------------------------------------------------- |
+| Min                                                     | 14.76 ms                                                     | 27.05 ms                                                     | + 12.29 ms                                                     | + 83.28 %                                                     |
+| Avg                                                     | 25.42 ms                                                     | 38.80 ms                                                     | + 13.39 ms                                                     | + 52.67 %                                                     |
+| p50                                                     | 24.56 ms                                                     | 38.47 ms                                                     | + 13.92 ms                                                     | + 56.67 %                                                     |
+| p75                                                     | 27.34 ms                                                     | 40.37 ms                                                     | + 13.02 ms                                                     | + 47.63 %                                                     |
+| <span className="text-primary-500 font-bold">p95</span> | <span className="text-primary-500 font-bold">30.32 ms</span> | <span className="text-primary-500 font-bold">44.42 ms</span> | <span className="text-primary-500 font-bold">+ 14.10 ms</span> | <span className="text-primary-500 font-bold">+ 46.50 %</span> |
+| Max                                                     | 32.58 ms                                                     | 48.66 ms                                                     | + 16.08 ms                                                     | + 49.37 %                                                     |
 
 ### Idea 3: Replacing `view.drawHierarchy(in:afterScreenUpdates:)`
 
@@ -252,25 +252,25 @@ let image = SentryGraphicsImageRenderer(size: view.bounds.size, scale: scale).im
 
 Running our performance tests we can also notice faster render times compared to the baseline:
 
-| 120 samples | **Render (Baseline)** | **Render (SentryGraphicsImageRenderer + `layer.render`)** | **± Time to Baseline** | **± % to Baseline** |
-| ----------- | --------------------- | --------------------------------------------------------- | ---------------------- | ------------------- |
-| Min         | 145.38 ms             | 18.53 ms                                                  | -126.85 ms             | -87.25 %            |
-| Avg         | 149.82 ms             | 20.74 ms                                                  | -129.08 ms             | -86.16 %            |
-| p50         | 149.21 ms             | 19.84 ms                                                  | -129.37 ms             | -86.70 %            |
-| p75         | 151.95 ms             | 22.42 ms                                                  | -129.53 ms             | -85.25 %            |
-| p95         | 155.35 ms             | 24.66 ms                                                  | -130.69 ms             | -84.13 %            |
-| Max         | 155.83 ms             | 24.92 ms                                                  | -130.92 ms             | -84.01 %            |
+| 120 samples                                             | **Render (Baseline)**                                         | **Render (SentryGraphicsImageRenderer + `layer.render`)**    | **± Time to Baseline**                                         | **± % to Baseline**                                          |
+| ------------------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------- | ------------------------------------------------------------ |
+| Min                                                     | 145.38 ms                                                     | 18.53 ms                                                     | -126.85 ms                                                     | -87.25 %                                                     |
+| Avg                                                     | 149.82 ms                                                     | 20.74 ms                                                     | -129.08 ms                                                     | -86.16 %                                                     |
+| p50                                                     | 149.21 ms                                                     | 19.84 ms                                                     | -129.37 ms                                                     | -86.70 %                                                     |
+| p75                                                     | 151.95 ms                                                     | 22.42 ms                                                     | -129.53 ms                                                     | -85.25 %                                                     |
+| <span className="text-primary-500 font-bold">p95</span> | <span className="text-primary-500 font-bold">155.35 ms</span> | <span className="text-primary-500 font-bold">24.66 ms</span> | <span className="text-primary-500 font-bold">-130.69 ms</span> | <span className="text-primary-500 font-bold">-84.13 %</span> |
+| Max                                                     | 155.83 ms                                                     | 24.92 ms                                                     | -130.92 ms                                                     | -84.01 %                                                     |
 
 But even more interesting is comparing it to `view.drawHierarchy`:
 
-| 120 samples | **Render (SentryGraphicsImageRenderer @ 2x scale + `view.drawHierarchy`)** | **Render (SentryGraphicsImageRenderer @ 2x scale + `layer.render`)** | **± Time to `view.drawHierarchy`** | **± % to `view.drawHierarchy`** |
-| ----------- | -------------------------------------------------------------------------- | -------------------------------------------------------------------- | ---------------------------------- | ------------------------------- |
-| Min         | 14.76 ms                                                                   | 18.53 ms                                                             | +3.77 ms                           | +25.57 %                        |
-| Avg         | 25.42 ms                                                                   | 20.74 ms                                                             | -4.68 ms                           | -18.40 %                        |
-| p50         | 24.56 ms                                                                   | 19.84 ms                                                             | -4.72 ms                           | -19.20 %                        |
-| p75         | 27.34 ms                                                                   | 22.42 ms                                                             | -4.92 ms                           | -18.01 %                        |
-| p95         | 30.32 ms                                                                   | 24.66 ms                                                             | -5.66 ms                           | -18.67 %                        |
-| Max         | 32.58 ms                                                                   | 24.92 ms                                                             | -7.66 ms                           | -23.52 %                        |
+| 120 samples                                             | **Render (SentryGraphicsImageRenderer @ 2x scale + `view.drawHierarchy`)** | **Render (SentryGraphicsImageRenderer @ 2x scale + `layer.render`)** | **± Time to `view.drawHierarchy`**                           | **± % to `view.drawHierarchy`**                              |
+| ------------------------------------------------------- | -------------------------------------------------------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| Min                                                     | 14.76 ms                                                                   | 18.53 ms                                                             | +3.77 ms                                                     | +25.57 %                                                     |
+| Avg                                                     | 25.42 ms                                                                   | 20.74 ms                                                             | -4.68 ms                                                     | -18.40 %                                                     |
+| p50                                                     | 24.56 ms                                                                   | 19.84 ms                                                             | -4.72 ms                                                     | -19.20 %                                                     |
+| p75                                                     | 27.34 ms                                                                   | 22.42 ms                                                             | -4.92 ms                                                     | -18.01 %                                                     |
+| <span className="text-primary-500 font-bold">p95</span> | <span className="text-primary-500 font-bold">30.32 ms</span>               | <span className="text-primary-500 font-bold">24.66 ms</span>         | <span className="text-primary-500 font-bold">-5.66 ms</span> | <span className="text-primary-500 font-bold">-18.67 %</span> |
+| Max                                                     | 32.58 ms                                                                   | 24.92 ms                                                             | -7.66 ms                                                     | -23.52 %                                                     |
 
 Looks like we can shave off another ~18-19% of the time on the main thread! Sounds too good to be true, right?
 
