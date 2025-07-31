@@ -22,16 +22,16 @@ To understand what's happening under the hood of Session Replay on Mobile, let's
 
 A screen recording is a video made up of many fast-displayed images called `frames`. Human eyes can process about 60 frames per second (`frame rate`), measured in hertz (`1 Hz` = `1 unit per second`), creating the illusion of a moving image. The frame rates vary by use case, from `24 Hz` for cinema to `144 Hz` for gaming computer displays.
 
-Higher frame rates make videos smoother, but have downsides:
+Higher frame rates create smoother video recordings, but come with significant trade-offs:
 
-- More storage and network bandwidth required
-- Less time to capture per frame available, requiring better hardware
+- Increased storage and network bandwidth consumption for the same video length
+- More frames to process per second, requiring more powerful hardware to maintain performance
 
-When reducing the frame rate to a minimum, the recordings look like **stop motion videos**, with a great example for this style visible in this [YouTube video](https://www.youtube.com/watch?v=MEglOulvgSY). The frames are just sequential photos, yet they still feel like a moving photo — essentially a video.
+When reducing the frame rate to a minimum, the recordings look like **stop motion videos**, with a great example of this style visible in this [YouTube video](https://www.youtube.com/watch?v=MEglOulvgSY). The frames are just sequential photos, yet they still feel like a moving photo — essentially a video.
 
 **This is essentially what we are doing with Session Replay on Mobile!**
 
-Instead of having a full screen recording, which is resource-heavy, we capture a screenshot every second instead. Every 5 seconds, these frames are combined into a video segment, creating a stop-motion-like recording. These video segments are then uploaded to Sentry and stitched into a full session replay.
+Instead of having a full screen recording, which is resource-heavy, we capture a screenshot every second instead. Every 5 seconds, these frames are combined into a video segment at `1 Hz`, creating a stop-motion-like recording. These video segments are then uploaded to Sentry and stitched into a full session replay.
 
 Now that we know how frame rates work, let’s dive deeper into the actual problem we had to tackle.
 
@@ -51,11 +51,11 @@ Using Xcode Instruments on our Sentry Cocoa SDK sample application, we immediate
   _My reaction to the Xcode Instruments report_
 </div>
 
-On iOS each application has exactly one thread responsible for handling the entire UI view hierarchy - the main thread. When view changes occur, the hierarchy is processed by the system's render service, which converts the logical view structure into pixel data for display on the screen.
+Each iOS application uses exactly one thread for handling the entire UI view hierarchy - the main thread. When view changes occur, the hierarchy is processed by the system's render service, which converts the logical view structure into pixel data for display on the screen.
 
 Eventually Apple introduced _ProMotion_ displays which adjust their refresh rates up to `120Hz` during interaction and down to `10Hz` when idle — the frame rate is not constant anymore.
 
-To better understand the exact implications for time-to-render per frame in milliseconds (`ms`), consider that to hit a refresh rate of `120 Hz` the time per frame is narrow with `1000 ms / 120 = ~8.3 ms` available to update and render the view hierarchy. In contrast for `60 Hz` we can double the available time to `1000 ms / 60 = ~16.7 ms` .
+To better understand the exact implications for time-to-render per frame in milliseconds (`ms`), consider that to hit a refresh rate of `120 Hz` the time per frame is narrow with `1000 ms / 120 = ~8.3 ms` available to update and render the view hierarchy. In contrast for `60 Hz`, we can double the available time to `1000 ms / 60 = ~16.7 ms` .
 
 _You can find a full table of refresh rates and timings in the [Apple Documentation](https://developer.apple.com/documentation/quartzcore/optimizing-promotion-refresh-rates-for-iphone-13-pro-and-ipad-pro#Understand-refresh-rates)._
 
@@ -77,7 +77,7 @@ To correct the timing the system **skips** the frames that should already have b
   _When workload takes longer than available time, we need to drop frames_
 </div>
 
-Frame drops were also the unintended side effect for the previous implementation of Session Replay, as the once-per-second screenshot simply took too long.
+Frame drops were also the unintended side effect of the previous implementation for Session Replay, as the once-per-second screenshot simply took too long.
 
 # Taking Screenshots With PII In Mind
 
@@ -104,18 +104,18 @@ After adding some code to calculate the execution time and adding a basic sampli
 
 | 120 samples | Redact        | Render          | Total           |
 | ----------- | ------------- | --------------- | --------------- |
-| Min         | 3.0583 ms     | 145.3815 ms     | 151.4525 ms     |
-| Avg         | 5.8453 ms     | 149.8243 ms     | 155.6732 ms     |
-| p50         | 6.0484 ms     | 149.2103 ms     | 154.1397 ms     |
-| p75         | 6.1136 ms     | 151.9487 ms     | 158.0255 ms     |
-| p95         | **6.2567 ms** | **155.3496 ms** | **161.3549 ms** |
-| Max         | 6.5138 ms     | 155.8338 ms     | 161.8351 ms     |
+| Min         | 3.0583 ms     | 145.3815 ms     | 148.4398 ms     |
+| Avg         | 5.8453 ms     | 149.8243 ms     | 155.6696 ms     |
+| p50         | 6.0484 ms     | 149.2103 ms     | 155.2587 ms     |
+| p75         | 6.1136 ms     | 151.9487 ms     | 158.0623 ms     |
+| p95         | **6.2567 ms** | **155.3496 ms** | **161.6063 ms** |
+| Max         | 6.5138 ms     | 155.8338 ms     | 162.3476 ms     |
 
 As the duration of _Redact_ with `~6.3ms` is comparatively small, we will optimize it in the future and focus on improving _Render_.
 
 # Optimizing the View Renderer
 
-Our investigation revealed that the rendering phase consumed approximately 155 milliseconds per screenshot, representing the primary performance bottleneck. The original implementation relied on Apple's high-level UIGraphicsImageRenderer API, which provides convenient abstractions but introduces significant overhead for our use case.
+Our investigation revealed that the rendering phase consumed approximately 155 milliseconds per screenshot, representing the primary performance bottleneck. The original implementation relied on Apple's high-level `UIGraphicsImageRenderer` API, which provides convenient abstractions but introduces significant overhead for our use case.
 
 Here's the baseline implementation that was causing the performance issues:
 
@@ -132,7 +132,7 @@ func render(view: UIView) -> UIImage {
 
 This implementation consists of two primary function blocks that each present optimization opportunities.
 
-- **Setup**: Creates a graphical bitmap context that serves as the "canvas" for rendering operations, then converts the resulting bitmap data into a UIImage after drawing completes.
+- **Setup**: Creates a graphical bitmap context that serves as the "canvas" for rendering operations, then converts the resulting bitmap data into a `UIImage` after drawing completes.
 - **Draw**: Draws the view hierarchy into the context created during setup.
 
 An additional complexity we have to consider is the coordinate system mismatch between logical points and physical pixels. iOS uses a points-based coordinate system for layout, while the actual display operates in pixels. For example, an iPhone 8 screen measures `375 × 667` points logically, but the physical display resolution is `750 × 1334` pixels due to the `2x` scale factor.
@@ -291,7 +291,7 @@ As some of you might still prefer the even faster render times over completely r
 
 The optimization achieved substantial performance improvements, with the most dramatic gains on older hardware. Frame drops decreased from 9-10 frames per second to approximately 2 frames per second on iPhone 8 devices, representing a massive win!
 
-Main thread blocking time improved from 155 milliseconds to 25 milliseconds per screenshot, an **84% reduction** that brings Session Replay overhead well within acceptable performance budgets even on resource-constrained devices.
+Main thread blocking time improved from ~155 milliseconds to ~25 milliseconds per frame, a **~80% reduction** that brings Session Replay overhead well within acceptable performance budgets even on resource-constrained devices.
 
 For teams interested in more detailed information, the complete analysis results are publicly available in [pull request #4940](https://github.com/getsentry/sentry-cocoa/pull/4940) on GitHub.
 
