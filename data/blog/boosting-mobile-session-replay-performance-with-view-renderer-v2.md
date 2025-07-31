@@ -46,11 +46,6 @@ Using Xcode Instruments on our Sentry Cocoa SDK sample application, we immediate
   _Xcode Instruments showing an app hang warning every second._
 </div>
 
-<div align="center">
-  <img src="/images/boosting-mobile-session-replay-performance-with-view-renderer-v2/coincidence-meme.png" alt="My reaction to the Xcode Instruments report"/>
-  _My reaction to the Xcode Instruments report_
-</div>
-
 Each iOS application uses exactly one thread for handling the entire UI view hierarchy - the main thread. When view changes occur, the hierarchy is processed by the system's render service, which converts the logical view structure into pixel data for display on the screen.
 
 Eventually Apple introduced _ProMotion_ displays which adjust their refresh rates up to `120Hz` during interaction and down to `10Hz` when idle — the frame rate is not constant anymore.
@@ -87,14 +82,10 @@ Now that we know what the issue is, we need to take a closer look at the work do
 2. **Render**: Convert the current view hierarchy into a rasterized bitmap representation ("take a screenshot") using a _view renderer_.
 3. **Mask**: Apply privacy masking by combining the rendered image with the redaction geometry.
 
-As mentioned before, accessing the view hierarchy must be done on the main thread, which means that both steps _Redact_ and _Render_ must also execute on the main thread. Only the final step _Mask_ can be performed on a background queue, since it operates solely on the image data produced by the previous steps.
+As mentioned before, accessing the view hierarchy must be done on the main thread, which means that both steps _Redact_ and _Render_ must also execute on the main thread.
+Only the final step _Mask_ can be performed on a background queue, since it operates solely on the image data produced by the previous steps.
 
 This allows us to focus on the performance of the _Redact_ and _Render_ steps.
-
-<div align="center">
-  <img src="/images/boosting-mobile-session-replay-performance-with-view-renderer-v2/uikit-meme.png" alt="UIKit Meme"/>
-  _Source: [@ios_memes on X](https://x.com/ios_memes/status/1483418141871030276)_
-</div>
 
 # Measuring Baseline Performance
 
