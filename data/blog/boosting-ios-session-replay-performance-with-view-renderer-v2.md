@@ -10,7 +10,7 @@ canonicalUrl: boosting-session-replay-performance-on-ios-with-view-renderer-v2
 authors: ['philniedertscheider']
 ---
 
-After making Session Replay GA for Mobile, the adoption rose quickly and more feedback reached us. In less great news, our Cocoa SDK users reported that the performance overhead of Session Replay on older iOS devices **made their apps unusable**.
+After making Session Replay GA for Mobile, the adoption rose quickly and more feedback reached us. In less great news, our [Apple SDK](https://github.com/getsentry/sentry-cocoa) users reported that the performance overhead of Session Replay on **older iOS devices made their apps unusable**.
 
 So we went on the journey to find the culprit and found a solution that yielded **4-5x better performance** in our benchmarks 🔎📈
 
@@ -31,7 +31,7 @@ When reducing the frame rate to a minimum, the recordings look like **stop motio
 
 **This is essentially what we are doing with Session Replay on Mobile!**
 
-Instead of having a full screen recording, which is resource-heavy, we capture a screenshot every second instead. Every 5 seconds, these frames are combined into a video segment at `1 Hz`, creating a stop-motion-like recording. These video segments are then uploaded to Sentry and stitched into a full session replay.
+Instead of having a full screen recording, which is resource-heavy, we capture a screenshot every second instead. Every 5 seconds, these frames are combined into a video segment at `1 Hz`, creating a stop-motion-like recording. These video segments are then uploaded to Sentry and stitched into a full session replay. And as a developer, you get insight into the actions taken by the user and how the app reacted, with low overhead. Great trade off for a debugging tool.
 
 Now that we know how frame rates work, let’s dive deeper into the actual problem we had to tackle.
 
@@ -39,7 +39,7 @@ Now that we know how frame rates work, let’s dive deeper into the actual probl
 
 Our investigation began with reproducing the performance issues in a controlled environment. We used an iPhone 8 running iOS 15.7 as our primary test device, since this represented the older hardware where users reported the most severe performance problems.
 
-Using Xcode Instruments on our Sentry Cocoa SDK sample application, we immediately reproduced the reported performance issues and noticed a consistent pattern of main thread hangs **every second**.
+Using Xcode Instruments on our Sentry Apple SDK sample application, we immediately reproduced the reported performance issues and noticed a consistent pattern of main thread hangs **every second**.
 
 <div align="center">
   <img src="/images/boosting-session-replay-performance-on-ios-with-view-renderer-v2/xcode-instruments-app-hangs.png" alt="Xcode Instruments showing an app hang warning every second"/>
@@ -288,7 +288,7 @@ For teams interested in more detailed information, the complete analysis results
 
 The optimized view renderer was introduced through a careful rollout process designed to minimize risk while maximizing the performance benefits for users experiencing issues.
 
-Starting with Sentry Cocoa SDK [v8.48.0](https://github.com/getsentry/sentry-cocoa/releases/tag/8.48.0), the new implementation was available as an experimental feature controlled by the `options.sessionReplay.enableExperimentalViewRenderer` flag.
+Starting with Sentry Apple SDK [v8.48.0](https://github.com/getsentry/sentry-cocoa/releases/tag/8.48.0), the new implementation was available as an experimental feature controlled by the `options.sessionReplay.enableExperimentalViewRenderer` flag.
 
 This experimental approach allowed early adopters to test the new renderer in their production environments. Based on positive feedback and telemetry data, the optimized renderer became the default implementation in [v8.50.2](https://github.com/getsentry/sentry-cocoa/releases/tag/8.50.2).
 
