@@ -6,5 +6,5 @@ url: https://philprime.dev
 github: https://github.com/philprime
 ---
 
-Phil's focus at Sentry is on Apple platforms, maintaining the Cocoa SDK, building mobile apps and crafting tools to make developers' lives easier.
+Phil's focus at Sentry is on Apple platforms, maintaining the Apple SDK, building mobile apps and crafting tools to make developers' lives easier.
 His passion is building software to solve problems and surprise with innovation.
