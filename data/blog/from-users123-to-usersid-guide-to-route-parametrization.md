@@ -1,10 +1,10 @@
 ---
-title: 'From /users/123 to /users/[id]: Guide to Route Parametrization'
+title: 'From /users/123 to /users/:id: A Guide to Route Parametrization'
 date: '2025-08-12'
 tags: ['javascript', 'sdk']
 draft: false
-summary: 'How the Sentry SDKs figure out your dynamic routes to make querying your issues easier.'
-images: ['/images/from-users123-to-usersid-guide-to-route-parametrization/hero-image.png']
+summary: "How Sentry's JS SDKs figure out your dynamic route names to make querying your issues easier."
+images: ['/images/from-users123-to-usersid-guide-to-route-parametrization/hero.jpg']
 layout: PostLayout
 canonicalUrl: guide-to-route-parametrization
 authors: ['sigridhuemer']
