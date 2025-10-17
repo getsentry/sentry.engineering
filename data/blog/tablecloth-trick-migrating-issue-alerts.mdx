@@ -23,14 +23,28 @@ The first part was to set up the abstraction for the singular system (known inte
 
 ### The Great Migration
 
-All of the information for an issue alert in was previously stored in a JSON blob. The default issue alert looked like this in the UI…
+All of the information for an issue alert was previously stored in a JSON blob. The default issue alert looked like this in the UI…
 
 ![issue alert UI](/images/tablecloth-trick-migrating-issue-alerts/issue-alert.png)
 
 but the conditions and actions looked like this in the database! 👎
 
 ```
-{"match":"all","conditions":[{"id":"sentry.rules.conditions.first_seen_event.FirstSeenEventCondition"}],"actions":[{"id":"sentry.mail.actions.NotifyEmailAction","targetType":"IssueOwners","targetIdentifier":null,"fallthroughType":"ActiveMembers","uuid":"357c4bf7-86a4-4119-96f2-3b4a27a51831"}]}
+{
+  "match":"all",
+  "conditions":[
+    {"id":"sentry.rules.conditions.first_seen_event.FirstSeenEventCondition"}
+   ],
+   "actions":[
+     {
+       "id":"sentry.mail.actions.NotifyEmailAction",
+       "targetType":"IssueOwners",
+       "targetIdentifier":null,
+       "fallthroughType":"ActiveMembers",
+       "uuid":"357c4bf7-86a4-4119-96f2-3b4a27a51831"
+     }
+  ]
+}
 ```
 
 We needed a way to normalize this data so we can use a single system to evaluate alerts for all issue types. We moved each condition out into its own database row, each condition group into its own row, each alert action into its own row, etc. Each issue alert JSON blob was converted into a set of rows.
@@ -78,7 +92,13 @@ The Great Translation also involved an effort to make sure we could send notific
 
 ### The Great Tablecloth Trick
 
-We finally get to the title of this post! We were able to fully replace the issue alert system for errors under the hood by silently running the new workflow engine system alongside the old one first (meaning we only fire notifications from the old system) to ensure we’d fire the same number of notifications within the same time period. We stayed in this dual processing state for a while as we solved performance issues, moved to [Taskbroker](https://github.com/getsentry/taskbroker) (Sentry’s new async task execution system), scaled dual processing to GA, and had 1 single incident during this process.
+We finally get to the title of this post!
+
+The tablecloth trick involved:
+
+1. Silently running the new workflow engine system alongside the old one and only firing notifications from the old system
+2. Solve performance issues and address an incident while scaling the silent dual processing rollout up
+3. Loudly run the new workflow engine system by sending error traffic through it and firing notifications
 
 #### A wee incident
 
@@ -88,6 +108,4 @@ To fix this, we sharded the Redis keys that store the project ids for delayed pr
 
 #### Onward
 
-After dual processing looked good, we incrementally rolled out firing notifications through the new system to all customers. Although we currently only have errors on this system, we also have feature flags in place to allow for the other issue types to funnel through workflow engine when we are ready.
-
-While the new workflow engine system is currently only running under the hood, the accompanying UI changes will be available soon. Stay tuned!
+Today, errors are fully run through the new system. We also have feature flags in place to allow for the other issue types to funnel through workflow engine when we are ready, and the accompanying UI changes will be available soon. Stay tuned!
