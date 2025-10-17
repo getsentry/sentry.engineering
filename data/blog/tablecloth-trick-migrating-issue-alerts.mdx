@@ -64,7 +64,7 @@ The new and old processing flows look like this:
 
 ![issue alert processing](/images/tablecloth-trick-migrating-issue-alerts/issue-alert-processing.png)
 
-Fast conditions (like “Sentry marks a new issue as high priority”) can be processed immediately when we fetch the list of conditions, and slow conditions (like “an issue is seen more that 5 times in 1 min) are queued for batched, delayed processing.
+Fast conditions (like “Sentry marks a new issue as high priority”) can be processed immediately when we fetch the list of conditions, and slow conditions (like “an issue is seen more that 5 times in 1 min”) are queued for batched, delayed processing.
 
 We took this opportunity to standardize and abstract as much as we could. For example, we cleaned up the condition handling logic by using a condition handler registry and a generic handler class with single method.
 
