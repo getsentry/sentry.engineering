@@ -101,7 +101,7 @@ We finally get to the title of this post! The tablecloth trick involved:
 
 #### A wee incident
 
-One day, as we were ramping up dual processing, the team awoke to reports that the Sentry was super slow, and a portion of users couldn't load the web app. We figured out that it was because we reproduced the logic from the old system _too_ accurately. Both systems were writing to a single key, respectively, on a shared shard. During peak traffic, this overloaded the shard, which subsequently slowed down the Redis cluster that was also being used for bulk backend processing (memory, concurrent connections, number of keys were all spiking).
+One day, as we were ramping up dual processing, the team awoke to reports that Sentry was super slow, and a portion of users couldn't load the web app. We figured out that it was because we reproduced the logic from the old system _too_ accurately. Both systems were writing to a single key, respectively, on a shared shard. During peak traffic, this overloaded the shard, which subsequently slowed down the Redis cluster that was also being used for bulk backend processing (memory, concurrent connections, number of keys were all spiking).
 
 To fix this, we sharded the Redis keys that store the project ids for delayed processing to split them across multiple nodes, and we provisioned our own Redis cluster so our system backing up doesn’t affect the rest of Sentry.
 
