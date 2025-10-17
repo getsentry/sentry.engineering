@@ -96,12 +96,12 @@ The Great Translation also involved an effort to make sure we could send notific
 We finally get to the title of this post! The tablecloth trick involved:
 
 1. Silently running the new workflow engine system alongside the old one and only firing notifications from the old system
-2. Solve performance issues and address an incident while scaling the silent dual processing rollout up
-3. Loudly run the new workflow engine system by sending error traffic through it and firing notifications
+2. Solving performance issues and addressing an incident while scaling up the silent dual processing rollout
+3. Loudly running the new workflow engine system by sending error traffic through it and firing notifications
 
 #### A wee incident
 
-One day, as we were ramping up dual processing, the team awoke to reports that the Sentry was super slow, and a portion users couldn't load the web app. We figured out that it was because we reproduced the logic from the old system _too_ accurately. Both systems were writing to a single key, respectively, on a shared shard. During peak traffic, this overloaded the shard, which subsequently slowed down the Redis cluster that was also being used for bulk backend processing (memory, concurrent connections, number of keys were all spiking).
+One day, as we were ramping up dual processing, the team awoke to reports that the Sentry was super slow, and a portion of users couldn't load the web app. We figured out that it was because we reproduced the logic from the old system _too_ accurately. Both systems were writing to a single key, respectively, on a shared shard. During peak traffic, this overloaded the shard, which subsequently slowed down the Redis cluster that was also being used for bulk backend processing (memory, concurrent connections, number of keys were all spiking).
 
 To fix this, we sharded the Redis keys that store the project ids for delayed processing to split them across multiple nodes, and we provisioned our own Redis cluster so our system backing up doesn’t affect the rest of Sentry.
 
