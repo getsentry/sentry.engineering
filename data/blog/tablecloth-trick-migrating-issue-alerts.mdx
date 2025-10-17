@@ -6,6 +6,7 @@ draft: false
 summary: 'How we silently switched error issue alerts to a new system.'
 images:
   [
+    '/images/tablecloth-trick-migrating-issue-alerts/hero.png',
     '/images/tablecloth-trick-migrating-issue-alerts/issue-alert.png',
     '/images/tablecloth-trick-migrating-issue-alerts/workflow-engine-default-issue-alert.png',
     '/images/tablecloth-trick-migrating-issue-alerts/issue-alert-processing.png',
@@ -47,7 +48,7 @@ but the conditions and actions looked like this in the database! 👎
 }
 ```
 
-We needed a way to normalize this data so we can use a single system to evaluate alerts for all issue types. We moved each condition out into its own database row, each condition group into its own row, each alert action into its own row, etc. Each issue alert JSON blob was converted into a set of rows.
+We needed a way to normalize this data so we can use a single system to evaluate alerts for all issue types. If all of the different conditions and actions are shaped the same, they can be processed with the same logic. We moved each condition out into its own database row, each condition group into its own row, each alert action into its own row, etc. Each issue alert JSON blob was converted into a set of rows.
 
 So the default issue alert now looks something like this in the DB:
 
@@ -92,9 +93,7 @@ The Great Translation also involved an effort to make sure we could send notific
 
 ### The Great Tablecloth Trick
 
-We finally get to the title of this post!
-
-The tablecloth trick involved:
+We finally get to the title of this post! The tablecloth trick involved:
 
 1. Silently running the new workflow engine system alongside the old one and only firing notifications from the old system
 2. Solve performance issues and address an incident while scaling the silent dual processing rollout up
@@ -102,7 +101,7 @@ The tablecloth trick involved:
 
 #### A wee incident
 
-One day, as we were ramping up dual processing to GA, the team awoke to reports that the Sentry web app was inaccessible! We figured out that it was due to a single Redis shard being overloaded from our reads and writes for delayed processing, which subsequently slowed down the Redis cluster that was also being used for bulk backend processing (memory, concurrent connections, number of keys were all spiking).
+One day, as we were ramping up dual processing, the team awoke to reports that the Sentry was super slow, and a portion users couldn't load the web app. We figured out that it was because we reproduced the logic from the old system _too_ accurately. Both systems were writing to a single key, respectively, on a shared shard. During peak traffic, this overloaded the shard, which subsequently slowed down the Redis cluster that was also being used for bulk backend processing (memory, concurrent connections, number of keys were all spiking).
 
 To fix this, we sharded the Redis keys that store the project ids for delayed processing to split them across multiple nodes, and we provisioned our own Redis cluster so our system backing up doesn’t affect the rest of Sentry.
 
