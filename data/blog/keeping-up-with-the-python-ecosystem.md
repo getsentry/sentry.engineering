@@ -22,11 +22,11 @@ While we could make things way easier for ourselves by just always supporting th
 
 Each of our integrations comes with its own test suite. We use the delightful [tox](https://tox.wiki) for managing our test matrix, which is stored in a [big `tox.ini` file](https://github.com/getsentry/sentry-python/blob/master/tox.ini).
 
-The `envlist` part which defines all test targets looked something like this for two of our integrations (Spark and Starlette):
+The `envlist` part which defines all test targets used to look something like this for two of our integrations (Spark and Starlette):
 
 ```ini
 # Spark
-{py3.8,py3.10,py3.11}-spark-v{3.1,3.3,3.5}
+{py3.8,py3.10,py3.11}-spark-v{3.1,3.3,3.5,4.0}
 
 # Starlette
 {py3.7,py3.10}-starlette-v{0.19}
@@ -61,23 +61,23 @@ starlette-v0.36: starlette~=0.36.0
 starlette-v0.40: starlette~=0.40.0
 ```
 
-You can see we test each of the integrations on a bunch of Python versions, as well as a handful of package versions. In the olden days, when things used to be simpler and we had much less integrations, it was kind of feasible to maintain this kind of configuration by hand.
+You can see we test each of the integrations on a bunch of Python versions, as well as a handful of package versions
 
-Making sure we always support the lowest declared version of a package was trivial as this (almost) never changes: just add the lowest version to the test matrix when you first start testing the integration and never remove it.
+In the olden days, when things used to be simpler and we had much less integrations, it was kind of feasible to maintain this kind of configuration by hand. Making sure we always support the lowest declared version of a package was trivial as this (almost) never changes: just add the lowest version to the test matrix when you first start testing the integration and never remove it.
 
 However, reacting to new package and Python releases by adding them to the test matrix required a lot of manual effort and things often fell through the cracks. Most packages don't have a set release schedule and new releases can't be anticipated. And even if some projects like [Django](https://www.djangoproject.com/) have release dates defined ahead of time, without any process in place it was still very easy for us to miss manually updating the test matrix with them.
 
 ## First Improvements
 
-The first improvement we made since it was very low-effort was subscribing to a service that notified us when a new package version appeared on PyPI. We would receive these notifications on Slack and a member of the team needed to act on this manually: go to `tox.ini`, add the new release if it was notable enough (e.g. a new major). Not a great process, but it was a first step.
+The first improvement we made since it was very low-effort was subscribing to a service that notified us when a new package version appeared on PyPI. We would receive these notifications on Slack and a member of the team needed to act on this manually: go to `tox.ini` and add the new release if it was notable enough (e.g. a new major). Not a great process, but it was a first step.
 
-We soon improved on this by simply adding a new "latest" test target for each of our test suites that would simply install the latest available version of each package and run the test suite against it. (Until then, we had only been testing pinned versions.) This new "latest" category of test targets would run on every PR, with the associated GitHub action check not being mandatory. The idea was that PRs shouldn't be blocked on unrelated changes, but that we would be notified if an integration stopped working with the latest release. We would then address this in a separate PR. Also not amazing, but an improvement that brought some visibility into what had been a blind spot for a long time.
+We soon improved on this by simply adding a new "latest" test target of each of our test suites that would simply install the latest available version of each package and run the test suite against it. (Until then, we had only been testing pinned versions.) This new "latest" category of test targets would run on every PR, with the associated GitHub action check not being mandatory. The idea was that PRs shouldn't be blocked on unrelated changes, but that we would be notified if an integration stopped working with the latest release. We would then address this in a separate PR. This improvement brought some visibility into what had been a blind spot for a long time.
 
-The problem was that aside from this dynamic "latest" test category, the rest of the test matrix was still very much hardcoded. So we'd be testing for instance versions `1.24`, `1.27`, `1.30` of a package that was already potentially on, say, version `1.94`. While `1.94` would be tested in the "latest" test target, we were disproportionately focusing on older versions, and potentially unaware of breakages between `1.31` and `1.93`.
+The problem was that aside from this dynamic "latest" test category, the rest of the test matrix was still very much hardcoded. So we'd be testing for instance versions `1.24`, `1.27`, `1.30` of a package that was already potentially on, say, version `1.94`. While `1.94` would be tested in the "latest" test target as long as it was the latest release, we were disproportionately focusing on older versions, and potentially unaware of breakages between `1.31` and `1.93`.
 
 ## Make Computer Do Things
 
-With the number of integrations already quite high and many of them moving quite fast, updating the hardcoded configuration by hand would've been tedious and unmaintainable. Luckily enough, we're lazy and so we quickly realized we can offload all of this to a computer.
+With the number of integrated packages already quite high and many of them moving quite fast (looking at you, AI frameworks), updating the hardcoded configuration by hand would've been tedious and unmaintainable. Luckily enough, we're lazy and so we quickly realized we can offload all of this to a computer.
 
 So began the [`populate_tox.py` script](https://github.com/getsentry/sentry-python/tree/master/scripts/populate_tox), internal codename toxgen. The general idea is:
 
@@ -116,7 +116,7 @@ httpx-v0.27: httpx~=0.27.0
 httpx-latest: httpx
 ```
 
-If you have package versions hardcoded in your test matrix, it's easy to just hardcode the dependency versions as well, as we did above. But when moving to the automated approach, we wanted to make the script simply pick a handful of versions, so we needed a way to encode which dependency versions are needed for all possible package versions (since any of them might be potentially picked).
+If you have package versions hardcoded in your test matrix, it's easy to just hardcode the dependency versions as well, as we did above. But when moving to the automated approach, we needed a way to encode which dependency versions are needed for all possible package versions (since any of them might be potentially picked).
 
 We settled on a [configuration file](https://github.com/getsentry/sentry-python/blob/master/scripts/populate_tox/config.py) for toxgen that encodes dependencies like so:
 
@@ -157,9 +157,11 @@ In other cases, we only wanted to run a specific test suite on specific Python v
 
 Some integration tests were easier to migrate than others. Some don't even have any additional test dependencies, removing the need for defining `deps`, the most annoying part of the config, completely. Those were the ones we migrated first.
 
-For a while, we had a dual setup with some not-yet-migrated integrations governed by the old system (hardcoded pinned versions plus a "latest" target), while the rest of the test matrix was already auto-generated by toxgen.
+For a while, we had a dual setup with some not-yet-migrated integrations using the old system (hardcoded pinned versions plus a "latest" target), while the rest of the test matrix was already auto-generated by toxgen.
 
 Once we finished the migration fully, only one part was missing: making the script run periodically on the repo and submitting a PR with the updated test matrix each time. [We eventually made that happen too](https://github.com/getsentry/sentry-python/blob/master/.github/workflows/update-tox.yml): [this is an example PR](https://github.com/getsentry/sentry-python/pull/4917).
+
+![Automated PR submitted by the GitHub Action.](/images/keeping-up-with-the-python-ecosystem/automated-pr.png)
 
 ## Developer Experience
 
@@ -172,7 +174,7 @@ Overall though, DX has improved:
 
 - Folks contributing a new integration don't have to manually come up with a test matrix, the script will do that for them.
 - We are not blocked on unrelated PRs and releases due to failures resulting from the regenerated matrix as the fallout is contained to the one weekly PR.
-- There is a small [utility shell script](https://github.com/getsentry/sentry-python/blob/master/scripts/generate-test-files.sh) that takes care of updating our whole CI setup at once (regenerating `tox.ini` with toxgen and then running another script that generates the CI YAML config for all our test groups).
+- There is a small [utility shell script](https://github.com/getsentry/sentry-python/blob/master/scripts/generate-test-files.sh) that takes care of updating our whole CI setup at once, regenerating `tox.ini` with toxgen and then running another script that generates the CI YAML config for all our test groups.
 
 ## Impact
 
