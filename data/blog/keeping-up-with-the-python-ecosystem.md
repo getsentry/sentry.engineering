@@ -16,7 +16,7 @@ Adding an integration is just the beginning, though. We also need to make sure i
 
 Thing is, integrations are written for a package at a certain point in time. We often need to go pretty low-level, way past any public API surface, to integrate with a package. This is essentially lawless territory where no stability guarantees apply: internals can change at any point. And even if we integrate via a higher-level API, that can change, too; just usually with a bit more notice.
 
-While we could make things way easier for ourselves by just always supporting the new shiny thing, that's not how we roll. It's not our job to dictate to users which package versions they ought to be running if they want to use Sentry. If reasonably possible, we'll keep supporting package versions for years.
+While we could make things way easier for ourselves by just always supporting the new shiny thing, that's not how we roll. It's not our job to dictate to users which package versions they ought to be running if they want to use Sentry. If reasonably possible, [we'll keep supporting package versions](https://develop.sentry.dev/sdk/philosophy/#compatibility-is-king) for years.
 
 ## The Setup
 
