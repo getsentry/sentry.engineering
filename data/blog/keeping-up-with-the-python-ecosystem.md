@@ -168,7 +168,7 @@ Once we finished the migration fully, only one part was missing: making the scri
 In terms of developer experience (DX), toxgen hasn't been without some downsides, namely:
 
 - Just like any other auto-generated file, `tox.ini` is prone to merge conflicts if it's been modified both on the target branch and the PR branch. These merge conflicts can't be solved manually; toxgen has to be rerun and the new `tox.ini` committed.
-- If someone changes `tox.ini` manually (for instance because they don't know it's auto-generated), their changes will be overwritten the next time the file is regenerated. The obvious way to combat this is [a big all-caps warning](https://github.com/getsentry/sentry-python/blob/0aebb1805b73cd79332f5dc371b13040a42795c4/tox.ini#L1) in the file. That's always good to have but brittle, so for a while we also had a CI check that attempted to detect this sort of desynchronization. However, it proved to be more trouble than it was worth. Due to the config file's dynamic nature it's hard to tell apart "good" changes (e.g. new versions that toxgen pulled in) and "bad" ones (someone editing the file directly). We tried a couple of iterations on this but ultimately decided to forego checking this automatically.
+- If someone changes `tox.ini` manually (for instance because they don't know it's auto-generated), their changes will be overwritten the next time the file is regenerated. The obvious (and completely fail-safe) way to combat this is [a big all-caps warning](https://github.com/getsentry/sentry-python/blob/0aebb1805b73cd79332f5dc371b13040a42795c4/tox.ini#L1) in the file. In addition to that, for a while we also had a CI check that attempted to detect this sort of desynchronization. However, it proved to be more trouble than it was worth. Due to the config file's dynamic nature it's hard to tell apart "good" changes (e.g. new versions that toxgen pulled in) and "bad" ones (someone editing the file directly). We tried a couple of iterations on this but ultimately decided to forego checking this automatically.
 
 Overall though, DX has improved:
 
@@ -176,7 +176,7 @@ Overall though, DX has improved:
 - We are not blocked on unrelated PRs and releases due to failures resulting from the regenerated matrix as the fallout is contained to the one weekly PR.
 - There is a small [utility shell script](https://github.com/getsentry/sentry-python/blob/master/scripts/generate-test-files.sh) that takes care of updating our whole CI setup at once, regenerating `tox.ini` with toxgen and then running another script that generates the CI YAML config for all our test groups.
 
-Sidenote to the last bullet point above: The way our CI testing pipeline works past the tox part would make for its own blog post.
+Sidenote to the last bullet point above: The way our CI testing pipeline works past the tox part would make for its own blog post, so I'll not go into the hairy details here.
 
 ## Impact
 
@@ -190,4 +190,4 @@ Arriving at this point was a lot of work, but work which has already started pay
 
 Especially the last two bullet points above have had a big impact. While manual work is still required to update our integrations in case a new version breaks it, we discover this early and can address it quickly.
 
-Maybe in the future we can delegate the initial fix to AI. Something to explore going forward to make the whole process evenmore hands-off.
+Maybe in the future we can delegate the initial fix to AI. Something to explore going forward to make the whole process even more hands-off.
