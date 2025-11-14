@@ -20,7 +20,7 @@ While we could make things way easier for ourselves by just always supporting th
 
 ## The Setup
 
-Each of our integrations comes with its own test suite. We use the delightful [tox](https://tox.wiki) for managing our test matrix, which is stored in a [big `tox.ini` file](https://github.com/getsentry/sentry-python/blob/master/tox.ini). tox allows you to define multiple targets to test, and they all get their own virtualenv with their own dependencies. You can also have multiple targets for testing on multiple Python versions.
+Each of our integrations comes with its own test suite. We use the delightful [tox](https://tox.wiki) for managing our test matrix, which is stored in a [big `tox.ini` file](https://github.com/getsentry/sentry-python/blob/master/tox.ini). tox allows you to define multiple targets to test, and they all get their own virtualenv with their own dependencies. You can also test on multiple Python versions.
 
 All in all, tox fits our use case perfectly, and we've been using it for a while. To illustrate, the `envlist` part, which defines all test targets, used to look something like this for two of our integrations (Spark and Starlette):
 
