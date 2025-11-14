@@ -12,7 +12,7 @@ authors: ['ivanakellyer']
 
 The [Python SDK](https://docs.sentry.io/platforms/python/) is one of Sentry's biggest SDKs, both usage-wise and also in terms of how many packages it provides out-of-the-box instrumentation for. At the time of writing, it has [more than 60 integrations](https://docs.sentry.io/platforms/python/integrations/), from web frameworks to task queues to AI libraries.
 
-Adding an integration is just the beginning, though. We also need to make sure it keeps working as time goes on, as new Python versions come out, and as new versions of the package itself are released, while also ensuring the integration keeps working with the lowest supported version.
+Adding an integration is just the beginning, though. We also need to make sure it keeps working as time goes on, as new Python versions come out, and as new versions of the package itself are released, while also ensuring the integration doesn't break when used with the lowest supported version.
 
 Thing is, integrations are written for a package at a certain point in time. We often need to go pretty low-level, way past any public API surface, to integrate with a package. This is essentially lawless territory where no stability guarantees apply: internals can change at any point. And even if we integrate via a higher-level API, that can change, too; just usually with a bit more notice.
 
