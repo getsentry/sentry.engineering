@@ -20,7 +20,7 @@ This is exactly what happened when iPadOS 26 introduced a subtle change in how c
 
 # The Beginning
 
-On Nov 9th, 2025, [a new issue](https://github.com/getsentry/sentry-cocoa/issues/6725) was created in the Sentry Cocoa SDK repository, informing us that the Sentry SDK started to cause app crashes on iPadOS 26 when using the standard iOS [UIPrintInteractionController](https://developer.apple.com/documentation/uikit/uiprintinteractioncontroller?language=objc) while [Sentry's User Interaction Tracing](https://docs.sentry.io/platforms/apple/guides/ios/tracing/instrumentation/automatic-instrumentation/#user-interaction-tracing) is enabled:
+On Nov 9th, 2025, a user opened [a new issue](https://github.com/getsentry/sentry-cocoa/issues/6725) in the Sentry Cocoa SDK repository, informing us that the Sentry SDK started to cause app crashes on iPadOS 26 when using the standard iOS [UIPrintInteractionController](https://developer.apple.com/documentation/uikit/uiprintinteractioncontroller?language=objc) while [Sentry's User Interaction Tracing](https://docs.sentry.io/platforms/apple/guides/ios/tracing/instrumentation/automatic-instrumentation/#user-interaction-tracing) is enabled:
 
 ```
 NSInvalidArgumentException: -[UIPrintPanelViewController viewControllers]: unrecognized selector sent to instance 0x124f45e00
@@ -97,7 +97,7 @@ Interestingly there is not much information about this online, but a quick web s
 
 # But How?
 
-At this point I started asking my fellow maintainers for additional input, so my colleague Itay started looking into it too.
+At this point, I started asking my fellow maintainers for additional input, so my colleague Itay started looking into it too.
 
 He started to look up class headers extracted from the iOS-internal dynamic libraries and found a first indicator that at least on iOS 17 the `UIPrintPanelViewController` wasn't a subclass of `UISplitViewController` but instead of a `UIViewController` ([reference](https://github.com/userlandkernel/ios17-dyld-headers/blob/89931f35a750ed18297df97f009524ed37e60d67/PrintKitUI/UIPrintPanelViewController.h#L25)):
 
@@ -131,7 +131,7 @@ So Itay set up a [Runtime Header Analyzer / Browser](https://github.com/nst/Runt
 
 We started to question the core principles of working with Swift & Objective-C and our own sanity. Are we missing an edge case of the standard optional-cast operator `as?`?
 
-Trying to understand the class hierarchy I did more debugging, including a recursive superclass resolver to get the full superclass chain:
+Trying to understand the class hierarchy, I did more debugging, including a recursive superclass resolver to get the full superclass chain:
 
 ```swift
 func describe(object: AnyObject) {
@@ -195,9 +195,9 @@ Swizzling takes advantage of this. We replace the runtime's pointer for a specif
 
 Because this changes behavior _for the entire app_ and not just for our SDK, it must be done carefully.
 If two libraries swizzle the same method incorrectly or in the wrong order, it can lead to unexpected behavior.
-**This is why swizzling is powerful but also considered risky.**
+**This is why swizzling is powerful but also considered risky if you're not careful.**
 
-So how is this relevant for our case? Well, it helps us to figure out if the `isKindOfClass:` is really overridden in the `UIPrintPanelViewController` by looking at the implementation address in the lookup system in combination with the superclass hierarchy.
+So, how is this relevant to our case? Well, it helps us to figure out if the `isKindOfClass:` is really overridden in the `UIPrintPanelViewController` by looking at the implementation address in the lookup system in combination with the superclass hierarchy.
 
 As all types in Objective-C must be subclasses of `NSObject`, we expect them to rely on its implementation of `isKindOfClass:` and we can find the address pointer in the lookup system using `class_getMethodImplementation`:
 
@@ -261,7 +261,7 @@ But we wanted to be (more) sure, so Itay started to decompile the method in the 
 }
 ```
 
-Another strong indicator that the implementation of this method is somehow performing special handling for `UISplitViewController` resulting in the invalid cast, crashing SDKs.
+Another strong indicator that the implementation of this method is somehow performing special handling for `UISplitViewController`, resulting in the invalid cast and crashing SDKs.
 
 This was reason enough to stop the investigation and conclude that this special handling creates an incompatibility with our SDK's assumptions about type casting behavior.
 
