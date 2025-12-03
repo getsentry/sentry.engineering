@@ -3,12 +3,7 @@ title: 'Reverse Engineering iOS to Fix SDK Crashes'
 date: '2025-12-03'
 tags: ['ios', 'cocoa', 'apple', 'sdk', 'uiprintpanelviewcontroller']
 summary: 'We reverse-engineered private iOS frameworks to uncover why iPadOS 26 broke our type casting.'
-images:
-  [
-    '/images/reverse-engineering-ios-to-fix-sdk-crashes/j89s1l8qg9fhznaf3hmgjsu9-screenshot.png',
-    '/images/reverse-engineering-ios-to-fix-sdk-crashes/d1cmt81vg0pj3na1gjwg3pbp-image.png',
-    '/images/reverse-engineering-ios-to-fix-sdk-crashes/x96pfqfnxaiebtv0ccey07g1-image-2.png',
-  ]
+images: ['/images/reverse-engineering-ios-to-fix-sdk-crashes/hero.jpg']
 layout: PostSimple
 canonicalUrl: reverse-engineering-ios-to-fix-sdk-crashes
 authors: ['philniedertscheider']
@@ -21,7 +16,7 @@ This is exactly what happened when iPadOS 26 introduced a subtle change in how c
 
 **TL;DR: iPadOS 26 introduced a change where `UIPrintPanelViewController` overrides `isKindOfClass:` to return `true` for `UISplitViewController` casts, even though it's not a subclass. This caused our SDK to crash when accessing methods that don't exist. We released a fix in the Sentry Cocoa SDK [v8.57.3](https://github.com/getsentry/sentry-cocoa/releases/tag/8.57.3)**
 
-![Standard Printing Dialog on iPadOS](/images/reverse-engineering-ios-to-fix-sdk-crashes/j89s1l8qg9fhznaf3hmgjsu9-screenshot.png)
+![Standard Printing Dialog on iPadOS](/images/reverse-engineering-ios-to-fix-sdk-crashes/printing.png)
 
 # The Beginning
 
@@ -54,7 +49,7 @@ if let splitViewController = vc as? UISplitViewController {
 }
 ```
 
-![Crash in Xcode](/images/reverse-engineering-ios-to-fix-sdk-crashes/d1cmt81vg0pj3na1gjwg3pbp-image.png)
+![Crash in Xcode](/images/reverse-engineering-ios-to-fix-sdk-crashes/xcode.png)
 
 # The Search
 
@@ -116,7 +111,7 @@ He started to look up class headers extracted from the iOS-internal dynamic libr
 
 But with iOS 26, Apple started to change a lot of internal UI hierarchy due to the introduction of Liquid Glass, e.g. the view hierarchy of the standard component `UISlider` changed massively too:
 
-![Recursive Description of a UISlider](/images/reverse-engineering-ios-to-fix-sdk-crashes/x96pfqfnxaiebtv0ccey07g1-image-2.png)
+![Recursive Description of a UISlider](/images/reverse-engineering-ios-to-fix-sdk-crashes/uislider.png)
 
 So Itay set up a [Runtime Header Analyzer / Browser](https://github.com/nst/RuntimeBrowser) to extract the actualy header of `UIPrintPanelViewController` on iOS 26. The output was similar, indicating it's still **not** a subclass of `UISplitViewController`, but at least a delegate of it, an [`UISplitViewControllerDelegate`](https://developer.apple.com/documentation/uikit/uisplitviewcontrollerdelegate):
 
