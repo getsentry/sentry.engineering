@@ -113,7 +113,7 @@ But with iOS 26, Apple started to change a lot of internal UI hierarchy due to t
 
 ![Recursive Description of a UISlider](/images/reverse-engineering-ios-to-fix-sdk-crashes/uislider.png)
 
-So Itay set up a [Runtime Header Analyzer / Browser](https://github.com/nst/RuntimeBrowser) to extract the actualy header of `UIPrintPanelViewController` on iOS 26. The output was similar, indicating it's still **not** a subclass of `UISplitViewController`, but at least a delegate of it, an [`UISplitViewControllerDelegate`](https://developer.apple.com/documentation/uikit/uisplitviewcontrollerdelegate):
+So Itay set up a [Runtime Header Analyzer / Browser](https://github.com/nst/RuntimeBrowser) to extract the actually header of `UIPrintPanelViewController` on iOS 26. The output was similar, indicating it's still **not** a subclass of `UISplitViewController`, but at least a delegate of it, an [`UISplitViewControllerDelegate`](https://developer.apple.com/documentation/uikit/uisplitviewcontrollerdelegate):
 
 ```objc
 /*
