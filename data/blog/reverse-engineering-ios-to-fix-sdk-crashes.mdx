@@ -37,7 +37,7 @@ NSInvalidArgumentException: -[UIPrintPanelViewController viewControllers]: unrec
   ...
 ```
 
-Seeing the error message `unrecognized selector sent to instance` is always a bad sign, because it means that we try to access a property or call a method of an instance, which does not exist — something that should’ve been caught at compile-time already.
+Seeing the error message `unrecognized selector sent to instance` is always a bad sign, because it means we are trying to access a property or call a method that does not exist on an instance — something that should’ve been caught at compile-time already.
 
 Luckily the customer provided us with sample code and I could quickly reproduce the issue, pointing to the following [lines of code in our SDK](https://github.com/getsentry/sentry-cocoa/blob/237dfb18e85a58f3401eb0e37f71b4337ac73586/Sources/Swift/Helper/SentryApplicationExtensions.swift#L139-L143):
 
@@ -97,7 +97,7 @@ Interestingly there is not much information about this online, but a quick web s
 
 # But How?
 
-At this point I started to ask in our Team Apple SDK Slack channel for additional input, so my colleague Itay started looking into it too.
+At this point I started asking my fellow maintainers for additional input, so my colleague Itay started looking into it too.
 
 He started to look up class headers extracted from the iOS-internal dynamic libraries and found a first indicator that at least on iOS 17 the `UIPrintPanelViewController` wasn't a subclass of `UISplitViewController` but instead of a `UIViewController` ([reference](https://github.com/userlandkernel/ios17-dyld-headers/blob/89931f35a750ed18297df97f009524ed37e60d67/PrintKitUI/UIPrintPanelViewController.h#L25)):
 
