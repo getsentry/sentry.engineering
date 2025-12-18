@@ -86,7 +86,7 @@ As with many problems in Python (and very few problems in life - but don’t tem
 ```python
 class DexMapping:
   def __init__():
-    self._classes_by_deobfuscated = [clazz.deobfuscated_signature for clazz in classes]
+    self._classes_by_deobfuscated = {clazz.deobfuscated_signature: clazz for clazz in classes}
 
   def lookup_deobfuscated_signature(self, deobfuscated_class_signature):
     return self._classes_by_deobfuscated.get(deobfuscated_class_signature)
