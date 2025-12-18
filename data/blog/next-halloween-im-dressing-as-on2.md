@@ -6,7 +6,6 @@ draft: false
 summary: 'Dawson’s first law of computing strikes twice.'
 images: ['/images/next-halloween-im-dressing-as-on2/xray.png']
 layout: PostLayout
-canonicalUrl: dawsons-law
 authors: ['hectordearman', 'trevorelkins']
 ---
 
