@@ -1,6 +1,6 @@
 ---
 title: 'Next Halloween I’m dressing as O(n^2)'
-date: '2025-12-18'
+date: '2025-12-19'
 tags: ['performance', 'mobile', 'android', 'ios']
 draft: false
 summary: 'Dawson’s first law of computing strikes twice.'
