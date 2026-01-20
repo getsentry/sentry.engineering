@@ -23,51 +23,51 @@ When you use Sentry to measure the performance of a UIKit app, every view contro
 
 This works using Objective-C swizzling, replacing the instance methods with stubs that add logging and then call the original method. This mechanism is possible because the Objective-C runtime uses selectors to identify methods and call them through `objc_msgSend()`. It would be very useful if we could do something similar for SwiftUI. For example, our [snapshot test framework](https://github.com/EmergeTools/SnapshotPreviews) (from my work at [Emerge Tools, now part of Sentry](https://blog.sentry.io/emerge-tools-is-now-a-part-of-sentry/)) could report the slowest views. However, Swift does not need to use this mechanism. Swift function calls can even be optimized away entirely by the compiler through inlining, so we can't use swizzling to hook a pure Swift function.
 
-In a [previous post](https://www.emergetools.com/blog/posts/DyldInterposing) I showed how dyld interposing can be used to hook non-Swift functions in a similar way to swizzling. However, this strategy has several limitations that won't work for our use case - including that it requires knowing the function to hook at compile time.
+In a [previous post](https://www.emergetools.com/blog/posts/DyldInterposing) I showed how dyld interposing can be used to hook non-ObjC functions in a similar way to swizzling. However, this strategy has several limitations that won't work for our use case - including that it requires knowing the function to hook at compile time.
 
-To achieve "swizzling" for SwiftUI view body, we need to first identify all the views and their body accessors at runtime, then install a hook on each function.
+To achieve "swizzling" for `SwiftUI.View.body`, we need to first identify all views and their body accessors at runtime, then install a hook on each function.
 
 ## Finding Views
 
-The Sentry [Size Analysis](https://blog.sentry.io/monitor-reduce-mobile-app-size-analysis-early-access) includes a binary analysis that looks at type metadata emitted by the compiler to understand where app size comes from. This includes a record for every protocol conformance declared in your code. These conformance records are read by the Swift runtime for operations such as casting, something I previously did a [deep dive](https://www.emergetools.com/blog/posts/SwiftProtocolConformance) on, demonstrating performance bottlenecks.
+The Sentry [Size Analysis](https://blog.sentry.io/monitor-reduce-mobile-app-size-analysis-early-access) includes a binary analysis that looks at type metadata emitted by the compiler to understand the sources of app size. This includes a record for every protocol conformance declared in your code. These conformance records are read by the Swift runtime for operations such as casting, something I previously did a [deep dive](https://www.emergetools.com/blog/posts/SwiftProtocolConformance) on, demonstrating performance bottlenecks.
 
 We can access the same protocol conformances used by the runtime in our own code, to identify which types conform to a specific protocol, in this case `SwiftUI.View`:
 
 ```swift
-    let header: mach_header_64 = ...
+let header: mach_header_64 = ...
 
-    var size: UInt = 0
-    let sectStart = UnsafeRawPointer(
-      getsectiondata(
-        header,
-        "__TEXT",
-        "__swift5_proto",
-        &size))?.assumingMemoryBound(to: Int32.self)
-    if var sectData = sectStart {
-      for _ in 0..<Int(size)/MemoryLayout<Int32>.size {
-        let conformanceRaw = UnsafeRawPointer(sectData)
-          .advanced(by: Int(sectData.pointee))
-        let conformance = conformanceRaw
-          .assumingMemoryBound(to: ProtocolConformanceDescriptor.self)
+var size: UInt = 0
+let sectStart = UnsafeRawPointer(
+  getsectiondata(
+    header,
+    "__TEXT",
+    "__swift5_proto",
+    &size))?.assumingMemoryBound(to: Int32.self)
+if var sectData = sectStart {
+  for _ in 0..<Int(size)/MemoryLayout<Int32>.size {
+    let conformanceRaw = UnsafeRawPointer(sectData)
+      .advanced(by: Int(sectData.pointee))
+    let conformance = conformanceRaw
+      .assumingMemoryBound(to: ProtocolConformanceDescriptor.self)
 
-        if "View" == protocolName(for: conformance) {
-          let type = typeName(for: conformance)
-          print("\(type) conforms to View")
-        }
-      }
+    if "View" == protocolName(for: conformance) {
+      let type = typeName(for: conformance)
+      print("\(type) conforms to View")
     }
+  }
+}
 ```
 
-In addition to the protocol and conforming type, the conformance descriptor includes a **protocol witness table**, the "proof" that the type conforms to the protocol. It contains pointers to all the functions the type must implement and the runtime uses it to dispatch a function call when the concrete type is not known. This is exactly the case in SwiftUI, when the OS frameworks will not know the type of your own code, just that it conforms to SwiftUI.View.
+In addition to the protocol and conforming type, the conformance descriptor includes a **protocol witness table**, the "proof" that the type conforms to the protocol. It contains pointers to all the functions the type must implement and the runtime uses it to dispatch a function call when the concrete type is not known at compile time. This is exactly the case in SwiftUI, when the OS frameworks will not know the type of your own code, just that it conforms to `SwiftUI.View`.
 
 We can use the witness table to find the address of the `View.body` accessor. First we have to find which entry in the table corresponds to this function, that's the job of the "method descriptor". For this particular protocol conformance we need to look for the symbol named `method descriptor for SwiftUI.View.body.getter : A.Body`. Swift uses mangled symbol names, which we can lookup at runtime using `dlsym`:
 
 ```swift
-    let symbol = "$s7SwiftUI4ViewP4body4BodyQzvgTq"
-    let sym = dlsym(UnsafeMutableRawPointer(bitPattern: -2), symbol) // -2 == RTLD_DEFAULT
+let symbol = "$s7SwiftUI4ViewP4body4BodyQzvgTq"
+let sym = dlsym(UnsafeMutableRawPointer(bitPattern: -2), symbol) // -2 == RTLD_DEFAULT
 ```
 
-`sym` now points to the method descriptor we are looking for. The full layout of the protocol conformance descriptor can be complex, but all we need is the address of this method descriptors implementation. In the protocol descriptor these are stored right next to each other, we simply read in order every 4 bytes from the start of the protocol descriptor until we find the pointer to the method descriptor. The following 4 bytes contain the offset to the implementation. To summarize, we've parsed a protocol descriptor like this:
+`sym` now points to the method descriptor we are looking for. The full layout of the protocol conformance descriptor can be complex, but all we need is the address of the implementation corresponding to this method descriptor. In the protocol descriptor these are stored right next to each other, we simply read in order every 4 bytes from the start of the protocol descriptor until we find the pointer to the method descriptor. The following 4 bytes contain the offset to the implementation. To summarize, we've parsed a protocol conformance descriptor like this:
 
 | Conformance Descriptor                                     |                     |
 | ---------------------------------------------------------- | ------------------- |
@@ -80,7 +80,7 @@ With the function addresses in hand, we're ready to install our hooks.
 
 ## Installing a hook
 
-Now we've got the addresses of the functions we want to hook.[^1] We can use breakpoints to install a hook without swizzling (like we do to generate order files). This is the same mechanism used to [generate order files](https://blog.sentry.io/open-source-tool-speed-up-ios-app-launch/). At a high level we set a breakpoint on every function we want to hook, transferring control to a debugger when the function is entered. This was such a useful technique for the products that Emerge Tools made, that we open sourced a Swift package just for it: [SimpleDebugger](https://github.com/EmergeTools/SimpleDebugger).
+Now we've got the addresses of the functions we want to hook.[^1] We can use breakpoints to install a hook without swizzling (like we do to generate order files). At a high level we set a breakpoint on every function we want to hook, transferring control to a debugger when the function is entered. This was such a useful technique for the products that Emerge Tools made, that we open sourced a Swift package just for it: [SimpleDebugger](https://github.com/EmergeTools/SimpleDebugger).
 
 [^1]: Note that the current implementation does not support generic types that conform to `SwiftUI.View`. These have more complex conformance descriptors that would require additional parsing.
 
@@ -96,7 +96,7 @@ _I glossed over a lot of the low level details of using mach exceptions and sett
 
 ## In production
 
-This cannot be used in production because it requires modifying the executable section of the binary, which Apple disallows unless you build with debug entitlements. However, there is another way to set a breakpoint. What we've used so far is known as a _software breakpoint_. There are also _hardware breakpoints_ that do not overwrite instructions. Instead they use reserved registers to indicate to the CPU which addresses should have a breakpoint. We verified this works on an app downloaded through TestFlight. However, unless the phone has "development mode" enabled, the calls to set these registers will silently fail. So production use would still be limited to a small subset of users.
+This cannot be used in production because it requires modifying the executable section of the binary, which Apple disallows unless you build with debug entitlements. However, there is another way to set a breakpoint. What we've used so far is known as a _software breakpoint_. There are also _hardware breakpoints_ that do not overwrite instructions. Instead, they use reserved registers to indicate to the CPU which addresses should have a breakpoint. We verified this works on an app downloaded through TestFlight. However, unless the phone has "development mode" enabled, the calls to set these registers will silently fail. So production use would still be limited to a small subset of users.
 
 ## Conclusion
 
