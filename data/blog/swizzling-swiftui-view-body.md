@@ -3,7 +3,7 @@ title: '"Swizzling" iOS functions in Swift'
 date: '2026-01-10'
 tags: ['swift', 'mobile', 'ios']
 draft: false
-summary: 'How to hook pure Swift functions at runtime using protocol conformance descriptors and breakpoints, enabling SwiftUI view performance monitoring in debug builds.'
+summary: 'How to hook pure Swift functions at runtime using an in-process debugger.'
 images: ['/images/swizzling-swift/view_xray.png']
 layout: PostLayout
 authors: ['noahmartin']
