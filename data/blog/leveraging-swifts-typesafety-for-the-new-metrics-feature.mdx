@@ -1,0 +1,182 @@
+---
+title: "Leveraging Swift's Type-Safety in the New Metrics Feature"
+date: '2026-01-30'
+tags: ['apple', 'ios', 'macos', 'metrics']
+draft: true
+summary: 'Dive into the engineering process behind the implementation of the public API for the Metrics feature in our Apple SDK.'
+images: []
+layout: PostLayout
+canonicalUrl: leveraging-swift-type-safety-in-metrics
+authors: ['philniedertscheider']
+---
+
+With the release of our [Apple / Cocoa SDK v9.2.0](https://github.com/getsentry/sentry-cocoa/releases/tag/9.2.0) a long requested feature is now finally here: **Metrics**.
+
+Already available in our Python SDK, JavaScript SDK and Go SDK, you can now use Sentry to collect useful metrics to gain even more insights into your app experience:
+
+```swift
+// Counter metrics allow you to measure how many times an event has occured
+SentrySDK.metrics.count(
+    key: "network.request.count",
+    value: 1,
+    unit: .generic("request"),
+    attributes: [
+        "endpoint": "/api/users",
+        "method": "POST",
+        "body_size": 1786
+    ]
+)
+
+// Gauge metrics give you a changing value
+SentrySDK.metrics.gauge(
+    key: "queue.depth",
+    value: 42.0,
+    attributes: [
+        "queue_name": "api_requests"
+    ]
+)
+
+// Distribution metrics track the statistical distribution of values
+SentrySDK.metrics.distribution(
+    key: "http.response_time",
+    value: 187.5,
+    unit: .millisecond
+)
+```
+
+While the implementation of the first proof-of-concept was already done weeks ago, a lot of thought has been put into the design of the public API.
+Leveraging Swift's strong typing system, we created an approach to surface potential issues at compile-time rather than when your app has been published.
+
+So join me into this dep-dive on why the Metrics feature is Swift-only (for now), and which engineering decisions we took along the way, to give you, our SDK users, the best possible user experience.
+
+## Three Important Methods
+
+Let's start at the beginning. From a user perspective, the most important parts are the methods used to capture metircs.
+For that the SDK needs to offer a `SentrySDK.metrics` object with the three methods `.count(..)`, `.gauge(..)` and `.distribution(..)`, each with a `key` and `value` parameter.
+This already brings up the first opportunity where we decided against surfacing a concrete type, and instead implement it using a protocol, allow us to easily refactor otherwise public types in the future, reducing the amount of breaking changes.
+
+This already brought up the first benefit of using Swift. We use `Double` for the gauge and distribution metrics to capture values with floating point precision, including negative values.
+But for counter metrics we realized that a count is always **whole numbers** and **never negative**, resulting in the first decision of using unsigned integers `UInt` for counter metrics.
+
+```swift
+public protocol SentryMetricsApiProtocol {
+    func count(key: String, value: UInt)
+    func distribution(key: String, value: Double)
+    func gauge(key: String, value: Double)
+}
+```
+
+### Omit Default Values
+
+Looking at [our technical specifications for Metrics](https://develop.sentry.dev/sdk/telemetry/metrics/#trace_metric-envelope-item-payload) we notice one detail in the requirements:
+
+> For `counter` metrics: the count to increment by **(should default to 1)**
+
+It must be possible for SDK users to capture a counter metric without explicitly defining a value, falling back to `1` as a default.
+Commonly this is solved by using a default value in the method signature, i.e. `func count(key: String, value: UInt = 1)` allowing an invocation with `count(key: "my-key")` and `count(key: "my-key", value: 123)`.
+
+Unfortunately Swift's protocols do not support default values in their definitions, leaving us with a build-time error:
+
+![Xcode Build-Time Error Protocol Defaults](/images/leveraging-swifts-typesafety-for-the-new-metrics-feature/default-values-in-protocols.png)
+
+Luckily there is a solution: **Protocol Extensions**.
+
+Extension in Swift allow adding additional logic to types, e.g. if a type has a getter for `firstName` and `lastName` an extension could add `fullName` returning the concatenation of the two strings.
+
+```swift
+struct Person {
+    let firstName: String
+    let lastName: String
+}
+
+extension Person {
+    var fullName: String {
+        firstName + " " + lastName
+    }
+}
+```
+
+The important part to understand here is that protocol extensions only know about the signature of the protocol, therefore we can also only access methods defined in `SentryMetricsApiProtocol`.
+But this is actually all we need, as we are adding convenience overloads for our methods, allowing callers to omit the optional parameters:
+
+```swift
+public extension SentryMetricsApiProtocol {
+    func count(key: String, value: UInt = 1) {
+        self.count(key: key, value: value) // Calls the implementation of the protocol
+    }
+}
+```
+
+Great, now that we have our public API established with a default value for counters, it's time to extend it with the next useful addition: **metrics units**.
+
+## Metrics Units
+
+Sentry's telemetry system has a standardized [list of pre-defined units](https://develop.sentry.dev/sdk/telemetry/attributes/#units) enabling server-side aggregation and data processing.
+
+The simplest solution would be changing the API to offer a `String` parameter to define the unit. But as these are standardized, we can use Swift's `enum` type to offer compile-time safety:
+
+```swift
+public enum SentryUnit: String {
+    case nanosecond
+    case microsecond
+    case millisecond
+
+    // ... and more!
+}
+```
+
+As the `unit` parameter is optional and should be omittable, we can once agani leverage our protocol extension to implement it:
+
+```swift
+public protocol SentryMetricsApiProtocol {
+    func count(key: String, value: UInt, unit: SentryUnit?)
+    func distribution(key: String, value: Double, unit: SentryUnit?)
+    func gauge(key: String, value: Double, unit: SentryUnit?)
+}
+
+public extension SentryMetricsApiProtocol {
+    func count(key: String, value: UInt = 1, unit: SentryUnit? = nil) {
+        self.count(key: key, value: value, unit: unit)
+    }
+
+    func distribution(key: String, value: Double, unit: SentryUnit? = nil) {
+        self.distribution(key: key, value: value, unit: unit)
+    }
+
+    func gauge(key: String, value: Double, unit: SentryUnit? = nil) {
+        self.gauge(key: key, value: value, unit: unit)
+    }
+}
+
+// Example Usage:
+
+SentrySDK.metrics.counter(key: "network.request.count") // value defaults to 1
+SentrySDK.metrics.counter(key: "warning", value: 2) // value explicitly set to 2 without a unit
+SentrySDK.metrics.counter(key: "queue.processed_bytes", value: 512, unit: .bytes) // explicit value and unit
+```
+
+{/\* # Step-by-step
+
+1. Using `Any` → reference types are not properly converted, show memory address, not aggregatable
+2. `CustomStringConvertible` → requires every type to support it, inconvenient
+3. `enum` requires every attribute to be manually wrapped by user, lot’s of boilerplate
+4. protocol it is
+5. protocol (inheritence) allow injecting only supported types
+6. literal types allow injecting value types as magic numbers
+7. arrrays extension → can not be scoped ot specific types
+8. mixed arrays are seen as `[Any]` arrays → need custom conversion to typed array or fallback to string array
+
+# Benefits
+
+- enum-like approach
+- literal value type possible
+- variable type possible
+- homogenous arrays & hetergenous arrays supported
+- fallback to string for arrays
+- compile-time safety
+
+# Any down sides?
+
+- not available in Objective-C
+- mixed arrays could still contain memory address → no compile-time safety
+- Not backwards compatible to Logs API → breaking change \*/}
