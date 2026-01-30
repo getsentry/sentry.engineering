@@ -10,6 +10,8 @@ canonicalUrl: leveraging-swift-type-safety-in-metrics
 authors: ['philniedertscheider']
 ---
 
+# Leveraging Swift's Type-Safety in Metrics
+
 With the release of our [Apple / Cocoa SDK v9.2.0](https://github.com/getsentry/sentry-cocoa/releases/tag/9.2.0) a long requested feature is now finally here: **Metrics**.
 
 Already available in our Python SDK, JavaScript SDK and Go SDK, you can now use Sentry to collect useful metrics to gain even more insights into your app experience:
@@ -53,7 +55,7 @@ So join me into this dep-dive on why the Metrics feature is Swift-only (for now)
 
 Let's start at the beginning. From a user perspective, the most important parts are the methods used to capture metircs.
 For that the SDK needs to offer a `SentrySDK.metrics` object with the three methods `.count(..)`, `.gauge(..)` and `.distribution(..)`, each with a `key` and `value` parameter.
-This already brings up the first opportunity where we decided against surfacing a concrete type, and instead implement it using a protocol, allow us to easily refactor otherwise public types in the future, reducing the amount of breaking changes.
+This already brings up the first opportunity where we decided against surfacing a concrete type, and instead implement it using a protocol (also known as "interfaces" in other programming languages), allow us to easily refactor otherwise public types in the future, reducing the amount of breaking changes.
 
 This already brought up the first benefit of using Swift. We use `Double` for the gauge and distribution metrics to capture values with floating point precision, including negative values.
 But for counter metrics we realized that a count is always **whole numbers** and **never negative**, resulting in the first decision of using unsigned integers `UInt` for counter metrics.
@@ -113,7 +115,7 @@ Great, now that we have our public API established with a default value for coun
 
 Sentry's telemetry system has a standardized [list of pre-defined units](https://develop.sentry.dev/sdk/telemetry/attributes/#units) enabling server-side aggregation and data processing.
 
-The simplest solution would be changing the API to offer a `String` parameter to define the unit. But as these are standardized, we can use Swift's `enum` type to offer compile-time safety:
+The simplest solution would be changing the API to offer a `String` parameter to define the unit. But, as these are standardized, we can use Swift's `enum` type to offer compile-time safety and by defining the raw value to `String`, the compiler takes care of generating String values for each case for us:
 
 ```swift
 public enum SentryUnit: String {
@@ -123,6 +125,12 @@ public enum SentryUnit: String {
 
     // ... and more!
 }
+
+// Example:
+let unit = SentryUnit.nanosecond
+
+// When the compiler can infer the type of a variable, we don't need to explicitly define it again on the right-hand side:
+let unit: SentryUnit = .nanosecond
 ```
 
 As the `unit` parameter is optional and should be omittable, we can once agani leverage our protocol extension to implement it:
@@ -151,9 +159,130 @@ public extension SentryMetricsApiProtocol {
 // Example Usage:
 
 SentrySDK.metrics.counter(key: "network.request.count") // value defaults to 1
-SentrySDK.metrics.counter(key: "warning", value: 2) // value explicitly set to 2 without a unit
+SentrySDK.metrics.counter(key: "memory.warning", value: 2) // value explicitly set to 2 without a unit
 SentrySDK.metrics.counter(key: "queue.processed_bytes", value: 512, unit: .bytes) // explicit value and unit
 ```
+
+### Enums And Generic Values
+
+While using a enums as a type-safe approach of constants, we lost a big advantage compared to String constants, as we are now **not able to use generic units** anymore.
+The method typing is strict and if we pass in a parameter `unit`, it must be a `SentryUnit`.
+
+This is where [Swift's Associated Values](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/enumerations#Associated-Values) come into play, allowing us to keep using well-known enum types, but extending our new type `generic` with an associated custom `String` value:
+
+```swift
+public enum SentryUnit {
+    case nanosecond
+    case generic(String)
+}
+
+let unit = SentryUnit.generic("custom unit")
+```
+
+Unfortunately, this change requires us to remove the raw value conformance to the type `String`, resulting in the loss of compiler generated serialization:
+
+![Xcode Build-Time Error Protocol Defaults](/images/leveraging-swifts-typesafety-for-the-new-metrics-feature/enum-raw-type-arguments-error.png)
+
+But, this minor can easily be resolved by implementing conformance to the Swift standard library's [`RawRepresentable`](https://developer.apple.com/documentation/Swift/RawRepresentable) and [`Encodable`](https://developer.apple.com/documentation/Swift/Encodable) protocols, with all unknown unit types converting from or to the enum type `generic`:
+
+```swift
+extension SentryUnit: RawRepresentable {
+    /// Maps known unit strings to their corresponding enum cases, or falls back to `.generic(rawValue)` for any unrecognized string (custom units).
+    public init?(rawValue: String) {
+        switch rawValue {
+        case "nanosecond":
+            self = .nanosecond
+        default:
+            self = .generic(rawValue)
+        }
+    }
+
+    /// Returns the string representation of the unit.
+    public var rawValue: String {
+        switch self {
+        case .nanosecond:
+            return "nanosecond"
+        case .generic(let value):
+            return value
+        }
+    }
+}
+```
+
+Now it's easy to add more information to our metrics, e.g. by using a custom unit type `"warning"`:
+
+```swift
+SentrySDK.metrics.counter(
+    key: "memory.warning",
+    value: 2,
+    unit: .generic("warning")
+)
+```
+
+### Syntactic Sugar for Custom Units
+
+Looking at the usage of the generic unit as in `unit: .generic("custom")` raises the idea of how we can reduce boilerplate code.
+We already know that if it we don't use any of the pre-defined constants like `.nanosecond`, we have a String value that should be seen as a "generic" / "custom" unit.
+
+If wrapping it in `SentryUnit.generic(..)` or just `.generic(..)` every single time seems like repetitive boilerplate code to you, there's something we can do about it:
+
+As a final cherry-on-top improvement opportunity for generic units, we adopt the protocol `ExpressibleByStringLiteral` for our enum `SentryUnit`.
+This protocol in the Swift standard library is baked into the compiler and requires us to define an additional initalizer:
+
+```swift
+extension SentryUnit: ExpressibleByStringLiteral {
+    public init(stringLiteral value: StringLiteralType) {
+        self = .generic(value)
+    }
+}
+```
+
+This small extension now indicates to the compiler that literal `String` values can directly be converted into enums:
+
+```swift
+// ✅ compiler converts the string to an enum with associated value
+let unit: SentryUnit = "warning"
+
+// ❌ does not work for String variables, only literal values
+let myUnit = "some value"
+let unit: SentryUnit = myUnit
+
+// ✅ String variables still need to be wrapped
+let unit: SentryUnit = .generic(myUnit)
+```
+
+All of these additions now result in an even cleaner API with custom metric units:
+
+```swift
+SentrySDK.metrics.counter(
+    key: "memory.warning",
+    value: 2,
+    unit: "warning"
+)
+```
+
+## Adding Context With Attributes
+
+Now it's time to add our last parameter to the public methods: **Attributes**.
+
+[Attributes](https://develop.sentry.dev/sdk/telemetry/attributes/) are a list of key-value pairs with a `String` as a key and a multiple different types for the value.
+
+At the time of writing this blog these are the value types supported by the Sentry infrastructure:
+
+- `string`
+- `boolean`
+- `integer` (64-bit signed integer)
+- `double` (64-bit floating point number)
+- `string[]`
+- `boolean[]`
+- `integer[]`
+- `double[]`
+
+It has already been part of the logging feature
+
+We use SentryAttribute, holding a type + value property
+
+During discussion the idea of an array of objects came up, scratched that because dictionary takes care of unique literal keys
 
 {/\* # Step-by-step
 
