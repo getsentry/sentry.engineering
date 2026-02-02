@@ -2,7 +2,6 @@
 title: "Leveraging Swift's Type-Safety in the New Metrics Feature"
 date: '2026-01-30'
 tags: ['apple', 'ios', 'macos', 'metrics']
-draft: true
 summary: 'Dive into the engineering process behind the implementation of the public API for the Metrics feature in our Apple SDK.'
 images: []
 layout: PostLayout
@@ -10,11 +9,9 @@ canonicalUrl: leveraging-swift-type-safety-in-metrics
 authors: ['philniedertscheider']
 ---
 
-# Leveraging Swift's Type-Safety in Metrics
-
 With the release of our [Apple / Cocoa SDK v9.2.0](https://github.com/getsentry/sentry-cocoa/releases/tag/9.2.0) a long requested feature is now finally here: **Metrics**.
 
-Already available in our Python SDK, JavaScript SDK and Go SDK, you can now use Sentry to collect useful metrics to gain even more insights into your app experience:
+Already available some of our other SDKS including the Python SDK, the JavaScript SDK and the Go SDK, you can now use Sentry to collect useful metrics to gain even more insights into your app experience:
 
 ```swift
 // Counter metrics allow you to measure how many times an event has occured
@@ -29,7 +26,7 @@ SentrySDK.metrics.count(
     ]
 )
 
-// Gauge metrics give you a changing value
+// Gauge metrics are used for constantly changing values
 SentrySDK.metrics.gauge(
     key: "queue.depth",
     value: 42.0,
@@ -46,19 +43,22 @@ SentrySDK.metrics.distribution(
 )
 ```
 
-While the implementation of the first proof-of-concept was already done weeks ago, a lot of thought has been put into the design of the public API.
+While the implementation of the first proof-of-concept was already done weeks ago, a lot of thought has been put into the design of the public API - the main point of interaction for our SDK users which must not changed unless absolutely necessary.
 Leveraging Swift's strong typing system, we created an approach to surface potential issues at compile-time rather than when your app has been published.
 
-So join me into this dep-dive on why the Metrics feature is Swift-only (for now), and which engineering decisions we took along the way, to give you, our SDK users, the best possible user experience.
+So join me into this deep-dive on why the Metrics feature is Swift-only (for now), and which engineering decisions we took along the way, to give you, our SDK users, the most sophisticated user experience possible.
 
 ## Three Important Methods
 
-Let's start at the beginning. From a user perspective, the most important parts are the methods used to capture metircs.
-For that the SDK needs to offer a `SentrySDK.metrics` object with the three methods `.count(..)`, `.gauge(..)` and `.distribution(..)`, each with a `key` and `value` parameter.
-This already brings up the first opportunity where we decided against surfacing a concrete type, and instead adopt it using a protocol (also known as "interfaces" in other programming languages), allow us to easily refactor otherwise public types in the future, reducing the amount of breaking changes.
+Let's start at the beginning.
+
+From a user perspective, the most important parts are the methods used to capture metrics.
+To enable this, the SDK needs to offer a `SentrySDK.metrics` object with the three methods `.count(..)`, `.gauge(..)` and `.distribution(..)`, each with a `key` and `value` parameter.
+
+This already brings up the first opportunity where we decided against surfacing a concrete type, and instead adopt it using a [protocol](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/protocols) (also known as "interfaces" in other programming languages), allowing us to easily refactor otherwise public types in the future, reducing the need of breaking changes in the future.
 
 This already brought up the first benefit of using Swift. We use `Double` for the gauge and distribution metrics to capture values with floating point precision, including negative values.
-But for counter metrics we realized that a count is always **whole numbers** and **never negative**, resulting in the first decision of using unsigned integers `UInt` for counter metrics.
+But for counter metrics we realized that the count is always a **whole number** and **never negative**, resulting in the first decision of using unsigned integers `UInt` for counter metrics.
 
 ```swift
 public protocol SentryMetricsApiProtocol {
@@ -68,13 +68,13 @@ public protocol SentryMetricsApiProtocol {
 }
 ```
 
-### Omit Default Values
+### Omit Parameter With Default Values
 
 Looking at [our technical specifications for Metrics](https://develop.sentry.dev/sdk/telemetry/metrics/#trace_metric-envelope-item-payload) we notice one detail in the requirements:
 
 > For `counter` metrics: the count to increment by **(should default to 1)**
 
-It must be possible for SDK users to capture a counter metric without explicitly defining a value, falling back to `1` as a default.
+This means it must be possible for SDK users to capture a counter metric without having to explicitly define a `value`, falling back to `1` as a default.
 Commonly this is solved by using a default value in the method signature, i.e. `func count(key: String, value: UInt = 1)` allowing an invocation with `count(key: "my-key")` and `count(key: "my-key", value: 123)`.
 
 Unfortunately Swift's protocols do not support default values in their definitions, leaving us with a build-time error:
@@ -104,7 +104,8 @@ But this is actually all we need, as we are adding convenience overloads for our
 ```swift
 public extension SentryMetricsApiProtocol {
     func count(key: String, value: UInt = 1) {
-        self.count(key: key, value: value) // Calls the implementation of the protocol
+        // Call the implementation of the protocol which requires the value
+        self.count(key: key, value: value)
     }
 }
 ```
@@ -115,7 +116,7 @@ Great, now that we have our public API established with a default value for coun
 
 Sentry's telemetry system has a standardized [list of pre-defined units](https://develop.sentry.dev/sdk/telemetry/attributes/#units) enabling server-side aggregation and data processing.
 
-The simplest solution would be changing the API to offer a `String` parameter to define the unit. But, as these are standardized, we can use Swift's `enum` type to offer compile-time safety and by defining the raw value to `String`, the compiler takes care of generating String values for each case for us:
+The simplest solution would be changing the API to offer a `String` parameter to define the unit. But, as these are standardized, we can also use Swift's `enum` type to offer compile-time safety and by defining the raw value to `String`, the compiler takes care of generating String values for each case and other boilerplate code for us:
 
 ```swift
 public enum SentryUnit: String {
@@ -133,7 +134,7 @@ let unit = SentryUnit.nanosecond
 let unit: SentryUnit = .nanosecond
 ```
 
-As the `unit` parameter is optional and should be omittable, we can once agani leverage our protocol extension to implement it:
+As the `unit` parameter is optional and should also be omittable, so we can once again leverage our protocol extension to implement it:
 
 ```swift
 public protocol SentryMetricsApiProtocol {
@@ -158,14 +159,19 @@ public extension SentryMetricsApiProtocol {
 
 // Example Usage:
 
-SentrySDK.metrics.counter(key: "network.request.count") // value defaults to 1
-SentrySDK.metrics.counter(key: "memory.warning", value: 2) // value explicitly set to 2 without a unit
-SentrySDK.metrics.counter(key: "queue.processed_bytes", value: 512, unit: .bytes) // explicit value and unit
+// Value falls back to 1, unit is nil
+SentrySDK.metrics.counter(key: "network.request.count")
+// Value is explicitly set to 2, unit is still nil
+SentrySDK.metrics.counter(key: "memory.warning", value: 2)
+// Both the value and unit are set
+SentrySDK.metrics.counter(key: "queue.processed_bytes", value: 512, unit: .bytes)
 ```
+
+So, how about using non-standard units?
 
 ### Enums And Generic Values
 
-While using a enums as a type-safe approach of constants, we lost a big advantage compared to String constants, as we are now **not able to use generic units** anymore.
+While using a enum as a type-safe approach of constants, we lost a big advantage compared to pure `String` constants, as we are now **not able to use generic units** anymore.
 The method typing is strict and if we pass in a parameter `unit`, it must be a `SentryUnit`.
 
 This is where [Swift's Associated Values](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/enumerations#Associated-Values) come into play, allowing us to keep using well-known enum types, but extending our new type `generic` with an associated custom `String` value:
@@ -179,11 +185,11 @@ public enum SentryUnit {
 let unit = SentryUnit.generic("custom unit")
 ```
 
-Unfortunately, this change requires us to remove the raw value conformance to the type `String`, resulting in the loss of compiler generated serialization:
+Unfortunately, this change requires us to remove the [raw value conformance](https://developer.apple.com/documentation/Swift/RawRepresentable#Enumerations-with-Raw-Values) to the type `String`, resulting in the loss of compiler generated serialization:
 
 ![Xcode Build-Time Error Protocol Defaults](/images/leveraging-swifts-typesafety-for-the-new-metrics-feature/enum-raw-type-arguments-error.png)
 
-But, this minor can easily be resolved by implementing conformance to the Swift standard library's [`RawRepresentable`](https://developer.apple.com/documentation/Swift/RawRepresentable) and [`Encodable`](https://developer.apple.com/documentation/Swift/Encodable) protocols, with all unknown unit types converting from or to the enum type `generic`:
+But, this minor inconvenience can easily be resolved by implementing conformance to the Swift standard library's [`RawRepresentable`](https://developer.apple.com/documentation/Swift/RawRepresentable) protocol, with all unknown unit types converting from or to the enum type `generic`:
 
 ```swift
 extension SentryUnit: RawRepresentable {
@@ -222,12 +228,12 @@ SentrySDK.metrics.counter(
 ### Syntactic Sugar for Custom Units
 
 Looking at the usage of the generic unit as in `unit: .generic("custom")` raises the idea of how we can reduce boilerplate code.
-We already know that if it we don't use any of the pre-defined constants like `.nanosecond`, we have a String value that should be seen as a "generic" / "custom" unit.
+We already know that if it we don't use any of the pre-defined constants like `.nanosecond`, we have **always** have a String value that should **always** be seen as a "generic" / "custom" unit (Yes, _always_ is bold twice on purpose).
 
-If wrapping it in `SentryUnit.generic(..)` or just `.generic(..)` every single time seems like repetitive boilerplate code to you, there's something we can do about it:
+If wrapping it in `SentryUnit.generic(..)` (or just `.generic(..)`) every single time seems like repetitive boilerplate code to you, there's something we can do about it!
 
-As a final cherry-on-top improvement opportunity for generic units, we adopt the protocol `ExpressibleByStringLiteral` for our enum `SentryUnit`.
-This protocol in the Swift standard library is baked into the compiler and requires us to define an additional initalizer:
+As a final cherry-on-top improvement opportunity for generic units, we adopt the protocol [`ExpressibleByStringLiteral`](https://developer.apple.com/documentation/swift/expressiblebystringliteral) for our enum `SentryUnit`.
+This protocol of the Swift standard library is baked into the compiler and requires us to define an additional initalizer:
 
 ```swift
 extension SentryUnit: ExpressibleByStringLiteral {
@@ -237,13 +243,13 @@ extension SentryUnit: ExpressibleByStringLiteral {
 }
 ```
 
-This small extension now indicates to the compiler that literal `String` values can directly be converted into enums:
+But now this small extension indicates to the compiler that literal `String` values can directly be converted into enums:
 
 ```swift
-// ✅ compiler converts the string to an enum with associated value
+// ✅ Compiler converts the string to an enum with associated value
 let unit: SentryUnit = "warning"
 
-// ❌ does not work for String variables, only literal values
+// ❌ Does not work for String variables, only literal values
 let myUnit = "some value"
 let unit: SentryUnit = myUnit
 
@@ -251,7 +257,7 @@ let unit: SentryUnit = myUnit
 let unit: SentryUnit = .generic(myUnit)
 ```
 
-All of these additions now result in an even cleaner API with custom metric units:
+All of these additions now result in an even cleaner API with custom metric units, while still supporting pre-defined constants.
 
 ```swift
 SentrySDK.metrics.counter(
@@ -266,8 +272,7 @@ SentrySDK.metrics.counter(
 Now it's time to add our last parameter to the public methods: **Attributes**.
 
 [Attributes](https://develop.sentry.dev/sdk/telemetry/attributes/) are a list of key-value pairs with a `String` as a key and a value of different types.
-
-At the time of writing this blog these are the value types supported by the Sentry infrastructure:
+At the time of writing this blog these are the value types supported by Sentry's data processing:
 
 - `string`
 - `boolean`
@@ -278,34 +283,33 @@ At the time of writing this blog these are the value types supported by the Sent
 - `integer[]`
 - `double[]`
 
-Attributes are not a new feature to the SDK, as it's already used by the Logs feature released with [v8.54.0](https://github.com/getsentry/sentry-cocoa/releases/tag/8.54.0) in July 2025.
+Attributes are not a new addition to the SDK due to Metrics, as it's already used by the Logs feature released with [v8.54.0](https://github.com/getsentry/sentry-cocoa/releases/tag/8.54.0) in July 2025.
 
 During the initial implementation of logging, we decided to adopt a generic type `Any` for the value of the attributes, allowing include all of the supported types, while also being compatible with Objective-C.
 
 ```swift
 @objc(info:attributes:)
 public func info(_ body: String, attributes: [String: Any]) {
-    // Wrap the String body in our internal message type
-    let message = SentryLogMessage(stringLiteral: body)
     // Convert provided attributes to SentryLog.Attribute format
     var logAttributes = attributes.mapValues { SentryLog.Attribute(value: $0) }
+
     // Create and capture a full log entry
     let log = SentryLog(
         timestamp: dateProvider.date(),
         traceId: SentryId.empty,
         level: level,
-        body: logMessage.message,
+        body: SentryLogMessage(stringLiteral: body),
         attributes: logAttributes
     )
     delegate.capture(log: log)
 }
 ```
 
-The `SentryLog.Attribute` is actually a typealias for the [`SentryAttribute`](https://github.com/getsentry/sentry-cocoa/blob/142ed2ca1101e982f17fef4874fe94eb3cae880a/Sources/Swift/Protocol/SentryAttribute.swift) which is a class type holding a String identifier `type` and a type-erased property `value`.
+The type `SentryLog.Attribute` is actually a typealias for the [`SentryAttribute`](https://github.com/getsentry/sentry-cocoa/blob/142ed2ca1101e982f17fef4874fe94eb3cae880a/Sources/Swift/Protocol/SentryAttribute.swift) which is a class type holding a String identifier `type` and a type-erased property `value`.
 
-This works as expected, but requires us to do a lot of manual type-erasing and typing/casting, so when it came to designing the new Swift-only Metrics API, we designed it again from scratch.
+This works as expected, but requires a lot of manual type-erasing and type-casting, so when it came to designing the new Swift-only Metrics API, we started again from scratch.
 
-During the first review discussions we considered the idea of using an array of `SentryAttribute` as the parameters, which got scratched immediately because we would loose compile-time checking for duplicate key literal values in the dictionary:
+During the first review discussions we considered the idea of using an array of `SentryAttribute` as the parameter, which got scratched immediately because we would loose compile-time checking for duplicate key literal values we get when using the dictionary:
 
 ```swift
 // Definition:
@@ -342,7 +346,7 @@ As a first step to find a solution, we need to understand our problem.
 
 One major drawback of using `Any` as the value of our attributes, is missing compile-time hints if the passed in value is actually one of our supported attribute value types.
 
-To visualize this, take a look at the following example, where we set a `String`, a `Int`, a `Double` and a custom class type instance as attributes:
+To visualize this, take a look at the following example from the Logs API, where we set a `String`, a `Int`, a `Double` and a custom class type instance as attributes:
 
 ```swift
 class MyType {
@@ -358,8 +362,8 @@ SentrySDK.logger.info("Hello World", attributes: [
 ])
 ```
 
-This is valid code which will compile, because using type-erased `Any` for the value will pass in anything.
-As a fallback for unknown types such as `MyType`, we are performing a conversion to `String` internally, resulting in the following serialized data:
+This is valid code which will compile, because using type-erased `Any` for the value will allow passing in **anything**.
+As a fallback for unknown types such as `MyType`, we are performing a internal conversion to `String`, resulting in the following serialized data:
 
 ```json
 {
@@ -389,7 +393,7 @@ As a fallback for unknown types such as `MyType`, we are performing a conversion
 I believe it's obvious for all readers that `MyApp.MyApp.(unknown context at $103d12130).(unknown context at $103d1213c).MyType` is pretty much a useless attribute value.
 Even worse, the `$103d12130` and `$103d1213c` are actually memory addresses, so they will be different with every attribute sent, making it non-deterministic and unusable for querying.
 
-One way to improve this is adopt the protocol `CustomStringConvertible`, requiring us to implement the `description` getter method (also known as `toString()` in many other languages):
+One variant to improve this is adopting the protocol [`CustomStringConvertible`](https://developer.apple.com/documentation/Swift/CustomStringConvertible), requiring us to implement the `description` getter method (often known as `toString()` in other programming languages):
 
 ```swift
 class MyType: CustomStringConvertible {
@@ -402,6 +406,8 @@ class MyType: CustomStringConvertible {
 }
 ```
 
+This example then serializes to the following payload:
+
 ```json
 {
   "some-instance": {
@@ -411,24 +417,20 @@ class MyType: CustomStringConvertible {
 }
 ```
 
-This looks already way better, as the memory addresses are now gone, and we can actually see the values themselves.
-
-But this already raised the next concerns:
+This looks already way better, as the memory addresses are now gone, and we can actually see the values themselves. But this already raised the next concerns:
 
 - Does every type now need to adopt `CustomStringConvertible` just in case I accidentally use it as a value?
 
-Yes, in case you keep using class types as attribute values, they need to adopt the protocol otherwise we get the memory addresses back.
-
-Yes, this is inconvenient.
+Yes, in case you keep using class types as attribute values, they need to adopt the protocol otherwise we get the memory addresses back. And yes, this is inconvenient.
 
 - Do we really want multiple values in a single attribute?
 
-No, you most likely do not want this, as you want attribute values to be simple and deterministic, so you can easily write queries in Sentry and discover data.
-Having them in the same attribute brings in complexity for querying both for you and for us at Sentry, so generally speaking, it's easier to split them up.
+No, you most likely do not want this, as you want attribute values to be simple and deterministic in meaning, so you can easily write queries in Sentry and explore your data.
+Having them in the same attribute brings in complexity for querying, both for you and for us at Sentry, so generally speaking, it's easier to split them up.
 
-- Why can't the compiler tell me that I am using a type which will require a fallback, and maybe even produce garbage value data?
+- So if I shouldn't do this, why can't the compiler tell me that I am using a type which will require a fallback, and maybe even produce garbage value data?
 
-That's the exact question what we asked ourselves too, resulting us in adopting more Swift language features as you can see in the next sections.
+That's the exact question we asked ourselves too, resulting in us adopting more Swift language features as you can see in the next sections of this blog post.
 
 ### One Type To Rule Them All
 
@@ -461,7 +463,7 @@ SentrySDK.metrics.count(key: "network.request.count", count: 5, attributes: [
 
 This is already way better than using `Any`, because now we can only pass in attribute values which are defined as associated values of our enum.
 
-So are we aready to ship? 🚀 Not quite yet, because just a bit more of engineering and we realize that while our protocol allows `double` values, it does not allow `float` values, leaving us with an ugly cast like this:
+So, are we aready to ship? 🚀 Not quite yet, because just a bit more of engineering and we realize that while our protocol allows `double` values, it does not allow `float` values, leaving us with an ugly conversion like this:
 
 ```swift
 let latency: Float = 123.456
@@ -472,7 +474,7 @@ SentrySDK.metrics.distribution(key: "network.latency", value: 123, attributes: [
 
 On top of that we now have once again like in the `SentryUnit` growing boilerplate code, requiring us to convert our variables and literals to enum values every single time.
 
-So what's the Swift-way to handle this? Exactly! One ~type~ protocol to rule them all.
+So what's the Swift-way to handle this? Exactly! One ~type~ **protocol** to rule them all.
 
 ```swift
 protocol SentryAttributeValue {
@@ -515,7 +517,7 @@ extension Double: SentryAttributeValue {
 
 extension Float: SentryAttributeValue {
     public var asSentryAttributeContent: SentryAttributeContent {
-        return .double(Double(self))
+        return .double(Double(self)) // ✅ Float-to-Double conversion is hidden away
     }
 }
 
@@ -523,7 +525,7 @@ class MyType: SentryAttributeValue {
     let foo = "bar"
 
     var asSentryAttributeContent: SentryAttributeContent {
-        return .string(foo)
+        return .string(foo) // Custom types can use any of our supported content types
     }
 }
 ```
@@ -531,13 +533,13 @@ class MyType: SentryAttributeValue {
 These extensions are part of the SDK, therefore everyone now can now use the metrics API as defined at the beginning of this post, supporting variables and literals
 
 ```swift
-let method = "POST" // Variables can be represented as SentryAttributeValue
+let method = "POST" // Variables can be represented
 SentrySDK.metrics.count(
     key: "network.request.count",
     value: 1,
     unit: .generic("request"),
     attributes: [
-        "endpoint": "/api/users", // Literals can be represented as SentryAttributeValue
+        "endpoint": "/api/users", // Literals can be represented
         "method": method,
         "body_size": 1786
     ]
@@ -548,7 +550,7 @@ SentrySDK.metrics.count(
 
 You might have noticed that I did not mention the support of `Array` much yet. That's due to array handling being quite complex, so I want to dedicate this section to it.
 
-As we have established already, we need to extend `Array` so it also adopts and implements the method of `SentryAttributeValue`, but we want to extend it only if the array contains elements which are one of our supported types.
+As we have established already, we need to extend `Array` so it also adopts and implements the method of `SentryAttributeValue`, but for the best user experience, we want to extend it only if the array contains elements which are one of our supported types.
 
 The initial approach was using the `extension <TYPE> where <CONDITION>` approach offered by Swift, to add logic to a `TYPE` only if a `CONDITION` on the typing is fulfilled.
 
@@ -560,7 +562,7 @@ extension Array: SentryAttributeValue where Element == Int {
 }
 ```
 
-While this worked if we write the extension only for a single type, we started to hit compiler limitations with multiple types:
+While this worked if we write the extension only for a single type, we started to hit compiler errors with multiple type extensions:
 
 ![Compiler error when multiple conformances to same protocol](/images/leveraging-swifts-typesafety-for-the-new-metrics-feature/multi-conformance.png)
 
@@ -573,7 +575,7 @@ extension Array: SentryAttributeValue where Element == SentryAttributeValue {
             return .booleanArray(values)
         }
         // ... and other cases
-        // ...
+
         // Fallback to converting to strings
         return .stringArray(self.map { element in
             String(describing: element)
@@ -584,7 +586,7 @@ extension Array: SentryAttributeValue where Element == SentryAttributeValue {
 
 For the sake of readability of this blog post I am not going to embed the entire casting logic here, so if you want to see it in detail, all of [our source code is open source](https://github.com/getsentry/sentry-cocoa/blob/142ed2ca1101e982f17fef4874fe94eb3cae880a/Sources/Swift/Protocol/SentryAttributeValue.swift#L91), so feel free to check it out.
 
-But this worked well (for a while), as we were now able to pass in String arrays, Bool arrays, etc. for all the types which adopted `SentryAttributeValue`:
+This worked well (for a while), as we were now able to pass in `String` arrays, `Bool` arrays, etc. for all the types which adopted `SentryAttributeValue`:
 
 ```swift
 SentrySDK.metrics.count(
@@ -599,7 +601,7 @@ SentrySDK.metrics.count(
 
 But there was already another pattern becoming visible: all of the arrays are homogeneous to a single type, therefore they were not actually arrays of `SentryAttributeValue`, but arrays of types adopting `SentryAttributeValue`.
 
-A thin line in definition, which surfaced challenge when mixing multiple types adopting `SentryAttributeValue` into a single array.
+It's a thin line in definition, which surfaced challenge when mixing multiple types adopting `SentryAttributeValue` into a single array.
 We hoped that the compiler would somehow be smart enough to understand that now it's an array of `SentryAttributeValue`, but instead it falled back to an array of `Any`.
 
 ```swift
@@ -627,7 +629,7 @@ SentrySDK.metrics.count(
 
 As `Any` is a type which can not be extended nor does it have a clear representation as an attribute value, we have to remove the condition from the Array extension and have additional handling:
 
-```
+```swift
 extension Array: SentryAttributeValue {
     public var asSentryAttributeContent: SentryAttributeContent {
         if Element.self == Bool.self, let values = self as? [Bool] {
@@ -647,26 +649,119 @@ extension Array: SentryAttributeValue {
 
 This was the final solution which now has to cast from arrays of `Any` to our known types, including handling of other types adopting the protocol and a String fallback for everything else.
 
-### Extending
+### Granular Control and Forwards-Compatibility
 
-// TODO: Explain exhaustive enums with @frozen and @non-exhaustive in beforeSendMetric
+As [it is common](https://develop.sentry.dev/sdk/expected-features/#before-send-hook) in our Sentry SDKs, we want to allow our users to be able to manually filter and manipulate collected metric items before they are sent to Sentry, either for data enrichment, data scrubbing and other use cases.
+
+This was also decided for the Metrics feature, so we introduced the option [`beforeSendMetric`](https://develop.sentry.dev/sdk/telemetry/metrics/#initialization-options) which is a "[..] function that takes a metric object and returns a metric object [..] called before sending the metric to Sentry".
+
+To embrace the Swift-iness of our implementation we also reconsidered the need of using `class`-based reference type instances for the metrics objects.
+Instead should be handled as immutable data inside of the SDK and only be transformed/mapped if needed. Therefore we decided to use `struct` data types instead with `SentryMetric` as our input type and `SentryMetric?` as a nullable return type.
+
+While this removes compatibility with Objective-C (as `struct` is Swift-only), by using `struct` the metric is passed as an immutable copy to the `beforeSendMetric` closure and can not be modified directly, unless it's copied to a local variable first. We considered passing it in as an [`inout`](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/functions/#In-Out-Parameters) parameter to allow modification via a reference, but decided against it because it would require us to change the input parameter to be nullable too, which is never the case.
+
+For the type of the `attributes` property of the metric, we decided to expose the dictionary not as `SentryAttributeValue` as in the capturing methods, but instead directly the enum `SentryAttributeContent`.
+This allows you to identify and modify the typed metrics using `switch` for multi-case or `if case` for single-cases handling.
+
+Bringing it all together the `beforeSendMetric` can be used like this:
+
+```swift
+// Experimental for now, will be a top-level option in the future
+class SentryExperimentalOptions {
+    var beforeSendMetric: ((Sentry.SentryMetric) -> Sentry.SentryMetric?)?
+}
+
+options.experimental.beforeSendMetric = { metric in
+    // Create a mutable copy (SentryMetric is a struct)
+    var metric = metric
+
+    // Drop metrics with specific attribute values set
+    if case .boolean(let dropMe) = metric.attributes["dropMe"], dropMe {
+        return nil
+    }
+
+    // Modify metric attributes using literals converted to our enum types
+    metric.attributes["processed"] = true
+    metric.attributes["processed_at"] = "2024-01-01"
+
+    return metric
+}
+```
+
+During one of our discussions we encountered an interesting edge case with regards to forward compatibilty.
+
+When using an `enum` in a `switch` case matching, it is necessary to handle either all cases, or to define a `default` case to match the unhandled ones:
+
+```swift
+enum Value {
+    case boolean(Bool)
+    case integer(Int)
+    case string(String)
+}
+
+// Default case for unhandled ones
+switch value {
+case .boolean(let val):
+    // val is true/false
+default:
+    // do nothing
+}
+
+// Handle all cases
+let value: Value = ...
+switch value {
+case .boolean(let val):
+    // val is true/false
+case .integer(let val):
+    // val is an integer
+case .string(let val):
+    // val is a String
+}
+```
+
+The important aspect here is that the `enum` is defined in our SDK, therefore it can always happen that we want to implement a new type, e.g. `float[]`, in a future release.
+Now if an SDK users handles all cases of the attribute value, therefore not having to add a `default` statement`, this precondition could break the logic flow.
+
+But the Swift compiler developers considered this edge case by offering the `@unknown default` case which can be added for Swift 5, and must be added for Swift 6:
+
+![Swift 5 warning for unknown cases](/images/leveraging-swifts-typesafety-for-the-new-metrics-feature/switch-unknown-values-swift-5.png)
+
+```swift
+// Handle all cases and unknown defaults
+let value: Value = ...
+switch value {
+case .boolean(let val):
+    // val is true/false
+case .integer(let val):
+    // val is an integer
+case .string(let val):
+    // val is a String
+@unknown default:
+    // handles all future cases
+}
+```
+
+One alternative is attributing our enum as [`@frozen`](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/attributes/#frozen), indicating that the enum will never change in future versions. This is not something we want right now, because it make sense for enums like e.g. `CoordinateAxis` having only `vertical` and `horizontal` axis and never anything else, but not for our evolving protocol definitions.
 
 # Conclusion
 
-To conclude, the amount of research and development paid off.
+To conclude, defining an API is easy, but defining a stable API with a long-term vision takes more effort, which can pay off.
 
 With the support of Swift protocols and enums our SDK users now get compile-time hints for unsupported types, while still supporting literal values and variables.
-We support homogeneous and hetergenous arrays, including a fallback for unknown types handling compiler limitations.
-This should make collecting information with the new Metrics features straightforward and easy to understand, while staying extensible and forwards compatible.
+We support homogeneous and heterogenous arrays, including a fallback for unknown types handling compiler limitations.
+All tis should make collecting information with the new Metrics features straightforward and easy to understand, while staying extensible and forwards compatible.
 
-Unfortunately, it did not come without any downsides. The most notable one is missing support for Objective-C, as these public APIs now require Swift protocols with generics and types which are not available.
-But if you are using Sentry with an Objective-C project, you can create your own type-erasing wrapper around our SDK for now to workaround this, while we are already working on creating a thin Objective-C wrapper SDK.
+Unfortunately, it did not come without any downsides.
+The most notable one is missing support for Objective-C, as these public APIs now require Swift protocols with generics and types which can not be bridged out-of-the-box.
+But, if you are using Sentry with an Objective-C project, you can create your own type-erasing wrapper around our SDK for now, while we are already working on a [Objective-C SDK](https://github.com/getsentry/sentry-cocoa/issues/6342).
 
-Another downside was the limited support for compile-time safety of values in Arrays. This one is on the Swift compiler, therefore there's nothing else we can do for now, except handling unknown types gracefully with our internal fallback mechanisms.
+Another downside was the limited support for compile-time hints of values in Arrays. This one is on the Swift compiler, therefore there's nothing else we can do for now, except handling unknown types gracefully with our internal fallback-to-`String` mechanism.
 
-And the final downside at this point we can not migrate the Logs API to also use these language features, as that would be a breaking change requiring a major release (which we just recently did).
-Therefore, this will be migrated in a future major release.
+And as final disadvantage, we can not migrate the Logs API to also use these language features right now, as that would be a breaking change requiring a major release (which we just recently did).
 
 All-together this pushes our SDK even more towards becoming a best-practice Swift SDK.
 
-Thanks for reading and if you have any questions, feel free to reach out to me on [X](https://x.com/philprimes) or [BlueSky](https://bsky.app/philprime.dev)
+I hope you enjoyed following along our programming design process.
+If you are interested in joining us to bring even more value to our users, consider checking out [our open positions](https://sentry.io/careers).
+
+Thanks for reading and if you have any questions, feel free to reach out to me on [X](https://x.com/philprimes) or [BlueSky](https://bsky.app/profile/philprime.dev).
