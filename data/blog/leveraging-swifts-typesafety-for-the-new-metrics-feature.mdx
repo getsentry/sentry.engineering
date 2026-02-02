@@ -9,9 +9,8 @@ canonicalUrl: leveraging-swift-type-safety-in-metrics
 authors: ['philniedertscheider']
 ---
 
-With the release of our [Apple / Cocoa SDK v9.2.0](https://github.com/getsentry/sentry-cocoa/releases/tag/9.2.0) a long requested feature is now finally here: **Metrics**.
-
-Already available in some of our other SDKs including the Python SDK, the JavaScript SDK and the Go SDK, you can now use Sentry to collect useful metrics to gain even more insights into your app experience:
+With the release of [Apple / Cocoa SDK v9.2.0](https://github.com/getsentry/sentry-cocoa/releases/tag/9.2.0), we're excited to share not just the new experimental Metrics feature, but the engineering thinking behind it.
+Already available in our Python, JavaScript, and Go SDKs, Metrics lets you collect custom measurements to gain deeper insights into your app:
 
 ```swift
 // Track how many users completed checkout
@@ -41,10 +40,17 @@ SentrySDK.metrics.distribution(
 )
 ```
 
-While the implementation of the first proof-of-concept was already done weeks ago, a lot of thought has been put into the design of the public API - the main point of interaction for our SDK users which must not be changed unless absolutely necessary.
-Leveraging Swift's strong typing system, we created an approach to surface potential issues at compile-time rather than when your app has been published.
+While the proof-of-concept was done weeks ago, most of our effort went into designing the public API - the interface our SDK users interact with daily, and one we can't easily change once released.
 
-So join me on this deep-dive on why the Metrics feature is Swift-only (for now), and which engineering decisions we took along the way, to give you, our SDK users, the most sophisticated user experience possible.
+In this post, I'll walk you through our design process and the Swift features that made it possible.
+To name a couple of topics we are going to cover, here's what you'll take away:
+
+- **Protocol extensions** as a workaround for Swift's compiler limitations
+- Enums with **associated values** for extended information
+- Using **`ExpressibleByStringLiteral`** to convert literals straight into types
+- **Forward-compatible enum** design that won't break when you add new cases
+
+Join me on this deep-dive and let's get straight into it.
 
 ## Three Important Methods
 
@@ -743,23 +749,31 @@ One alternative is attributing our enum as [`@frozen`](https://docs.swift.org/sw
 
 # Conclusion
 
-To conclude, defining an API is easy, but defining a stable API with a long-term vision takes more effort, which can pay off.
+Designing an API is easy. Designing one that catches potential issues before they become production incidents - that takes effort.
 
-With the support of Swift protocols and enums our SDK users now get compile-time hints for unsupported types, while still supporting literal values and variables.
-We support homogeneous and heterogeneous arrays, including a fallback for unknown types handling compiler limitations.
-All this should make collecting information with the new Metrics features straightforward and easy to understand, while staying extensible and forwards compatible.
+By leveraging Swift's type system, we've created a Metrics API where:
 
-Unfortunately, it did not come without any downsides.
-The most notable one is missing support for Objective-C, as these public APIs now require Swift protocols with generics and types which can not be bridged out-of-the-box.
-But, if you are using Sentry with an Objective-C project, you can create your own type-erasing wrapper around our SDK for now, while we are already working on a [Objective-C SDK](https://github.com/getsentry/sentry-cocoa/issues/6342).
+- Invalid values won't compile, resulting in early feedback.
+- The compiler autocompletes to exactly what you need.
+- Custom types are first-class citizens, extending the SDK to your needs.
+- Proper future-proofing using `@unknown default` and `@frozen` enums.
 
-Another downside was the limited support for compile-time hints of values in Arrays. This one is on the Swift compiler, therefore there's nothing else we can do for now, except handling unknown types gracefully with our internal fallback-to-`String` mechanism.
+Of course, there are trade-offs - especially the most significant one: this API is Swift-only.
+Objective-C projects can't use it directly (though you can create a wrapper), and we're [tracking Objective-C support](https://github.com/getsentry/sentry-cocoa/issues/6342) for a future release.
 
-And as final disadvantage, we can not migrate the Logs API to also use these language features right now, as that would be a breaking change requiring a major release (which we just recently did).
+We also hit Swift compiler limitations with array type inference, which is why we needed the fallback-to-`String` mechanism.
+And we can't retrofit these patterns to the existing Logs API without a breaking change.
 
-All-together this pushes our SDK even more towards becoming a best-practice Swift SDK.
+But overall we believe this is the direction Swift SDKs should go, **by making the right thing easy and the wrong thing impossible**.
 
-I hope you enjoyed following along our programming design process.
-If you are interested in joining us to bring even more value to our users, consider checking out [our open positions](https://sentry.io/careers).
+---
 
-Thanks for reading and if you have any questions, feel free to reach out to me on [X](https://x.com/philprimes) or [BlueSky](https://bsky.app/profile/philprime.dev).
+## Try It Out
+
+The Metrics API is available now in [sentry-cocoa v9.2.0](https://github.com/getsentry/sentry-cocoa/releases/tag/9.2.0). We'd love to hear what you think:
+
+- **Found a bug or have feedback?** [Open an issue](https://github.com/getsentry/sentry-cocoa/issues/new) on GitHub
+- **Want to see how we implemented it?** The [full source code](https://github.com/getsentry/sentry-cocoa/blob/main/Sources/Swift/Protocol/SentryAttributeValue.swift) is open source
+- **Interested in building developer tools?** We're hiring - [check out our open positions](https://sentry.io/careers)
+
+If you made it this far, you're exactly the kind of developer who appreciates well-designed APIs. I'd love to hear from you - reach out on [X](https://x.com/philprimes) or [Bluesky](https://bsky.app/profile/philprime.dev) with your thoughts, questions, or your own Swift API design war stories.
