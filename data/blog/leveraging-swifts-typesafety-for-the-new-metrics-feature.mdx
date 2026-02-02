@@ -14,30 +14,28 @@ With the release of our [Apple / Cocoa SDK v9.2.0](https://github.com/getsentry/
 Already available in some of our other SDKs including the Python SDK, the JavaScript SDK and the Go SDK, you can now use Sentry to collect useful metrics to gain even more insights into your app experience:
 
 ```swift
-// Counter metrics allow you to measure how many times an event has occurred
+// Track how many users completed checkout
 SentrySDK.metrics.count(
-    key: "network.request.count",
+    key: "checkout.completed",
     value: 1,
-    unit: .generic("request"),
     attributes: [
-        "endpoint": "/api/users",
-        "method": "POST",
-        "body_size": 1786
+        "payment_method": "apple_pay",
+        "cart_items": 3
     ]
 )
 
-// Gauge metrics are used for constantly changing values
+// Monitor your in-memory cache size
 SentrySDK.metrics.gauge(
-    key: "queue.depth",
-    value: 42.0,
+    key: "cache.size_mb",
+    value: 42.5,
     attributes: [
-        "queue_name": "api_requests"
+        "cache_name": "image_cache"
     ]
 )
 
-// Distribution metrics track the statistical distribution of values
+// Measure how long image processing takes
 SentrySDK.metrics.distribution(
-    key: "http.response_time",
+    key: "image.processing_time",
     value: 187.5,
     unit: .millisecond
 )
@@ -218,7 +216,7 @@ extension SentryUnit: RawRepresentable {
 Now it's easy to add more information to our metrics, e.g. by using a custom unit type `"warning"`:
 
 ```swift
-SentrySDK.metrics.counter(
+SentrySDK.metrics.count(
     key: "memory.warning",
     value: 2,
     unit: .generic("warning")
@@ -349,16 +347,17 @@ One major drawback of using `Any` as the value of our attributes is missing comp
 To visualize this, take a look at the following example from the Logs API, where we set a `String`, a `Int`, a `Double` and a custom class type instance as attributes:
 
 ```swift
-class MyType {
-    let foo = "bar"
+class User {
+    let id = "user_123"
+    let name = "Jane"
 }
-let instance = MyType()
+let currentUser = User()
 
-SentrySDK.logger.info("Hello World", attributes: [
-    "some-string": "baz",
-    "some-int": 123,
-    "some-double": 456.789,
-    "some-instance": instance
+SentrySDK.logger.info("Purchase completed", attributes: [
+    "product_name": "Premium Plan",
+    "price": 99,
+    "discount_percent": 15.5,
+    "user": currentUser  // Oops - passing the whole object
 ])
 ```
 
@@ -368,22 +367,22 @@ As a fallback for unknown types such as `MyType`, we are performing an internal 
 ```json
 {
   "severity_number": 9,
-  "body": "Hello World",
+  "body": "Purchase completed",
   "attributes": {
-    "some-string": {
-      "value": "baz",
+    "product_name": {
+      "value": "Premium Plan",
       "type": "string"
     },
-    "some-double": {
-      "value": 456.789,
-      "type": "double"
-    },
-    "some-int": {
-      "value": 123,
+    "price": {
+      "value": 99,
       "type": "integer"
     },
-    "some-instance": {
-      "value": "MyApp.MyApp.(unknown context at $103d12130).(unknown context at $103d1213c).MyType",
+    "discount_percent": {
+      "value": 15.5,
+      "type": "double"
+    },
+    "user": {
+      "value": "MyApp.MyApp.(unknown context at $103d12130).(unknown context at $103d1213c).User",
       "type": "string"
     }
   }
@@ -396,22 +395,22 @@ Even worse, the `$103d12130` and `$103d1213c` are actually memory addresses, so 
 One variant to improve this is adopting the protocol [`CustomStringConvertible`](https://developer.apple.com/documentation/Swift/CustomStringConvertible), requiring us to implement the `description` getter method (often known as `toString()` in other programming languages):
 
 ```swift
-class MyType: CustomStringConvertible {
-    let foo = "bar"
-    let baz = "foobar"
+class User: CustomStringConvertible {
+    let id = "user_123"
+    let name = "Jane"
 
     var description: String {
-        return "<MyType: foo=\(foo), baz=\(foobar)>"
+        return "<User: id=\(id), name=\(name)>"
     }
 }
 ```
 
-This example then serializes to the following payload:
+This example then serializes to a more useful payload:
 
 ```json
 {
-  "some-instance": {
-    "value": "<MyType: foo=bar, baz=foobar>",
+  "user": {
+    "value": "<User: id=user_123, name=Jane>",
     "type": "string"
   }
 }
@@ -454,10 +453,10 @@ public protocol SentryMetricsApiProtocol {
     func count(key: String, value: UInt, attributes: [String: SentryAttributeContent])
 }
 
-SentrySDK.metrics.count(key: "network.request.count", value: 5, attributes: [
-    "endpoint": .string("/api/users"),
-    "method": .string("POST"),
-    "body_size": .integer(1786)
+SentrySDK.metrics.count(key: "checkout.completed", value: 1, attributes: [
+    "payment_method": .string("apple_pay"),
+    "cart_items": .integer(3),
+    "total_amount": .double(99.99)
 ])
 ```
 
@@ -488,7 +487,7 @@ public protocol SentryMetricsApiProtocol {
 
 With this new protocol, we change the method signature of our public API once again and now it's not even using a concrete type for the attribute value, it just accepts any type which adopted the protocol `SentryAttributeValue`, therefore declaring that it has a getter method or property to represent itself as a `SentryAttributeContent` enum value.
 
-Now **every** type can define itself as being representable as one of our supported types, especially types available in the Swift standard library, but also our custom types such as `MyType` from the examples above:
+Now **every** type can define itself as being representable as one of our supported types, especially types available in the Swift standard library, but also your custom types like `User`:
 
 ```swift
 extension String: SentryAttributeValue {
@@ -521,11 +520,11 @@ extension Float: SentryAttributeValue {
     }
 }
 
-class MyType: SentryAttributeValue {
-    let foo = "bar"
+class User: SentryAttributeValue {
+    let id = "user_123"
 
     var asSentryAttributeContent: SentryAttributeContent {
-        return .string(foo) // Custom types can use any of our supported content types
+        return .string(id) // Custom types can represent themselves as supported content types
     }
 }
 ```
@@ -533,15 +532,14 @@ class MyType: SentryAttributeValue {
 These extensions are part of the SDK, therefore everyone can now use the metrics API as defined at the beginning of this post, supporting variables and literals:
 
 ```swift
-let method = "POST" // Variables can be represented
+let paymentMethod = "apple_pay" // Variables work seamlessly
 SentrySDK.metrics.count(
-    key: "network.request.count",
+    key: "checkout.completed",
     value: 1,
-    unit: .generic("request"),
     attributes: [
-        "endpoint": "/api/users", // Literals can be represented
-        "method": method,
-        "body_size": 1786
+        "payment_method": paymentMethod,
+        "cart_items": 3,           // Integer literals just work
+        "is_first_purchase": true  // Booleans too
     ]
 )
 ```
@@ -590,11 +588,11 @@ This worked well (for a while), as we were now able to pass in `String` arrays, 
 
 ```swift
 SentrySDK.metrics.count(
-    key: "network.request.count",
+    key: "order.placed",
     attributes: [
-        "endpoint": "/api/users",     // String can be represented as SentryAttributeValue
-        "users": ["user-1", "user-2"], // Array of String can also be represented
-        "values": [1, 2, 3]           // Array of Integer can also be represented
+        "customer_id": "cust_456",           // String works
+        "product_ids": ["sku_1", "sku_2"],   // Array of String works
+        "quantities": [2, 1, 3]              // Array of Integer works too
     ]
 )
 ```
@@ -605,24 +603,24 @@ It's a thin line in definition, which surfaced a challenge when mixing multiple 
 We hoped that the compiler would somehow be smart enough to understand that now it's an array of `SentryAttributeValue`, but instead it fell back to an array of `Any`.
 
 ```swift
-struct Foo: SentryAttributeValue {
+struct ProductID: SentryAttributeValue {
     var asSentryAttributeContent: SentryAttributeContent {
-        return .integer(1)
+        return .string("product_1")
     }
 }
 
-struct Bar: SentryAttributeValue {
+struct CategoryID: SentryAttributeValue {
     var asSentryAttributeContent: SentryAttributeContent {
-        return .integer(2)
+        return .string("electronics")
     }
 }
 
 SentrySDK.metrics.count(
-    key: "network.request.count",
+    key: "page.viewed",
     attributes: [
         // Mixed array of types adopting SentryAttributeValue
-        // Both return integer content values, so this could be an integer[]
-        "values": [Foo(), Bar()] // ❌ Not an [SentryAttributeValue] but [Any]
+        // Both return string content, so this could be a string[]
+        "related_items": [ProductID(), CategoryID()] // ❌ Compiler sees [Any], not [SentryAttributeValue]
     ]
 )
 ```
