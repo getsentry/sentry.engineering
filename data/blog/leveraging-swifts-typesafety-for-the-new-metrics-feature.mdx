@@ -10,7 +10,7 @@ authors: ['philniedertscheider']
 ---
 
 With the release of [Apple / Cocoa SDK v9.2.0](https://github.com/getsentry/sentry-cocoa/releases/tag/9.2.0), we're excited to share not just the new experimental Metrics feature, but the engineering thinking behind it.
-Already available in our Python, JavaScript, and Go SDKs, Metrics lets you collect custom measurements to gain deeper insights into your app:
+Already available in our [Python](https://docs.sentry.io/platforms/python/metrics/), [JavaScript](https://docs.sentry.io/platforms/javascript/guides/node/metrics/), and [Go SDKs](https://docs.sentry.io/platforms/go/metrics/), [Metrics](https://docs.sentry.io/product/explore/metrics/) let you collect custom measurements to gain deeper insights into your app:
 
 ```swift
 // Track how many users completed checkout
@@ -40,7 +40,7 @@ SentrySDK.metrics.distribution(
 )
 ```
 
-While the proof-of-concept was done weeks ago, most of our effort went into designing the public API - the interface our SDK users interact with daily, and one we can't easily change once released.
+While the proof of concept was done weeks ago, most of our effort went into designing the public API - the interface our SDK users interact with daily, and one we can't easily change once released.
 
 In this post, I'll walk you through our design process and the Swift features that made it possible.
 To name a couple of topics we are going to cover, here's what you'll take away:
@@ -50,7 +50,7 @@ To name a couple of topics we are going to cover, here's what you'll take away:
 - Using **`ExpressibleByStringLiteral`** to convert literals straight into types
 - **Forward-compatible enum** design that won't break when you add new cases
 
-Join me on this deep-dive and let's get straight into it.
+Join me on this deep dive and let's get straight into it.
 
 ## Three Important Methods
 
@@ -59,7 +59,7 @@ Let's start at the beginning.
 From a user perspective, the most important parts are the methods used to capture metrics.
 To enable this, the SDK needs to offer a `SentrySDK.metrics` object with the three methods `.count(..)`, `.gauge(..)` and `.distribution(..)`, each with a `key` and `value` parameter.
 
-This brings up the first opportunity where we decided against surfacing a concrete type, and instead adopt it using a [protocol](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/protocols) (also known as "interfaces" in other programming languages), allowing us to easily refactor otherwise public types in the future, reducing the need for breaking changes in the future.
+This brings up the first opportunity where we decided against surfacing a concrete type, and instead adopt it using a [protocol](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/protocols) (also known as "interfaces" in other programming languages), allowing us to easily refactor otherwise public types, reducing the need for breaking changes in later versions of the SDK.
 
 This brings up the first benefit of using Swift. We use `Double` for the gauge and distribution metrics to capture values with floating point precision, including negative values.
 But for counter metrics we realized that the count is always a **whole number** and **never negative**, resulting in the first decision of using unsigned integers `UInt` for counter metrics.
@@ -79,7 +79,7 @@ Looking at [our technical specifications for Metrics](https://develop.sentry.dev
 > For `counter` metrics: the count to increment by **(should default to 1)**
 
 This means it must be possible for SDK users to capture a counter metric without having to explicitly define a `value`, falling back to `1` as a default.
-Commonly this is solved by using a default value in the method signature, i.e. `func count(key: String, value: UInt = 1)` allowing an invocation with `count(key: "my-key")` and `count(key: "my-key", value: 123)`.
+Commonly, this is solved by using a default value in the method signature, i.e., `func count(key: String, value: UInt = 1)` allowing an invocation with `count(key: "my-key")` and `count(key: "my-key", value: 123)`.
 
 Unfortunately Swift's protocols do not support default values in their definitions, leaving us with a build-time error:
 
@@ -120,7 +120,7 @@ Great, now that we have our public API established with a default value for coun
 
 Sentry's telemetry system has a standardized [list of pre-defined units](https://develop.sentry.dev/sdk/telemetry/attributes/#units) enabling server-side aggregation and data processing.
 
-The simplest solution would be changing the API to offer a `String` parameter to define the unit. But, as these are standardized, we can also use Swift's `enum` type to offer compile-time safety and by defining the raw value to `String`, the compiler takes care of generating String values for each case and other boilerplate code for us:
+The simplest solution would be changing the API to offer a `String` parameter to define the unit. But, as these are standardized, we can also use Swift's `enum` type to offer compile-time safety and by defining the raw value as `String`, the compiler takes care of generating String values for each case and other boilerplate code for us:
 
 ```swift
 public enum SentryUnit: String {
@@ -142,14 +142,14 @@ As the `unit` parameter is optional and should also be omittable, we can leverag
 
 ```swift
 public protocol SentryMetricsApiProtocol {
-    func count(key: String, value: UInt, unit: SentryUnit?)
+    func count(key: String, value: UInt)
     func distribution(key: String, value: Double, unit: SentryUnit?)
     func gauge(key: String, value: Double, unit: SentryUnit?)
 }
 
 public extension SentryMetricsApiProtocol {
-    func count(key: String, value: UInt = 1, unit: SentryUnit? = nil) {
-        self.count(key: key, value: value, unit: unit)
+    func count(key: String, value: UInt = 1) {
+        self.count(key: key, value: value)
     }
 
     func distribution(key: String, value: Double, unit: SentryUnit? = nil) {
@@ -163,12 +163,12 @@ public extension SentryMetricsApiProtocol {
 
 // Example Usage:
 
-// Value falls back to 1, unit is nil
+// Value falls back to 1
 SentrySDK.metrics.count(key: "network.request.count")
-// Value is explicitly set to 2, unit is still nil
+// Value is explicitly set to 2
 SentrySDK.metrics.count(key: "memory.warning", value: 2)
-// Both the value and unit are set
-SentrySDK.metrics.count(key: "queue.processed_bytes", value: 512, unit: .bytes)
+// Distribution with value and unit
+SentrySDK.metrics.distribution(key: "queue.processed_bytes", value: 512.0, unit: .bytes)
 ```
 
 So, how about using non-standard units?
@@ -219,13 +219,13 @@ extension SentryUnit: RawRepresentable {
 }
 ```
 
-Now it's easy to add more information to our metrics, e.g. by using a custom unit type `"warning"`:
+Now it's easy to add more information to our metrics, e.g. by using a custom unit type `"items"`:
 
 ```swift
-SentrySDK.metrics.count(
-    key: "memory.warning",
-    value: 2,
-    unit: .generic("warning")
+SentrySDK.metrics.gauge(
+    key: "queue.depth",
+    value: 42.0,
+    unit: .generic("items")
 )
 ```
 
@@ -251,7 +251,7 @@ But now this small extension indicates to the compiler that literal `String` val
 
 ```swift
 // ✅ Compiler converts the string to an enum with associated value
-let unit: SentryUnit = "warning"
+let unit: SentryUnit = "items"
 
 // ❌ Does not work for String variables, only literal values
 let myUnit = "some value"
@@ -264,19 +264,21 @@ let unit: SentryUnit = .generic(myUnit)
 All of these additions now result in an even cleaner API with custom metric units, while still supporting pre-defined constants.
 
 ```swift
-SentrySDK.metrics.count(
-    key: "memory.warning",
-    value: 2,
-    unit: "warning"
+SentrySDK.metrics.gauge(
+    key: "queue.depth",
+    value: 42.0,
+    unit: "items"
 )
 ```
+
+Note that generic/custom units are currently not supported by Sentry's data processing, but we designed the API this way for forward compatibility. Once Relay/Sentry supports generic/custom units, your code will work without requiring an SDK upgrade.
 
 ## Adding Context With Attributes
 
 Now it's time to add our last parameter to the public methods: **Attributes**.
 
 [Attributes](https://develop.sentry.dev/sdk/telemetry/attributes/) are a list of key-value pairs with a `String` as a key and a value of different types.
-At the time of writing this blog these are the value types supported by Sentry's data processing:
+At the time of writing this blog, these are the value types supported by Sentry's data processing:
 
 - `string`
 - `boolean`
@@ -477,7 +479,7 @@ SentrySDK.metrics.distribution(key: "network.latency", value: 123, attributes: [
 ])
 ```
 
-On top of that we now have once again like in the `SentryUnit` growing boilerplate code, requiring us to convert our variables and literals to enum values every single time.
+On top of that, we now have, once again, like in the `SentryUnit`, growing boilerplate code, requiring us to convert our variables and literals to enum values every single time.
 
 So what's the Swift-way to handle this? Exactly! One ~type~ **protocol** to rule them all.
 
@@ -726,7 +728,7 @@ case .string(let val):
 The important aspect here is that the `enum` is defined in our SDK, therefore it can always happen that we want to implement a new type, e.g. `float[]`, in a future release.
 Now if an SDK user handles all cases of the attribute value, therefore not having to add a `default` statement, this precondition could break the logic flow.
 
-But the Swift compiler developers considered this edge case by offering the `@unknown default` case which can be added for Swift 5, and must be added for Swift 6:
+But the Swift compiler developers considered this edge case by offering the `@unknown default` case which may be added for Swift 5, and must be added for Swift 6:
 
 ![Swift 5 warning for unknown cases](/images/leveraging-swifts-typesafety-for-the-new-metrics-feature/switch-unknown-values-swift-5.png)
 
