@@ -2,7 +2,7 @@
 title: 'Do you really need an MCP to build your app?'
 date: '2026-02-03'
 tags: ['ios', 'ai', 'mcp']
-draft: true
+draft: false
 summary: 'Do you really need an MCP to build your app? Surprisingly, modern agents succeed either way, the real difference is how much time, cost, and context you waste along the path.'
 images: []
 layout: PostLayout
