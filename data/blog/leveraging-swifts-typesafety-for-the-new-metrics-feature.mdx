@@ -10,7 +10,8 @@ authors: ['philniedertscheider']
 ---
 
 With the release of [Apple / Cocoa SDK v9.2.0](https://github.com/getsentry/sentry-cocoa/releases/tag/9.2.0), we're excited to share not just the new experimental Metrics feature, but the engineering thinking behind it.
-Already available in our [Python](https://docs.sentry.io/platforms/python/metrics/), [JavaScript](https://docs.sentry.io/platforms/javascript/guides/node/metrics/), and [Go SDKs](https://docs.sentry.io/platforms/go/metrics/), [Metrics](https://docs.sentry.io/product/explore/metrics/) let you collect custom measurements to gain deeper insights into your app:
+
+Already available in our [Python](https://docs.sentry.io/platforms/python/metrics/), [JavaScript](https://docs.sentry.io/platforms/javascript/guides/node/metrics/), [Flutter](https://docs.sentry.io/platforms/dart/guides/flutter/metrics/) and [Go SDKs](https://docs.sentry.io/platforms/go/metrics/), [Metrics](https://docs.sentry.io/product/explore/metrics/) let you collect custom measurements to gain deeper insights into your app:
 
 ```swift
 // Track how many users completed checkout
@@ -45,7 +46,7 @@ While the proof of concept was done weeks ago, most of our effort went into desi
 In this post, I'll walk you through our design process and the Swift features that made it possible.
 To name a couple of topics we are going to cover, here's what you'll take away:
 
-- **Protocol extensions** as a workaround for Swift's compiler limitations
+- **Protocol extensions** as a workaround for Swift's compiler limitations such as default values in methods
 - Enums with **associated values** for extended information
 - Using **`ExpressibleByStringLiteral`** to convert literals straight into types
 - **Forward-compatible enum** design that won't break when you add new cases
@@ -87,7 +88,7 @@ Unfortunately Swift's protocols do not support default values in their definitio
 
 Luckily there is a solution: **Protocol Extensions**.
 
-Extensions in Swift allow adding additional logic to types, e.g. if a type has a getter for `firstName` and `lastName` an extension could add `fullName` returning the concatenation of the two strings.
+Extensions in Swift allow adding additional logic to types, e.g. if a data type `struct` has a getter for `firstName` and `lastName` an extension could add `fullName` returning the concatenation of the two strings.
 
 ```swift
 struct Person {
@@ -102,7 +103,7 @@ extension Person {
 }
 ```
 
-The important part to understand here is that protocol extensions only know about the signature of the protocol, therefore we can also only access methods defined in `SentryMetricsApiProtocol`.
+The important part to understand here is that protocols can also be extended, but protocol extensions only know about the signature of the protocol, therefore we can also only access methods defined in `SentryMetricsApiProtocol`.
 But this is actually all we need, as we are adding convenience overloads for our methods, allowing callers to omit the optional parameters:
 
 ```swift
@@ -116,7 +117,7 @@ public extension SentryMetricsApiProtocol {
 
 Great, now that we have our public API established with a default value for counters, it's time to extend it with the next useful addition: **metrics units**.
 
-## Metrics Units
+## Metrics Units, Enums And Generic Values
 
 Sentry's telemetry system has a standardized [list of pre-defined units](https://develop.sentry.dev/sdk/telemetry/attributes/#units) enabling server-side aggregation and data processing.
 
@@ -172,8 +173,6 @@ SentrySDK.metrics.distribution(key: "queue.processed_bytes", value: 512.0, unit:
 ```
 
 So, how about using non-standard units?
-
-### Enums And Generic Values
 
 While using an enum as a type-safe approach of constants, we lost a big advantage compared to pure `String` constants, as we are now **not able to use generic units** anymore.
 The method typing is strict and if we pass in a parameter `unit`, it must be a `SentryUnit`.
@@ -235,6 +234,22 @@ Looking at the usage of the generic unit as in `unit: .generic("custom")` raises
 We already know that if we don't use any of the pre-defined constants like `.nanosecond`, we **always** have a String value that should **always** be seen as a "generic" / "custom" unit (Yes, _always_ is bold twice on purpose).
 
 If wrapping it in `SentryUnit.generic(..)` (or just `.generic(..)`) every single time seems like repetitive boilerplate code to you, there's something we can do about it!
+
+```swift
+// ⚠️ Not ideal having to use `.generic()` every time
+SentrySDK.metrics.gauge(
+    key: "queue.depth",
+    value: 42.0,
+    unit: .generic("items")
+)
+
+// ✅ Clean and compact
+SentrySDK.metrics.gauge(
+    key: "queue.depth",
+    value: 42.0,
+    unit: "items"
+)
+```
 
 As a final cherry-on-top improvement opportunity for generic units, we adopt the protocol [`ExpressibleByStringLiteral`](https://developer.apple.com/documentation/swift/expressiblebystringliteral) for our enum `SentryUnit`.
 This protocol of the Swift standard library is baked into the compiler and requires us to define an additional initializer:
