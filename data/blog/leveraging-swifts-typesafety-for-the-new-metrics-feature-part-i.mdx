@@ -1,0 +1,309 @@
+---
+title: "Leveraging Swift's Type-Safety in the New Metrics Feature: Part I"
+date: '2026-02-06'
+tags: ['apple', 'cocoa', 'ios', 'macos', 'metrics']
+summary: 'Explore protocol extensions, enums with associated values, and ExpressibleByStringLiteral to build type-safe Swift APIs.'
+images: []
+layout: PostLayout
+canonicalUrl: leveraging-swift-type-safety-in-metrics-part-i
+authors: ['philniedertscheider']
+---
+
+With the release of [Apple / Cocoa SDK v9.2.0](https://github.com/getsentry/sentry-cocoa/releases/tag/9.2.0), we're excited to share not just the new experimental Metrics feature, but the engineering thinking behind it.
+
+Already available in our [Python](https://docs.sentry.io/platforms/python/metrics/), [JavaScript](https://docs.sentry.io/platforms/javascript/guides/node/metrics/), [Flutter](https://docs.sentry.io/platforms/dart/guides/flutter/metrics/) and [Go](https://docs.sentry.io/platforms/go/metrics/) SDKs, [Metrics](https://docs.sentry.io/product/explore/metrics/) let you collect custom measurements to gain deeper insights into your app:
+
+```swift
+// Track how many users completed checkout
+SentrySDK.metrics.count(
+    key: "checkout.completed",
+    value: 1,
+    attributes: [
+        "payment_method": "apple_pay",
+        "cart_items": 3
+    ]
+)
+
+// Monitor your in-memory cache size
+SentrySDK.metrics.gauge(
+    key: "cache.size_mb",
+    value: 42.5,
+    attributes: [
+        "cache_name": "image_cache"
+    ]
+)
+
+// Measure how long image processing takes
+SentrySDK.metrics.distribution(
+    key: "image.processing_time",
+    value: 187.5,
+    unit: .millisecond
+)
+```
+
+While the proof of concept was done weeks ago, most of our effort went into designing the public API - the interface our SDK users interact with daily, and one we can't easily change once released.
+
+In this two-part series, I'll walk you through our design process and the Swift features that made it possible.
+
+In **Part I** (this post), we'll cover:
+
+- **Protocol extensions** as the Swift feature designed for adding default values to protocol methods
+- Enums with **associated values** for extended customization
+- Using **`ExpressibleByStringLiteral`** to convert literals straight into types
+
+In [**Part II**](/blog/leveraging-swifts-typesafety-for-the-new-metrics-feature-part-ii), we'll dive deeper into:
+
+- Replacing `Any` with type-safe attribute values
+- Handling Swift compiler limitations with array conformance
+- **Forward-compatible enum** design using `@unknown default` and `@frozen`
+
+Join me on this deep dive and let's get straight into it.
+
+## Three Important Methods
+
+From a user perspective, the most important parts are the **methods used to capture metrics**.
+To enable this capability, the SDK needs to offer a `SentrySDK.metrics` object with the three methods `.count(..)`, `.gauge(..)` and `.distribution(..)`, each with a `key` and `value` parameter.
+
+With that the first language feature came into play, as we decided against surfacing a concrete type (e.g. a `class`), and instead adopt it using a [protocol](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/protocols) (also known as "interfaces" in other programming languages).
+This allows us to easily refactor otherwise public types, reducing the need for breaking changes in later versions of the SDK.
+
+Furthermore, we use `Double` for the gauge and distribution metrics to capture values with floating point precision, including negative values, but for counter metrics we realized that the count is always a **whole number** and **never negative**, resulting in the decision of using unsigned integers `UInt` for counter metrics.
+
+```swift
+public protocol SentryMetricsApiProtocol {
+    func count(key: String, value: UInt)
+    func distribution(key: String, value: Double)
+    func gauge(key: String, value: Double)
+}
+```
+
+### Omit Parameter With Default Values
+
+Looking at [our technical specifications for Metrics](https://develop.sentry.dev/sdk/telemetry/metrics/#trace_metric-envelope-item-payload) we notice one detail in the requirements:
+
+> For `counter` metrics: the count to increment by **(should default to 1)**
+
+This means it must be possible for SDK users to capture a counter metric without having to explicitly define a `value` in the method call, falling back to `1` as a default.
+Commonly, this is solved by using a default value in the method signature, e.g., `func count(key: String, value: UInt = 1)` allowing an invocation with `count(key: "my-key")` and `count(key: "my-key", value: 123)`.
+
+Swift's protocols do not support default values directly in their definitions, which results in a build-time error:
+
+![Xcode Build-Time Error Protocol Defaults](/images/leveraging-swifts-typesafety-for-the-new-metrics-feature/default-values-in-protocols.png)
+
+This is exactly the use case **Protocol Extensions** are designed for.
+
+Extensions in Swift allow adding additional logic to types, e.g. if a data type `struct` has a getter for `firstName` and `lastName` an extension could add `fullName` returning the concatenation of the two strings.
+
+```swift
+struct Person {
+    let firstName: String
+    let lastName: String
+}
+
+extension Person {
+    var fullName: String {
+        firstName + " " + lastName
+    }
+}
+```
+
+The important part to understand here is that protocols can also be extended, but the extensions only know about the signature of the protocol itself, therefore we can also only access methods defined in `SentryMetricsApiProtocol`.
+But this is actually all we need, as we are adding convenience overloads for our methods, allowing callers to omit the optional parameters:
+
+```swift
+public protocol SentryMetricsApiProtocol {
+    // ❌ Requires `value` to always be set
+    func count(key: String, value: UInt)
+}
+
+public extension SentryMetricsApiProtocol {
+    // ✅ Allows calling method without setting `value`
+    func count(key: String, value: UInt = 1) {
+        // Call the actual implementation of the protocol
+        self.count(key: key, value: value)
+    }
+}
+```
+
+Great, now that we have our public API established with a default value for counters, it's time to extend it with the next useful addition: **metrics units**.
+
+## Metrics Units, Enums And Generic Values
+
+Sentry's telemetry system has a standardized [list of pre-defined units](https://develop.sentry.dev/sdk/telemetry/attributes/#units) which will eventually enable further server-side aggregation and data processing.
+
+The simplest solution would be changing the API to offer an additional parameter of type `String` to define the unit.
+But, as these are standardized across SDKs, we can also use Swift's `enum` type to offer compile-time safety and by defining the raw value as `String`, the compiler takes care of generating String values for each case and other boilerplate code for us:
+
+```swift
+public enum SentryUnit: String {
+    case nanosecond
+    case microsecond
+    case millisecond
+
+    // ... and more!
+}
+
+// Example:
+let unit = SentryUnit.nanosecond
+
+// When the compiler can infer the type of a variable, we don't need to explicitly define it again on the right-hand side:
+let unit: SentryUnit = .nanosecond
+```
+
+As the `unit` parameter is optional and should also be omittable, we can leverage our protocol extension once again to implement it:
+
+```swift
+public protocol SentryMetricsApiProtocol {
+    func count(key: String, value: UInt)
+    func distribution(key: String, value: Double, unit: SentryUnit?)
+    func gauge(key: String, value: Double, unit: SentryUnit?)
+}
+
+public extension SentryMetricsApiProtocol {
+    func count(key: String, value: UInt = 1) {
+        self.count(key: key, value: value)
+    }
+
+    func distribution(key: String, value: Double, unit: SentryUnit? = nil) {
+        self.distribution(key: key, value: value, unit: unit)
+    }
+
+    func gauge(key: String, value: Double, unit: SentryUnit? = nil) {
+        self.gauge(key: key, value: value, unit: unit)
+    }
+}
+
+// Value falls back to 1
+SentrySDK.metrics.count(key: "network.request.count")
+
+// Value is explicitly set to 2
+SentrySDK.metrics.count(key: "memory.warning", value: 2)
+
+// Distribution with value and unit
+SentrySDK.metrics.distribution(key: "queue.processed_bytes", value: 512.0, unit: .bytes)
+```
+
+So, how about using non-standard units?
+
+While using an enum as a type-safe approach of constants, we lost a big advantage compared to pure `String` constants, as we are now **not able to pass custom/generic units** in the method calls anymore.
+The method typing is strict, so if we pass in a parameter `unit`, it must be a `SentryUnit`.
+
+This is where [Swift's Associated Values](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/enumerations#Associated-Values) come into play, allowing us to keep using well-known enum types, but extending our new type `generic` with an associated custom `String` value:
+
+```swift
+public enum SentryUnit {
+    case nanosecond
+    case generic(String)
+}
+
+let unit = SentryUnit.generic("custom unit")
+```
+
+Unfortunately, this change requires us to remove the [raw value conformance](https://developer.apple.com/documentation/Swift/RawRepresentable#Enumerations-with-Raw-Values), resulting in the loss of compiler generated serialization:
+
+![Xcode Build-Time Error Protocol Defaults](/images/leveraging-swifts-typesafety-for-the-new-metrics-feature/enum-raw-type-arguments-error.png)
+
+But, this minor inconvenience can easily be resolved by implementing manual conformance to the Swift standard library's [`RawRepresentable`](https://developer.apple.com/documentation/Swift/RawRepresentable) protocol, with all unknown unit types converting from or to the enum type `generic`:
+
+```swift
+extension SentryUnit: RawRepresentable {
+    /// Maps known unit strings to their corresponding enum cases, or falls back to `.generic(rawValue)` for any unrecognized string (custom units).
+    public init?(rawValue: String) {
+        switch rawValue {
+        case "nanosecond":
+            self = .nanosecond
+        default:
+            self = .generic(rawValue)
+        }
+    }
+
+    /// Returns the string representation of the unit.
+    public var rawValue: String {
+        switch self {
+        case .nanosecond:
+            return "nanosecond"
+        case .generic(let value):
+            return value
+        }
+    }
+}
+```
+
+Now it's easy to add more information to our metrics, e.g. by using a custom unit type `"tasks"`:
+
+```swift
+SentrySDK.metrics.gauge(
+    key: "queue.depth",
+    value: 42.0,
+    unit: .generic("tasks")
+)
+```
+
+### Syntactic Sugar for Custom Units
+
+Looking at the usage of the generic unit as in `unit: .generic("custom")` raises the question of how we can reduce boilerplate code.
+We already know that if we don't use any of the pre-defined constants like `.nanosecond`, we **always** have a String value that should **always** be seen as a "generic" / "custom" unit (Yes, _always_ is bold twice on purpose).
+
+```swift
+// ⚠️ Not ideal having to use `.generic()` every time
+SentrySDK.metrics.gauge(
+    key: "queue.depth",
+    value: 42.0,
+    unit: .generic("items")
+)
+
+// ✅ Clean and compact
+SentrySDK.metrics.gauge(
+    key: "queue.depth",
+    value: 42.0,
+    unit: "items"
+)
+```
+
+If wrapping it in `SentryUnit.generic(..)` (or just `.generic(..)` using compiler type-inference) every single time seems like repetitive boilerplate code to you, there's something we can do about it!
+
+As a final cherry-on-top improvement opportunity for generic units, we adopt the protocol [`ExpressibleByStringLiteral`](https://developer.apple.com/documentation/swift/expressiblebystringliteral) for our enum `SentryUnit`.
+This protocol of the Swift standard library is baked into the compiler and requires us to define an additional initializer:
+
+```swift
+extension SentryUnit: ExpressibleByStringLiteral {
+    public init(stringLiteral value: StringLiteralType) {
+        self = .generic(value)
+    }
+}
+```
+
+This small extension indicates to the compiler that literal `String` values can directly be converted into enums:
+
+```swift
+// ✅ Compiler converts the string to an enum with associated value
+let unit: SentryUnit = "items"
+
+// ❌ Does not work for String variables, only literal values
+let myUnit = "some value"
+let unit: SentryUnit = myUnit
+
+// ✅ String variables still need to be wrapped
+let unit: SentryUnit = .generic(myUnit)
+```
+
+All of these additions now result in an even cleaner API with custom metric units, while still supporting pre-defined constants.
+
+Note that generic/custom units are currently not supported by Sentry's data processing, but we designed the API this way for forward compatibility. Once Relay/Sentry supports generic/custom units, your code will work without requiring an SDK upgrade.
+
+## What's Next
+
+We've now established a clean API for capturing metrics with type-safe units. But our journey isn't over yet.
+
+The real challenge comes when we add **attributes** — key-value pairs that provide context to your metrics - and the how to accept multiple value types (`String`, `Int`, `Bool`, arrays) without falling back to `Any`.
+
+In [**Part II**](/blog/leveraging-swifts-typesafety-for-the-new-metrics-feature-part-ii), we'll tackle:
+
+- Why `Any` creates silent runtime failures
+- Building a protocol-based "union type" for attribute values
+- Navigating Swift compiler limitations with array conformance
+- Future-proofing enums with `@unknown default` and `@frozen`
+
+**[Continue to Part II →](/blog/leveraging-swifts-typesafety-for-the-new-metrics-feature-part-ii)**
+
+I'd love to hear from you - reach out on [X](https://x.com/philprimes) or [Bluesky](https://bsky.app/profile/philprime.dev) with your thoughts, questions, or your own Swift API design stories.
