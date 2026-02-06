@@ -1,5 +1,5 @@
 ---
-title: "Leveraging Swift's Type-Safety in the New Metrics Feature: Part II"
+title: 'Building Type-Safe Metrics API in Swift: Part II'
 date: '2026-02-06'
 tags: ['apple', 'cocoa', 'ios', 'macos', 'metrics']
 summary: 'Replace Any with type-safe protocols, handle array conformance limitations, and future-proof your Swift enums.'
@@ -9,11 +9,11 @@ canonicalUrl: leveraging-swift-type-safety-in-metrics-part-ii
 authors: ['philniedertscheider']
 ---
 
-_This is Part II of a two-part series on designing type-safe Swift APIs. If you haven't read [Part I](/blog/leveraging-swifts-typesafety-for-the-new-metrics-feature-part-i) yet, I highly recommend starting there, as we covered protocol extensions for default values, enums with associated values, and `ExpressibleByStringLiteral` for cleaner syntax._
+_This is Part II of a two-part series on designing type-safe Swift APIs. If you haven't read [Part I](/blog/building-type-safe-metrics-api-in-swift-part-i) yet, I highly recommend starting there, as we covered protocol extensions for default values, enums with associated values, and `ExpressibleByStringLiteral` for cleaner syntax._
 
 ---
 
-In [Part I](/blog/leveraging-swifts-typesafety-for-the-new-metrics-feature-part-i), we built the foundation of our Metrics API: type-safe methods with optional parameters and flexible unit types.
+In [Part I](/blog/building-type-safe-metrics-api-in-swift-part-i), we built the foundation of our Metrics API: type-safe methods with optional parameters and flexible unit types.
 Now it's time to add our last parameter to the public methods: **Attributes**.
 
 [Attributes](https://develop.sentry.dev/sdk/telemetry/attributes/) are a list of key-value pairs with a `String` as a key and a value of different types and in this post, we'll explore:
@@ -318,7 +318,7 @@ extension Array: SentryAttributeValue where Element == Int {
 
 While this works if we write the extension only for a single type, we started to hit compiler errors with multiple type extensions:
 
-![Compiler error when multiple conformances to same protocol](/images/leveraging-swifts-typesafety-for-the-new-metrics-feature/multi-conformance.png)
+![Compiler error when multiple conformances to same protocol](/images/building-type-safe-metrics-api-in-swift/multi-conformance.png)
 
 Bummer! We can't have multiple conformances of the same protocol scoped to specific element types.
 Luckily we already introduced `SentryAttributeValue` as our "union" of supported types which can be applied here:
@@ -484,7 +484,7 @@ Now if an SDK user handles all cases of the attribute value, therefore not havin
 
 But the Swift compiler developers considered this by offering the `@unknown default` case which may be added for Swift 5 project, and must be added when using Swift 6:
 
-![Swift 5 warning for unknown cases](/images/leveraging-swifts-typesafety-for-the-new-metrics-feature/switch-unknown-values-swift-5.png)
+![Swift 5 warning for unknown cases](/images/building-type-safe-metrics-api-in-swift/switch-unknown-values-swift-5.png)
 
 ```swift
 let value: Value = ...
@@ -508,7 +508,7 @@ While it makes sense for enums like e.g. `CoordinateAxis` having only `vertical`
 
 Across this two-part series, we've explored how Swift's type system can transform API design from "hope it works" to "guaranteed to work."
 
-In [Part I](/blog/leveraging-swifts-typesafety-for-the-new-metrics-feature-part-i), we established the foundation:
+In [Part I](/blog/building-type-safe-metrics-api-in-swift-part-i), we established the foundation:
 
 - Protocol extensions to work around default value limitations
 - Enums with associated values for flexible yet type-safe constants
