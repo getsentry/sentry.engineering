@@ -1,7 +1,7 @@
 ---
 title: 'Building Type-Safe Metrics API in Swift: Part I'
-date: '2026-02-05'
-tags: ['apple', 'cocoa', 'ios', 'macos', 'metrics']
+date: '2026-02-09T09:00:00Z'
+tags: ['swift', 'sdk', 'apple', 'cocoa', 'ios', 'macos', 'metrics']
 summary: 'Explore protocol extensions, enums with associated values, and ExpressibleByStringLiteral to build type-safe Swift APIs.'
 images: ['/images/building-type-safe-metrics-api-in-swift/hero.png']
 layout: PostLayout
@@ -9,9 +9,9 @@ canonicalUrl: building-type-safe-metrics-api-in-swift-part-i
 authors: ['philniedertscheider']
 ---
 
-With the release of [Apple / Cocoa SDK v9.2.0](https://github.com/getsentry/sentry-cocoa/releases/tag/9.2.0), we're excited to share not just the new experimental Metrics feature, but the engineering thinking behind it.
+With the release of [Apple / Cocoa SDK v9.4.0](https://github.com/getsentry/sentry-cocoa/releases/tag/9.4.0), we're excited to share not just the new experimental Metrics feature, but the engineering thinking behind it.
 
-Already available in our [Python](https://docs.sentry.io/platforms/python/metrics/), [JavaScript](https://docs.sentry.io/platforms/javascript/guides/node/metrics/), [Flutter](https://docs.sentry.io/platforms/dart/guides/flutter/metrics/) and [Go](https://docs.sentry.io/platforms/go/metrics/) SDKs, [Metrics](https://docs.sentry.io/product/explore/metrics/) let you collect custom measurements to gain deeper insights into your app:
+Already available in our [Python](https://docs.sentry.io/platforms/python/metrics/), [JavaScript](https://docs.sentry.io/platforms/javascript/guides/node/metrics/), [Flutter](https://docs.sentry.io/platforms/dart/guides/flutter/metrics/) and [many more SDKs](https://docs.sentry.io/product/explore/metrics/getting-started/#supported-sdks), [Metrics](https://docs.sentry.io/product/explore/metrics/) let you collect custom measurements to gain deeper insights into your app:
 
 ```swift
 // Track how many users completed checkout
@@ -62,15 +62,16 @@ Join me on this deep dive and let's get straight into it.
 ## Three Important Methods
 
 From a user perspective, the most important parts are the **methods used to capture metrics**.
-To enable this capability, the SDK needs to offer a `SentrySDK.metrics` object with the three methods `.count(..)`, `.gauge(..)` and `.distribution(..)`, each with a `key` and `value` parameter.
+To enable this capability, the SDK needs to offer a `SentrySDK.metrics` object with the three static methods `.count(..)`, `.gauge(..)` and `.distribution(..)`, each with a `key` and `value` parameter.
 
 With that the first language feature came into play, as we decided against surfacing a concrete type (e.g. a `class`), and instead adopt it using a [protocol](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/protocols) (also known as "interfaces" in other programming languages).
 This allows us to easily refactor otherwise public types, reducing the need for breaking changes in later versions of the SDK.
 
-Furthermore, we use `Double` for the gauge and distribution metrics to capture values with floating point precision, including negative values, but for counter metrics we realized that the count is always a **whole number** and **never negative**, resulting in the decision of using unsigned integers `UInt` for counter metrics.
+For the value type we use `Double` for the gauge and distribution metrics to capture values with floating point precision, including negative values.
+But for counter metrics we realized that the count is always a **whole number** and **never negative**, resulting in the decision of using unsigned integers `UInt` for them.
 
 ```swift
-public protocol SentryMetricsApiProtocol {
+protocol SentryMetricsApiProtocol {
     func count(key: String, value: UInt)
     func distribution(key: String, value: Double)
     func gauge(key: String, value: Double)
@@ -86,13 +87,13 @@ Looking at [our technical specifications for Metrics](https://develop.sentry.dev
 This means it must be possible for SDK users to capture a counter metric without having to explicitly define a `value` in the method call, falling back to `1` as a default.
 Commonly, this is solved by using a default value in the method signature, e.g., `func count(key: String, value: UInt = 1)` allowing an invocation with `count(key: "my-key")` and `count(key: "my-key", value: 123)`.
 
-Swift's protocols do not support default values directly in their definitions, which results in a build-time error:
+In our case Swift's protocols do not support default values directly in their definitions, which results in a build-time error:
 
 ![Xcode Build-Time Error Protocol Defaults](/images/building-type-safe-metrics-api-in-swift/default-values-in-protocols.png)
 
-This is exactly the use case **Protocol Extensions** are designed for.
+This is exactly the use case **[Protocol Extensions](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/protocols/#Protocol-Extensions)** are designed for.
 
-Extensions in Swift allow adding additional logic to types, e.g. if a data type `struct` has a getter for `firstName` and `lastName` an extension could add `fullName` returning the concatenation of the two strings.
+[Extensions](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/extensions) in Swift allow adding additional logic to types, e.g. if a data type `struct` has a getter for `firstName` and `lastName`, an extension could add `fullName` returning the concatenation of the two strings.
 
 ```swift
 struct Person {
@@ -108,15 +109,15 @@ extension Person {
 ```
 
 The important part to understand here is that protocols can also be extended, but the extensions only know about the signature of the protocol itself, therefore we can also only access methods defined in `SentryMetricsApiProtocol`.
-But this is actually all we need, as we are adding convenience overloads for our methods, allowing callers to omit the optional parameters:
+To our luck this is actually all we need, as we are adding convenience overloads for our methods, allowing callers to omit the optional parameters:
 
 ```swift
-public protocol SentryMetricsApiProtocol {
+protocol SentryMetricsApiProtocol {
     // ❌ Requires `value` to always be set
     func count(key: String, value: UInt)
 }
 
-public extension SentryMetricsApiProtocol {
+extension SentryMetricsApiProtocol {
     // ✅ Allows calling method without setting `value`
     func count(key: String, value: UInt = 1) {
         // Call the actual implementation of the protocol
@@ -132,10 +133,10 @@ Great, now that we have our public API established with a default value for coun
 Sentry's telemetry system has a standardized [list of pre-defined units](https://develop.sentry.dev/sdk/telemetry/attributes/#units) which will eventually enable further server-side aggregation and data processing.
 
 The simplest solution would be changing the API to offer an additional parameter of type `String` to define the unit.
-But, as these are standardized across SDKs, we can also use Swift's `enum` type to offer compile-time safety and by defining the raw value as `String`, the compiler takes care of generating String values for each case and other boilerplate code for us:
+But, as these are standardized across SDKs, we can also use Swift's [`enum`](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/enumerations) type to offer compile-time safety and by defining the raw value as `String`, the compiler takes care of generating String values for each case and other boilerplate code for us:
 
 ```swift
-public enum SentryUnit: String {
+enum SentryUnit: String {
     case nanosecond
     case microsecond
     case millisecond
@@ -146,20 +147,21 @@ public enum SentryUnit: String {
 // Example:
 let unit = SentryUnit.nanosecond
 
-// When the compiler can infer the type of a variable, we don't need to explicitly define it again on the right-hand side:
+// When the compiler can infer the type of a variable, we don't
+// need to explicitly define it again on the right-hand side:
 let unit: SentryUnit = .nanosecond
 ```
 
 As the `unit` parameter is optional and should also be omittable, we can leverage our protocol extension once again to implement it:
 
 ```swift
-public protocol SentryMetricsApiProtocol {
+protocol SentryMetricsApiProtocol {
     func count(key: String, value: UInt)
     func distribution(key: String, value: Double, unit: SentryUnit?)
     func gauge(key: String, value: Double, unit: SentryUnit?)
 }
 
-public extension SentryMetricsApiProtocol {
+extension SentryMetricsApiProtocol {
     func count(key: String, value: UInt = 1) {
         self.count(key: key, value: value)
     }
@@ -208,7 +210,7 @@ But, this minor inconvenience can easily be resolved by implementing manual conf
 ```swift
 extension SentryUnit: RawRepresentable {
     /// Maps known unit strings to their corresponding enum cases, or falls back to `.generic(rawValue)` for any unrecognized string (custom units).
-    public init?(rawValue: String) {
+    init?(rawValue: String) {
         switch rawValue {
         case "nanosecond":
             self = .nanosecond
@@ -260,14 +262,14 @@ SentrySDK.metrics.gauge(
 )
 ```
 
-If wrapping it in `SentryUnit.generic(..)` (or just `.generic(..)` using compiler type-inference) every single time seems like repetitive boilerplate code to you, there's something we can do about it!
+If wrapping it in `SentryUnit.generic(..)` (or just `.generic(..)` using compiler [type-inference](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/thebasics/#Type-Safety-and-Type-Inference)) every single time seems like repetitive boilerplate code to you, there's something we can do about it!
 
 As a final cherry-on-top improvement opportunity for generic units, we adopt the protocol [`ExpressibleByStringLiteral`](https://developer.apple.com/documentation/swift/expressiblebystringliteral) for our enum `SentryUnit`.
 This protocol of the Swift standard library is baked into the compiler and requires us to define an additional initializer:
 
 ```swift
 extension SentryUnit: ExpressibleByStringLiteral {
-    public init(stringLiteral value: StringLiteralType) {
+    init(stringLiteral value: StringLiteralType) {
         self = .generic(value)
     }
 }
@@ -295,15 +297,21 @@ Note that generic/custom units are currently not supported by Sentry's data proc
 
 We've now established a clean API for capturing metrics with type-safe units. But our journey isn't over yet.
 
-The real challenge comes when we add **attributes** — key-value pairs that provide context to your metrics - and the how to accept multiple value types (`String`, `Int`, `Bool`, arrays) without falling back to `Any`.
+The real challenge comes when we add **attributes** — key-value pairs that provide context to your metrics — and how to accept multiple value types (`String`, `Int`, `Bool`, `Array`, etc.) without falling back to type-erased `Any`.
 
 In [**Part II**](/blog/building-type-safe-metrics-api-in-swift-part-ii), we'll tackle:
 
-- Why `Any` creates silent runtime failures
-- Building a protocol-based "union type" for attribute values
+- Why `Any` leads to unusable data
+- Building a protocol-based "union-like type" for attribute values
 - Navigating Swift compiler limitations with array conformance
 - Future-proofing enums with `@unknown default` and `@frozen`
 
 **[Continue to Part II →](/blog/building-type-safe-metrics-api-in-swift-part-ii)**
 
-I'd love to hear from you - reach out on [X](https://x.com/philprimes) or [Bluesky](https://bsky.app/profile/philprime.dev) with your thoughts, questions, or your own Swift API design stories.
+In the meantime, the Metrics API is available now in [sentry-cocoa v9.4.0](https://github.com/getsentry/sentry-cocoa/releases/tag/9.4.0):
+
+- **Want to see how we implemented it?** The [full source code](https://github.com/getsentry/sentry-cocoa/) is open source
+- **Found a bug or have feedback?** [Open an issue](https://github.com/getsentry/sentry-cocoa/issues/new) on GitHub
+- **Interested in building developer tools?** We're hiring - [check out our open positions](https://sentry.io/careers)
+
+Feel free to reach out on [X](https://x.com/philprimes) or [Bluesky](https://bsky.app/profile/philprime.dev) with your thoughts, questions, or your own Swift API design stories.
