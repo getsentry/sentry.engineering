@@ -1,0 +1,68 @@
+---
+title: 'React Native SDK 8 has landed'
+date: '2025-02-12'
+tags: ['react-native', 'mobile', 'sdk', 'ios', 'android']
+summary: "React Native SDK 8 is here with app start error capture and Cocoa v9. Here's what's new."
+images: []
+layout: PostLayout
+canonicalUrl: react-native-sdk-8
+authors: ['antonis']
+---
+
+**We recently released [React Native SDK 8](https://github.com/getsentry/sentry-react-native/releases). The headline feature: you can now capture app start errors and native crashes that happen before JavaScript loads. Here's what's new and how to upgrade.**
+
+Version 8 adds **app start error capture** — Sentry can now see crashes and errors during React Native bridge setup, bundle loading, and native module initialization, not only after `Sentry.init()` runs on the JS side. We've also upgraded to Cocoa SDK v9 and the latest Android tooling.
+
+## Why version 8?
+
+Version 8 updates the stack that powers React Native error and performance monitoring: we've upgraded to **Cocoa SDK v9**, **Sentry CLI v3**, and **Android Gradle Plugin v6**. Those upgrades come with bumped minimum OS and tooling versions, so we're shipping a major to reflect the breaking changes and to introduce a new way to initialize Sentry natively for better coverage.
+
+## What kind of release this is
+
+Version 8 is a **maintenance and capability major**: we've updated minimum requirements, upgraded native dependencies, and added **app start error capture** so you can see native crashes and errors that occur before the JS layer runs. Most projects can upgrade by updating dependencies and, if needed, adjusting deployment targets and Gradle/Kotlin versions. Check the [migration guide](https://docs.sentry.io/platforms/react-native/migration/v7-to-v8/) before upgrading.
+
+## Changes you'll want to know about
+
+### App start error capture
+
+By default, the React Native SDK initializes when you call `Sentry.init()` on the JavaScript side. Native crashes and errors that happen **before** the JS layer runs — during bridge setup, bundle loading, or native module init — were not captured.
+
+In version 8 you can **initialize Sentry on the native layer** using a `sentry.options.json` config file and the new native APIs. The SDK then captures app start errors and native crashes from the very beginning of the app lifecycle.
+
+**Setup:**
+
+- Add a [sentry.options.json](https://docs.sentry.io/platforms/react-native/manual-setup/app-start-error-capture/#configuration-file) in your project root with the same options you use in `Sentry.init()`.
+- On **Android**, call `RNSentrySDK.init(this)` in your `MainApplication` `onCreate`.
+- On **iOS**, call `[RNSentrySDK start]` in your `AppDelegate` before `[super application:application didFinishLaunchingWithOptions:launchOptions]`.
+- **Expo** users can set `useNativeInit: true` in the `@sentry/react-native/expo` plugin so the Expo config plugin wires native init and creates the options file for you.
+
+Options from `sentry.options.json` are merged with options from `Sentry.init()` in JS; JS options take precedence. Full setup: [Capture app start errors](https://docs.sentry.io/platforms/react-native/manual-setup/app-start-error-capture/).
+
+### Upgraded native dependencies
+
+- **Cocoa SDK**: from v8.58.0 to v9.x. If you're on iOS, macOS, or tvOS, the same [Cocoa SDK 9.0.0 changes](https://blog.sentry.io/cocoa-sdk-9-0-0-has-landed/) apply: higher minimum OS versions, better defaults, and cleanup. See the [Cocoa 8.x to 9.x migration guide](https://docs.sentry.io/platforms/apple/migration/#migrating-from-8x-to-9x).
+- **Sentry CLI**: from v2.58.4 to v3.x. Self-hosted Sentry must be **25.11.1+** (previously 25.2.0).
+- **Android**: Sentry Android Gradle Plugin **6.0.0**, Android Gradle Plugin **7.4.0+**, and Kotlin **1.8+**. Support for Android Gradle Plugin 7.3.x and below is dropped.
+
+### Minimum version requirements
+
+- **iOS**: **15.0+** (previously 11.0+)
+- **macOS**: **10.14+** (previously 10.13+)
+- **tvOS**: **15.0+** (previously 11.0+)
+- **Android**: AGP 7.4.0+, Kotlin 1.8+
+
+If your app targets older versions, update your deployment targets and Gradle/Kotlin before moving to version 8.
+
+## Upgrading to version 8
+
+1. Update `@sentry/react-native` to the latest 8.x in your package manager.
+2. Follow the [migration guide (v7 to v8)](https://docs.sentry.io/platforms/react-native/migration/v7-to-v8/) to adjust minimum versions and build config (iOS/macOS/tvOS deployment targets, Android Gradle Plugin, Kotlin, and self-hosted Sentry if applicable).
+3. Optionally enable [app start error capture](https://docs.sentry.io/platforms/react-native/manual-setup/app-start-error-capture/) with `sentry.options.json` and native init.
+
+## What about version 7?
+
+We will only ship critical bug fixes for version 7. You can stay on v7 if you need to, but we recommend upgrading to v8 when you can to get the latest Cocoa and Android behavior and app start error capture.
+
+## If you're ready to upgrade
+
+Give version 8 a try and enable native init if you want full coverage from app launch. If something breaks or feels off, [open an issue](https://github.com/getsentry/sentry-react-native/issues) and we’ll help you sort it out.
