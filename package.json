@@ -28,7 +28,7 @@
     "image-size": "1.0.0",
     "inquirer-checkbox-autocomplete-prompt": "^0.2.0",
     "mdx-bundler": "^9.2.1",
-    "next": "^13.5.4",
+    "next": "^16.1.6",
     "next-themes": "^0.0.14",
     "postcss": "^8.4.31",
     "react": "^18.2.0",
