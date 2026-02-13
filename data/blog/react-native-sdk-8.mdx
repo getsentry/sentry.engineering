@@ -34,7 +34,7 @@ In version 8 you can **initialize Sentry on the native layer** using a `sentry.o
 - Add a [sentry.options.json](https://docs.sentry.io/platforms/react-native/manual-setup/app-start-error-capture/#configuration-file) in your project root with the same options you use in `Sentry.init()`.
 - On **Android**, call `RNSentrySDK.init(this)` in your `MainApplication` `onCreate`.
 - On **iOS**, call `[RNSentrySDK start]` in your `AppDelegate` before `[super application:application didFinishLaunchingWithOptions:launchOptions]`.
-- **Expo** users can set `useNativeInit: true` in the `@sentry/react-native/expo` plugin so the Expo config plugin wires native init and creates the options file for you.
+- **Expo** users: create `sentry.options.json` in your project root (same location as `app.json`), then set `useNativeInit: true` in the `@sentry/react-native/expo` plugin config. The plugin adds the native init calls for you. For environment variables or dynamic configuration, use `app.config.js` with the `withSentry()` wrapper instead of the array form in `app.json`.
 
 Options from `sentry.options.json` are merged with options from `Sentry.init()` in JS; JS options take precedence. Full setup: [Capture app start errors](https://docs.sentry.io/platforms/react-native/manual-setup/app-start-error-capture/).
 
