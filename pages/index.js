@@ -45,10 +45,10 @@ export default function Home({ posts, authorDetails }) {
               <div key={slug} className="mr-8 max-w-sm overflow-hidden rounded shadow-lg">
                 <Link href={`/blog/${slug}`} className="text-gray-900 dark:text-gray-100">
                   <Image
-                    className="h-32 w-full"
+                    className="h-48 w-full object-cover"
                     priority={true}
-                    height={1550}
-                    width={640}
+                    width={1200}
+                    height={630}
                     src={images[0]}
                     alt="Post hero image"
                   />
