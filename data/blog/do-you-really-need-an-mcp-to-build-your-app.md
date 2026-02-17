@@ -10,7 +10,7 @@ canonicalUrl: do-you-really-need-an-mcp-to-build-your-app
 authors: [cameroncooke]
 ---
 
-Sentry recently acquired **XcodeBuildMCP**, the Model Context Protocol server I created to help AI agents navigate iOS development. When I joined, my boss asked an uncomfortable question: is an MCP still really necessary?
+Sentry recently [acquired **XcodeBuildMCP**](https://blog.sentry.io/sentry-acquires-xcodebuildmcp/), the Model Context Protocol server I created to help AI agents navigate iOS development. When I joined, my boss asked an uncomfortable question: is an MCP still really necessary?
 
 We're engineers, building developer tools for engineers so we needed to answer the question empirically. We set out to test the hypothesis that an MCP was still necessary to build an app with an agent.
 
