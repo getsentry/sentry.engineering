@@ -1,20 +1,18 @@
 ---
-title: 'Do you really need an MCP to build your app?'
+title: 'Do you need an MCP to build your native app?'
 date: '2026-02-18'
 tags: ['ios', 'ai', 'mcp']
 draft: false
-summary: 'Do you really need an MCP to build your app? Surprisingly, modern agents succeed either way. The real difference is how much time, cost, and context you waste along the path.'
+summary: 'Do you need an MCP to build your native app? Surprisingly, modern agents succeed either way. The real difference is how much time, cost, and context you waste along the way.'
 images: [/images/do-you-really-need-an-mcp-to-build-your-app/hero.png]
 layout: PostLayout
 canonicalUrl:
 authors: [cameroncooke]
 ---
 
-I'd spent about a year building XcodeBuildMCP. A few weeks after Sentry acquired it, my manager asked whether it was still necessary.
+We recently [announced](https://blog.sentry.io/sentry-acquires-xcodebuildmcp) that Sentry acquired [XcodeBuildMCP](https://www.xcodebuildmcp.com/), the Model Context Protocol server I built to help AI agents navigate iOS development. One of the first questions we were asked was an uncomfortable one: is an MCP actually necessary? We're engineers building developer tools for engineers, so we did what felt natural and set out to answer it empirically.
 
-That's not a comfortable question when you built the thing. But we're engineers building developer tools for engineers, so we didn't just debate it. We ran an experiment.
-
-We expected XcodeBuildMCP to dominate. We were wrong, or at least not in the way we expected.
+We built and ran an eval that measured three LLMs, against three approaches, each tasked with five different coding exercises totaling 1,350 trials to find out. **We expected XcodeBuildMCP to dominate, but it didn't.**
 
 **All three approaches we tested hit 99%+ success.** Modern models recover from errors well enough that finishing the task is basically guaranteed. What surprised us was where the real differences showed up: time, cost, and how each approach spends its context budget.
 
@@ -24,11 +22,9 @@ MCP tools inject schemas, descriptions, and boilerplate into context before the 
 
 Context is a budget. MCP tool schemas spend it up front; when agents don't have the right information, they spend it later on failed commands and retries. The question is which spend actually pays off.
 
-So we ran an eval across 1,350 trials to find out.
-
 ## The Experiment
 
-We tested three approaches across 5 tasks: a smoke test (build, install, launch) and 4 coding exercises (fix tests, implement caching, refactor an API, add a deep-link feature).
+As mentioned above we tested three approaches across five tasks: a smoke test (build, install, launch) and 4 coding exercises (fix tests, implement caching, refactor an API, add a deep-link feature).
 
 1. **Shell (Unprimed):** No MCP tools, no guidance. The agent discovers scheme and simulator by running arbitrary commands.
 2. **Shell (Primed):** No MCP tools, but we gave the agent an `AGENTS.md` with the exact scheme, simulator destination, and project path.
@@ -36,7 +32,7 @@ We tested three approaches across 5 tasks: a smoke test (build, install, launch)
 
 ## Methodology
 
-- 3 agents (claude-opus, claude-sonnet, codex) × 5 tasks × 3 scenarios × 30 trials = 1,350 runs (9 baseline runs excluded from aggregates).
+- 3 models (claude-opus, claude-sonnet, codex) × 5 tasks × 3 scenarios × 30 trials = 1,350 runs (9 baseline runs excluded from aggregates).
 - Success rate is per-run.
 - Time is median wall-clock seconds.
 - Tokens (avg) = uncached input + cached read + output (excludes cache writes).
@@ -45,19 +41,19 @@ We tested three approaches across 5 tasks: a smoke test (build, install, launch)
 
 ## Results
 
-| Metric                       | Shell (Unprimed) | Shell (Primed)   | MCP (Unprimed) |
-| :--------------------------- | :--------------- | :--------------- | :------------- |
-| **Task Success Rate**        | 99.78%           | 99.56%           | 99.78%         |
-| **Median Time**              | 185s             | **123s** (−34%)  | 133s (−28%)    |
-| **Tokens (avg)**             | 400K             | **341K** (−15%)  | 702K (+75%)    |
-| **Cost/Trial (cold median)** | $1.12            | **$0.98** (−13%) | $2.30 (+105%)  |
-| **Real Tool Errors (avg)**   | 1.04             | **0.32** (−70%)  | 0.56 (−47%)    |
+| Metric                       | Shell (Unprimed)  | Shell (Primed)        | MCP (Unprimed)    |
+| :--------------------------- | :---------------- | :-------------------- | :---------------- |
+| **Task Success Rate**        | 99.78% (+0.22 pp) | **99.56% (baseline)** | 99.78% (+0.22 pp) |
+| **Median Time**              | 185s (+50%)       | **123s (baseline)**   | 133s (+8%)        |
+| **Tokens (avg)**             | 400K (+17%)       | **341K (baseline)**   | 702K (+106%)      |
+| **Cost/Trial (cold median)** | $1.12 (+14%)      | **$0.98 (baseline)**  | $2.30 (+135%)     |
+| **Real Tool Errors (avg)**   | 1.04 (+225%)      | **0.32 (baseline)**   | 0.56 (+75%)       |
 
-_Cost/Trial uses cold-equivalent median cost (cached reads treated as uncached). In this run, cache read rates averaged ~91% for shell and ~96% for XcodeBuildMCP, so billed cost is substantially lower than cold. Percentages are relative to Shell (Unprimed). Most readers use subscription-based agents, so token counts may be more relevant than dollar figures._
+_Cost/Trial uses cold-equivalent median cost (cached reads treated as uncached). In this run, cache read rates averaged ~91% for shell and ~96% for XcodeBuildMCP, so billed cost is substantially lower than cold. Percentages are relative to Shell (Primed); Task Success Rate uses percentage-point (pp) deltas. Most readers use subscription-based agents, so token counts may be more relevant than dollar figures._
 
 Success rates are nearly identical across all three. The story is in the time and cost columns.
 
-## A markdown file beat everything on cost
+## A Markdown File Beat Everything on Cost
 
 As expected, the cheapest and fastest approach wasn't an MCP. It was a text file with four lines of build instructions. Primed shell finished 34% faster than unprimed shell, used 15% fewer tokens, and had 70% fewer real tool errors.
 
@@ -65,7 +61,7 @@ Why? Minimal, targeted context. Just the build command: no schema overhead, no t
 
 For projects with stable build configurations, an `AGENTS.md` with your exact commands is the most direct path. Don't pay for discovery you don't need.
 
-## XcodeBuildMCP cuts the build configuration guesswork
+## XcodeBuildMCP Cuts the Build Configuration Guesswork
 
 Building an iOS app with an agent requires getting three things right before a single line compiles: the project path, the scheme name, and a valid simulator destination. These aren't guessable. A project named "HackerNews" might have a scheme called "HackerNews", "Hacker News", or something else entirely. Simulators are identified by name, OS version, or UUID. Without guidance, the agent has to figure all of this out by running commands and reading error output.
 
@@ -94,7 +90,7 @@ Next Steps:
 
 Result: **28% faster median time** than unprimed shell, and p90 dropped about **20%**. The tool schema overhead is real, but it removes the failed-command cycles that bloat context with error output and retries. Context spent on the right thing is cheaper than context spent recovering from the wrong thing.
 
-## The truncation problem is worse than it looks
+## The Truncation Problem Is Worse Than It Looks
 
 A single `xcodebuild` call in our test project regularly exceeded agent truncation limits:
 
@@ -115,7 +111,7 @@ XcodeBuildMCP's `build_sim` tool filters output, returning only warnings, errors
 
 XcodeBuildMCP uses 75% more tokens than unprimed shell overall, but the composition matters. Shell agents spend a large portion of their context budget on truncated multi-megabyte build logs and diagnostic retries. XcodeBuildMCP's tokens are nearly all structured, actionable data: warnings, errors, status messages, and next-step hints. The raw token count is higher; the noise is substantially lower.
 
-## Tool errors: almost never the problem
+## Tool Errors: Almost Never the Problem
 
 688 of 1,350 runs (51%) hit at least one tool error. Almost none caused task failures. Models read the error, adjusted, and moved on.
 
@@ -129,9 +125,17 @@ One nuance worth calling out: raw tool error counts are misleading for XcodeBuil
 
 XcodeBuildMCP makes recovery easier with structured error messages that often suggest the fix directly. But modern models are good enough at recovery that errors alone are rarely the bottleneck.
 
-## What you should actually do
+## Putting It All Together
 
-**For routine builds on known projects:** Use priming. Create an `AGENTS.md` with your exact build parameters:
+The eval answers the question it set out to answer: for simple, well-scoped coding tasks, all three approaches finish successfully. A primed `AGENTS.md` is the fastest and cheapest path; XcodeBuildMCP costs more up front but removes the discovery friction that bloat unprimed runs.
+
+What the eval couldn't measure is where XcodeBuildMCP's real ceiling is. The tasks were self-contained enough that the agent never needed to _see_ the running app. But XcodeBuildMCP isn't just a build wrapper, it gives agents a closed loop: capture a screenshot, inspect the view hierarchy, tap a button, set a breakpoint, read the console. That's a qualitatively different capability from anything a simple shell command can provide, and it's the one that matters for complex, multi-turn agentic workflows.
+
+The honest takeaway is that finishing a task and _knowing_ you finished it correctly are different things. For the former, a AGENTS.md file is enough. For the latter, verifying UI state, catching a regression in a live session, debugging a crash the agent just triggered, you need runtime access. That's the gap the eval didn't measure, and the gap XcodeBuildMCP is designed to close.
+
+## So What Should You Actually Do?
+
+**For routine builds on known projects** where you only need your agent to build and install the app, creating an `AGENTS.md` with your exact build parameters is sufficient:
 
 ```markdown
 # Build Instructions
@@ -147,7 +151,7 @@ Run: `xcodebuild -project HackerNews.xcodeproj -scheme HackerNews -destination '
 
 Fastest, cheapest, no overhead.
 
-**For discovery and complex workflows:** Enable XcodeBuildMCP:
+**For a fully closed loop system:** Enable XcodeBuildMCP, your agent will be able to work autonomously and inspect and verify its own work as well as debug issues that arise:
 
 ```json
 {
@@ -160,40 +164,21 @@ Fastest, cheapest, no overhead.
 }
 ```
 
-Use it when:
+## XcodeBuildMCP v2
 
-- You want discovery to just work without maintaining `AGENTS.md` files
-- Build output might exceed truncation limits (in this run, ~50-57% of shell trials did)
-- You need capabilities shell commands can't reach: interactive debugging (LLDB, breakpoints, variable inspection), log capture and analysis, UI automation and screenshot capture
+After we ran this eval we identified many areas of improvement for XcodeBuildMCP that we hoped would close the gap between the primed shell and XcodeBuildMCP. This actually turned out to be one of the most helpful uses of the eval, we had data and visibility we didn't have before. We made many improvements, reducing tool schema descriptions, only enabling simulator workflow by default, added stateful session support where XcodeBuildMCP remembers your project configuration, removing the need for the tools to include configuration parameters and reducing tool call overhead and much more.
 
-## Caveats
+We tested a pre-release version of XcodeBuildMCP v2 using the same harness and tasks (15 trials per task per agent; n=225). Because v2 wasn't shipped at time of writing, **it's not included in the headline analysis above**, but it's useful as a directional check on whether we can reduce XcodeBuildMCP's context overhead without losing the discovery benefits.
 
-A few things this experiment doesn't resolve:
+| Metric                       | Shell (Unprimed)  | Shell (Primed)        | MCP v1 (Unprimed) | MCP v2 (Unprimed)  |
+| :--------------------------- | :---------------- | :-------------------- | :---------------- | :----------------- |
+| **Task Success Rate**        | 99.78% (+0.22 pp) | **99.56% (baseline)** | 99.78% (+0.22 pp) | 100.00% (+0.44 pp) |
+| **Median Time**              | 185s (+50%)       | **123s (baseline)**   | 133s (+8%)        | 147s (+20%)        |
+| **Tokens (avg)**             | 400K (+17%)       | **341K (baseline)**   | 702K (+106%)      | 453K (+33%)        |
+| **Cost/Trial (cold median)** | $1.12 (+14%)      | **$0.98 (baseline)**  | $2.30 (+135%)     | $1.27 (+30%)       |
+| **Real Tool Errors (avg)**   | 1.04 (+225%)      | **0.32 (baseline)**   | 0.56 (+75%)       | 0.49 (+53%)        |
 
-- **Session length.** Tool definitions are reinforced every turn; priming tokens may suffer from attention decay in longer sessions. XcodeBuildMCP's relative value likely increases as sessions grow.
-- **Cache effects on cost.** Cache read rates averaged ~91% for shell and ~96% for XcodeBuildMCP in this run, so billed cost is substantially lower than the cold numbers suggest.
-- **Complex debugging workflows.** We tested builds and refactors, not multi-hour debugging sessions. XcodeBuildMCP's value likely increases for workflows that require its unique capabilities.
-
-We also ran a smaller follow-up on an unreleased XcodeBuildMCP v2 to reduce context overhead; see the update at the end.
-
-## The bottom line
-
-When my manager asked whether XcodeBuildMCP was still necessary, the honest answer turned out to be: it depends. That's less satisfying than a clear yes or no, but it's also more useful.
-
-Modern agents are resilient enough that they'll usually finish the job regardless of how you set them up. The real question is how much time, cost, and noise you're willing to accept on the path there. Priming is the right default for most teams. XcodeBuildMCP earns its overhead when you need discovery, guaranteed diagnostics, or capabilities that shell can't reach.
-
-## Update: XcodeBuildMCP v2
-
-After writing this post, we tested an improved (now released) XcodeBuildMCP v2 using the same harness and tasks (15 trials per task per agent; n=225). Because v2 wasn't shipped at time of writing, **it's not included in the headline analysis above**, but it's useful as a directional check on whether we can reduce XcodeBuildMCP's context overhead without losing the discovery benefits.
-
-| Metric (MCP Unprimed)    | v1 (Released) | v2 (Beta) | Change |
-| :----------------------- | :-----------: | :-------: | :----: |
-| Median time              |     133s      |   147s    |  +11%  |
-| Tokens (avg)             |     702K      |   453K    |  −35%  |
-| Cost/Trial (cold median) |     $2.30     |   $1.27   |  −45%  |
-| Real tool errors (avg)   |     0.56      |   0.49    |  −12%  |
-
-v2 cuts most of the token and cost overhead, trends toward fewer real tool errors, and is a bit slower in median wall-clock time in this run. If these deltas hold at larger sample sizes, the core conclusion stays the same, but MCP becomes much more competitive on cost for discovery-heavy workflows.
+v2 cuts most of the token and cost overhead, trends toward fewer real tool errors, although in this run it is a bit slower in median wall-clock time. If these deltas hold at larger sample sizes, the core conclusion stays the same, but MCP becomes much more competitive on cost for discovery-heavy workflows.
 
 XcodeBuildMCP 2.x is now available with further optimizations to reduce context overhead and improve reliability. It introduces a CLI mode and Agent Skills that let your agent use XcodeBuildMCP without the upfront token cost mentioned above. For details, see the [changelog](https://github.com/getsentry/XcodeBuildMCP/blob/main/CHANGELOG.md).
 
