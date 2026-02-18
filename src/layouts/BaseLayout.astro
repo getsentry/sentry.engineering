@@ -1,0 +1,166 @@
+---
+import '../styles/tailwind.css'
+import siteMetadata from '../data/siteMetadata.js'
+import { isExternalLink } from '../lib/utils.js'
+
+const {
+  title = siteMetadata.title,
+  description = siteMetadata.description,
+  image = siteMetadata.socialBanner,
+  canonicalUrl,
+} = Astro.props
+
+const resolvedImage =
+  typeof image === 'string' ? image : image?.src
+const ogImage = resolvedImage?.startsWith('http')
+  ? resolvedImage
+  : `${siteMetadata.siteUrl}${resolvedImage}`
+const canonical = canonicalUrl ?? `${siteMetadata.siteUrl}${Astro.url.pathname}`
+const footerLinks = [
+  { href: siteMetadata.x, title: 'X' },
+  { href: siteMetadata.github, title: 'GitHub' },
+  { href: siteMetadata.discord, title: 'Discord' },
+].filter((link) => typeof link.href === 'string' && link.href.length > 0)
+---
+
+<!doctype html>
+<html lang={siteMetadata.language ?? 'en-US'}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="robots" content="follow, index" />
+    <meta name="description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:site_name" content={siteMetadata.title} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicons/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicons/favicon-16x16.png" />
+    <link rel="icon" type="image/png" href="/static/favicons/favicon-dark.png" media="(prefers-color-scheme: dark)" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <script is:inline>
+      (() => {
+        try {
+          const storedTheme = localStorage.getItem('theme')
+          const useDark = storedTheme ? storedTheme === 'dark' : true
+          if (useDark) {
+            document.documentElement.classList.add('dark')
+          }
+        } catch {
+          document.documentElement.classList.add('dark')
+        }
+      })()
+    </script>
+    <slot name="head" />
+  </head>
+  <body class="m-0 bg-[#f8f8fb] text-[#1f2430] antialiased font-['JetBrains_Mono',monospace] leading-[1.7] selection:bg-[#6a5fc1] selection:text-white dark:bg-[#0a0a0a] dark:text-[#e0e0e0]">
+    <div class="mx-auto max-w-5xl px-6 max-sm:px-4">
+      <div class="flex min-h-screen flex-col">
+        <header class="sticky top-0 z-100 border-b border-[#dfdfea] bg-[rgba(248,248,251,0.92)] py-5 backdrop-blur-md dark:border-[#222222] dark:bg-[rgba(10,10,10,0.92)]">
+          <div class="flex items-center justify-between gap-4">
+            <a href="/" class="flex items-center gap-2 text-sm font-semibold text-[#1f2430] no-underline dark:text-[#e0e0e0]" aria-label={siteMetadata.headerTitle}>
+              <svg
+                class="h-8 w-8 fill-[#6a5fc1]"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 72 66"
+                aria-hidden="true"
+              >
+                <path
+                  d="M29,2.26a4.67,4.67,0,0,0-8,0L14.42,13.53A32.21,32.21,0,0,1,32.17,40.19H27.55A27.68,27.68,0,0,0,12.09,17.47L6,28a15.92,15.92,0,0,1,9.23,12.17H4.62A.76.76,0,0,1,4,39.06l2.94-5a10.74,10.74,0,0,0-3.36-1.9l-2.91,5a4.54,4.54,0,0,0,1.69,6.24A4.66,4.66,0,0,0,4.62,44H19.15a19.4,19.4,0,0,0-8-17.31l2.31-4A23.87,23.87,0,0,1,23.76,44H36.07a35.88,35.88,0,0,0-16.41-31.8l4.67-8a.77.77,0,0,1,1.05-.27c.53.29,20.29,34.77,20.66,35.17a.76.76,0,0,1-.68,1.13H40.6q.09,1.91,0,3.81h4.78A4.59,4.59,0,0,0,50,39.43a4.49,4.49,0,0,0-.62-2.28Z"
+                  transform="translate(11, 11)"
+                ></path>
+              </svg>
+              <span>sentry_engineering</span>
+            </a>
+            <div class="flex items-center gap-3">
+              <button
+                type="button"
+                data-theme-toggle
+                aria-label="Toggle Dark Mode"
+                class="ml-1 mr-1 inline-flex cursor-pointer items-center rounded px-2 py-0.5 text-sm font-normal leading-none text-[#1f2430] transition-colors hover:text-[#6a5fc1] dark:text-[#f5f5f5]"
+              >
+                <span data-theme-label>[Light]</span>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <main class="w-full flex-1">
+          <slot />
+        </main>
+
+        <footer class="mt-10 border-t border-[#dfdfea] py-8 pb-10 dark:border-[#222222]">
+          <div class="flex flex-wrap items-center justify-between gap-4 max-sm:flex-col max-sm:items-start">
+            <div class="flex flex-wrap items-center gap-6">
+              <a
+                class="text-xs text-[#777f8f] no-underline transition-colors hover:text-[#6a5fc1] dark:text-[#5f5f5f]"
+                href="https://sentry.io/careers/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                We're hiring
+              </a>
+            </div>
+            <div class="flex items-center gap-6">
+              {
+                footerLinks.map((link) => (
+                  <a
+                    class="text-xs text-[#777f8f] no-underline transition-colors hover:text-[#6a5fc1] dark:text-[#5f5f5f]"
+                    href={link.href}
+                    target={isExternalLink(link.href) ? '_blank' : undefined}
+                    rel={isExternalLink(link.href) ? 'noopener noreferrer' : undefined}
+                  >
+                    {link.title}
+                  </a>
+                ))
+              }
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+    <script is:inline>
+      (() => {
+        const root = document.documentElement
+        const toggle = document.querySelector('[data-theme-toggle]')
+        const label = document.querySelector('[data-theme-label]')
+
+        if (!toggle || !label) {
+          return
+        }
+
+        const updateLabel = () => {
+          const isDark = root.classList.contains('dark')
+          label.textContent = isDark ? '[Light]' : '[Dark]'
+          toggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode')
+        }
+
+        updateLabel()
+
+        toggle.addEventListener('click', () => {
+          const isDark = root.classList.contains('dark')
+          const nextTheme = isDark ? 'light' : 'dark'
+          root.classList.toggle('dark', nextTheme === 'dark')
+
+          try {
+            localStorage.setItem('theme', nextTheme)
+          } catch {
+            // Ignore storage errors.
+          }
+
+          updateLabel()
+        })
+      })()
+    </script>
+  </body>
+</html>

@@ -1,0 +1,174 @@
+---
+import { getAllAuthors } from '../lib/content.js'
+import siteMetadata from '../data/siteMetadata.js'
+import { formatDate, trimString } from '../lib/utils.js'
+
+const {
+  title,
+  posts = [],
+  currentPage = null,
+  totalPages = null,
+  showPagination = false,
+} = Astro.props
+
+const locale = siteMetadata.locale ?? 'en-US'
+const prevPage = currentPage && currentPage > 1
+const nextPage = currentPage && totalPages && currentPage < totalPages
+const listId = `post-list-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`
+const allAuthors = await getAllAuthors()
+const authorMap = new Map(allAuthors.map((author) => [author.slug, author.name]))
+const postsWithMeta = posts.map((post) => {
+  const authorSlug =
+    Array.isArray(post.authors) && post.authors.length > 0 ? post.authors[0] : 'default'
+
+  return {
+    ...post,
+    authorName: authorMap.get(authorSlug) ?? 'Sentry',
+    shortSummary: trimString(post.summary ?? '', 220),
+  }
+})
+---
+
+<div id={listId}>
+  <div class="space-y-4 pb-8 pt-10">
+    <div class="flex items-center justify-between">
+      <h1 class="text-xs font-normal uppercase tracking-widest text-[#8c92a0] dark:text-[#5f5f5f]">
+        <span class="text-[#6a5fc1]">#</span> {title}
+      </h1>
+      <span class="text-xs text-[#8c92a0] dark:text-[#5f5f5f]">
+        {postsWithMeta.length} {postsWithMeta.length === 1 ? 'post' : 'posts'}
+      </span>
+    </div>
+
+    <div class="relative max-w-xl">
+      <input
+        aria-label="Search articles"
+        type="text"
+        placeholder="Search articles"
+        class="block w-full rounded border border-[#d9dbe6] bg-white px-4 py-2.5 text-sm text-[#1f2430] placeholder:text-[#8c92a0] outline-none transition-colors focus:border-[#c4c9d8] dark:border-[#222222] dark:bg-[#111111] dark:text-[#e0e0e0] dark:placeholder:text-[#5f5f5f] dark:focus:border-[#333333]"
+        data-search-input
+      />
+      <svg
+        class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8c92a0] dark:text-[#5f5f5f]"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+        />
+      </svg>
+    </div>
+  </div>
+
+  <ul class="flex flex-col gap-px" data-post-list>
+    <li class="text-sm text-[#5b6270] dark:text-[#8a8a8a]" data-empty style={postsWithMeta.length === 0 ? '' : 'display: none;'}>
+      No posts found.
+    </li>
+    {
+      postsWithMeta.map((post) => (
+        <li
+          data-post-item
+          data-search-content={`${post.title ?? ''} ${post.summary ?? ''} ${Array.isArray(post.tags) ? post.tags.join(' ') : ''}`.toLowerCase()}
+        >
+          <a
+            href={`/blog/${post.slug}`}
+            class="group mb-3 block cursor-pointer rounded border border-[#d9dbe6] bg-white px-6 py-5 text-inherit no-underline transition-colors hover:border-[#c4c9d8] hover:bg-[rgba(106,95,193,0.08)] dark:border-[#222222] dark:bg-[#111111] dark:hover:border-[#333333] dark:hover:bg-[rgba(106,95,193,0.12)] max-sm:px-[1.15rem] max-sm:py-4"
+          >
+            <div class="mb-3 block">
+              <span class="text-xl font-medium leading-[1.7] text-[#1f2430] transition-colors group-hover:text-[#6a5fc1] dark:text-[#e0e0e0] max-sm:text-xs">
+                {post.title}
+              </span>
+            </div>
+            <div class="mb-0.5 flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-[#8c92a0] dark:text-[#5f5f5f] max-sm:flex-col max-sm:items-start max-sm:gap-y-1">
+              <span class="flex items-center gap-1.5">
+                <span class="text-[#8c92a0] dark:text-[#5f5f5f]">date:</span>
+                <span class="text-[#5b6270] dark:text-[#8a8a8a]">
+                  <time datetime={post.date}>{formatDate(post.date, locale)}</time>
+                </span>
+              </span>
+              <span class="flex items-center gap-1.5">
+                <span class="text-[#8c92a0] dark:text-[#5f5f5f]">author:</span>
+                <span class="text-[#5b6270] dark:text-[#8a8a8a]">{post.authorName}</span>
+              </span>
+            </div>
+            {post.shortSummary && (
+              <p class="mt-2 text-sm text-[#5b6270] dark:text-[#8a8a8a]">{post.shortSummary}</p>
+            )}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</div>
+
+{showPagination && totalPages > 1 && (
+  <div class="my-4" data-pagination={listId}>
+    <nav class="flex items-center justify-between text-xs text-[#8c92a0] dark:text-[#5f5f5f]">
+      {prevPage ? (
+        <a
+          href={currentPage - 1 === 1 ? '/blog/' : `/blog/page/${currentPage - 1}`}
+          class="text-[#6a5fc1] no-underline transition-opacity hover:opacity-85"
+        >
+          Previous
+        </a>
+      ) : (
+        <button class="cursor-not-allowed opacity-50" disabled>Previous</button>
+      )}
+
+      <span>{currentPage} of {totalPages}</span>
+
+      {nextPage ? (
+        <a
+          href={`/blog/page/${currentPage + 1}`}
+          class="text-[#6a5fc1] no-underline transition-opacity hover:opacity-85"
+        >
+          Next
+        </a>
+      ) : (
+        <button class="cursor-not-allowed opacity-50" disabled>Next</button>
+      )}
+    </nav>
+  </div>
+)}
+
+<script define:vars={{ listId }}>
+  const root = document.getElementById(listId)
+  if (root) {
+    const input = root.querySelector('[data-search-input]')
+    const items = Array.from(root.querySelectorAll('[data-post-item]'))
+    const emptyState = root.querySelector('[data-empty]')
+    const pagination = document.querySelector(`[data-pagination="${listId}"]`)
+
+    if (input) {
+      const update = () => {
+        const query = input.value.trim().toLowerCase()
+        let visible = 0
+
+        for (const item of items) {
+          const haystack = item.getAttribute('data-search-content') ?? ''
+          const isMatch = query.length === 0 || haystack.includes(query)
+          item.style.display = isMatch ? '' : 'none'
+          if (isMatch) {
+            visible += 1
+          }
+        }
+
+        if (emptyState) {
+          emptyState.style.display = visible === 0 ? '' : 'none'
+        }
+
+        if (pagination) {
+          pagination.style.display = query.length === 0 ? '' : 'none'
+        }
+      }
+
+      input.addEventListener('input', update)
+      update()
+    }
+  }
+</script>

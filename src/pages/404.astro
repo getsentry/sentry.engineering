@@ -1,0 +1,47 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import siteMetadata from '../data/siteMetadata.js'
+---
+
+<BaseLayout title={`Page Not Found - ${siteMetadata.title}`} description="Page not found">
+  <section class="border-b border-[#dde0ea] pb-14 pt-16 dark:border-[#222222] max-sm:pb-8 max-sm:pt-10">
+    <div class="overflow-hidden rounded-md border border-[#d9dbe6] bg-white dark:border-[#222222] dark:bg-[#111111]">
+      <div class="flex items-center gap-1.5 border-b border-[#d9dbe6] bg-[#f4f5f8] px-4 py-3 dark:border-[#222222] dark:bg-[#161616] max-[420px]:px-3 max-[420px]:py-2.5">
+        <div class="h-2.5 w-2.5 rounded-full bg-[#ff5f56]"></div>
+        <div class="h-2.5 w-2.5 rounded-full bg-[#ffbd2e]"></div>
+        <div class="h-2.5 w-2.5 rounded-full bg-[#27c93f]"></div>
+        <span class="ml-3 text-xs text-[#8c92a0] dark:text-[#5f5f5f] max-[420px]:hidden">~/sentry.engineering</span>
+      </div>
+
+      <div class="px-6 py-6 max-sm:px-4 max-sm:py-4">
+        <p class="mb-2 text-xs text-[#8c92a0] dark:text-[#5f5f5f]">error:</p>
+        <h1 class="mb-1 text-base font-medium text-[#1f2430] dark:text-[#e0e0e0] max-sm:text-sm">404 · Page not found</h1>
+        <p class="text-sm text-[#5b6270] dark:text-[#8a8a8a] max-sm:text-xs">
+          This path does not exist, or the page has moved.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-12">
+    <div class="rounded border border-[#d9dbe6] bg-white px-6 py-5 dark:border-[#222222] dark:bg-[#111111] max-sm:px-[1.15rem] max-sm:py-4">
+      <div class="mb-5 text-xs font-normal uppercase tracking-widest text-[#8c92a0] dark:text-[#5f5f5f]">
+        <span class="text-[#6a5fc1]">#</span> next steps
+      </div>
+      <div class="flex flex-wrap gap-3 text-xs">
+        <a
+          href="/"
+          class="rounded border border-[#d9dbe6] bg-white px-3 py-1.5 text-[#5b6270] no-underline transition-colors hover:border-[#6a5fc1] hover:text-[#6a5fc1] dark:border-[#222222] dark:bg-[#111111] dark:text-[#8a8a8a] dark:hover:border-[#6a5fc1] dark:hover:text-[#d0ccff]"
+        >
+          Go home
+        </a>
+        <a
+          href="/blog"
+          class="rounded border border-[#d9dbe6] bg-white px-3 py-1.5 text-[#5b6270] no-underline transition-colors hover:border-[#6a5fc1] hover:text-[#6a5fc1] dark:border-[#222222] dark:bg-[#111111] dark:text-[#8a8a8a] dark:hover:border-[#6a5fc1] dark:hover:text-[#d0ccff]"
+        >
+          Read posts
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
