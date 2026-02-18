@@ -9,9 +9,7 @@ function dateSortDesc(a, b) {
 
 async function loadBlogCollection() {
   const entries = await getCollection("blog", ({ data }) => data.draft !== true);
-  return entries
-    .map((entry) => toPostRecord(entry))
-    .sort((a, b) => dateSortDesc(a.date, b.date));
+  return entries.map((entry) => toPostRecord(entry)).sort((a, b) => dateSortDesc(a.date, b.date));
 }
 
 async function loadAuthorsCollection() {
@@ -23,9 +21,7 @@ async function loadAuthorsCollection() {
 
 function toPostRecord(entry) {
   const authors = Array.isArray(entry.data.authors)
-    ? entry.data.authors.map((author) =>
-        typeof author === "string" ? author : author.id,
-      )
+    ? entry.data.authors.map((author) => (typeof author === "string" ? author : author.id))
     : [];
 
   return {
@@ -34,14 +30,8 @@ function toPostRecord(entry) {
     id: entry.id,
     slug: entry.slug,
     authors,
-    date:
-      entry.data.date instanceof Date
-        ? entry.data.date.toISOString()
-        : null,
-    lastmod:
-      entry.data.lastmod instanceof Date
-        ? entry.data.lastmod.toISOString()
-        : null,
+    date: entry.data.date instanceof Date ? entry.data.date.toISOString() : null,
+    lastmod: entry.data.lastmod instanceof Date ? entry.data.lastmod.toISOString() : null,
   };
 }
 

@@ -4,7 +4,8 @@ date: "2023-04-21"
 tags: ["Android", "Jetpack Compose", "Kotlin", "Mobile"]
 draft: false
 summary: "Knowing the user interactions which happened in your app right before it crashed is crucial context information for fixing errors. Tracking interactions like click and swipes manually can be tedious, so we at sentry looked into ways on how to do that automatically for your Jetpack Compose enabled Android app. Learn how you can intercept any touch event, how to determine Composable identifiers and ultimately how our sentry Android SDK ties it all together."
-images: [../../assets/images/how-we-built-user-interaction-tracking-for-jetpack-compose/compose_hero.jpg]
+images:
+  [../../assets/images/how-we-built-user-interaction-tracking-for-jetpack-compose/compose_hero.jpg]
 postLayout: PostLayout
 canonicalUrl: https://proandroiddev.com/how-we-built-user-interaction-tracking-for-jetpack-compose-e3b1dd24f0ae
 authors: ["markushintersteiner"]

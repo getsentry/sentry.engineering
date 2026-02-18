@@ -5,7 +5,10 @@ tags:
   ["javascript", "bundler", "bundle analysis", "codecov", "git", "github", "ci", "github actions"]
 draft: false
 summary: "How we resolved incorrect Codecov bundle size reporting when using GitHub Actions."
-images: ["../../assets/images/how-we-fixed-incorrect-codecov-bundle-size-reporting/codecov-classroom-hero.jpg"]
+images:
+  [
+    "../../assets/images/how-we-fixed-incorrect-codecov-bundle-size-reporting/codecov-classroom-hero.jpg",
+  ]
 postLayout: PostLayout
 canonicalUrl:
 authors: ["nicholasdeschenes"]
