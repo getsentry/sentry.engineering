@@ -4,8 +4,7 @@ date: '2026-02-18'
 tags: ['ios', 'ai', 'mcp']
 draft: false
 summary: 'Do you need an MCP to build your native app? Surprisingly, modern agents succeed either way. The real difference is how much time, cost, and context you waste along the way.'
-images: [/images/do-you-really-need-an-mcp-to-build-your-app/hero.png]
-layout: PostLayout
+images: [../../assets/images/do-you-really-need-an-mcp-to-build-your-app/hero.png]
 canonicalUrl:
 authors: [cameroncooke]
 ---
@@ -15,6 +14,8 @@ We recently [announced](https://blog.sentry.io/sentry-acquires-xcodebuildmcp) th
 We built and ran an eval that measured three LLMs, against three approaches, each tasked with five different coding exercises totaling 1,350 trials to find out. **We expected XcodeBuildMCP to dominate, but it didn't.**
 
 **All three approaches we tested hit 99%+ success.** Modern models recover from errors well enough that finishing the task is basically guaranteed. What surprised us was where the real differences showed up: time, cost, and how each approach spends its context budget.
+
+![Do you need an MCP to build your native app?](../../assets/images/do-you-really-need-an-mcp-to-build-your-app/hero.png)
 
 ## The Context Paradox
 
