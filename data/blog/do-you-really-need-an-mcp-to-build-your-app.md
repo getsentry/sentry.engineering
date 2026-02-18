@@ -24,7 +24,7 @@ MCP tools inject schemas, descriptions, and boilerplate into context before the 
 
 Context is a budget. Tool schemas spend it up front; trial-and-error spends it later. The paradox is that you can waste it either way, and the results show which spend pays off.
 
-So which matters more: structured tool access, or leaner context? We ran 1,350 trials (450 per scenario) to find out.
+So which matters more: structured tool access, or leaner context? We ran an eval with 1,350 trials (450 per scenario) to find out.
 
 ## The Experiment
 
@@ -159,7 +159,7 @@ This is the fastest, cheapest approach for happy-path builds.
   "mcpServers": {
     "XcodeBuildMCP": {
       "command": "npx",
-      "args": ["-y", "xcodebuildmcp@latest"]
+      "args": ["-y", "xcodebuildmcp@latest", "mcp"]
     }
   }
 }
@@ -193,17 +193,19 @@ Modern agents are resilient enough to recover from almost anything. The question
 
 ## Update: XcodeBuildMCP v2
 
-After writing this post, we tested an improved (unreleased) XcodeBuildMCP v2 using the same harness and tasks (15 trials per task per agent; n=225). Because v2 isn't shipped yet, **it's not included in the headline analysis above**—but it's useful as a directional check on whether we can pay down XcodeBuildMCP's context tax without giving up the "break the guessing loop" benefits.
+After writing this post, we tested an improved (now released) XcodeBuildMCP v2 using the same harness and tasks (15 trials per task per agent; n=225). Because v2 wasn't shipped at time of writing, **it's not included in the headline analysis above**—but it's useful as a directional check on whether we can pay down XcodeBuildMCP's context tax without giving up the "break the guessing loop" benefits.
 
-| Metric (MCP Unprimed)    | v1 (Released) | v2 (Preview) | Change |
-| :----------------------- | :-----------: | :----------: | :----: |
-| Median time              |     133s      |     147s     |  +11%  |
-| Tokens (avg)             |     702K      |     453K     |  −35%  |
-| Cost/Trial (cold median) |     $2.30     |    $1.27     |  −45%  |
-| Real tool errors (avg)   |     0.56      |     0.49     |  −12%  |
+| Metric (MCP Unprimed)    | v1 (Released) | v2 (Beta) | Change |
+| :----------------------- | :-----------: | :-------: | :----: |
+| Median time              |     133s      |   147s    |  +11%  |
+| Tokens (avg)             |     702K      |   453K    |  −35%  |
+| Cost/Trial (cold median) |     $2.30     |   $1.27   |  −45%  |
+| Real tool errors (avg)   |     0.56      |   0.49    |  −12%  |
 
 At a high level: v2 **cuts most of the MCP token/cost overhead**, and it trends toward **fewer real tool errors** while being a bit slower in median wall-clock time in this run. If these deltas hold up at larger sample sizes, the core conclusion stays the same (priming is best when you already know the right command), but MCP becomes much more competitive on cost for discovery-heavy workflows.
 
+XcodeBuildMCP 2.x is now available with further optimizations to reduce context overhead and improve reliability. It introduces a CLI mode and Agent Skills that let your agent use XcodeBuildMCP without the upfront token cost mentioned above. For details, see the [changelog](https://github.com/getsentry/XcodeBuildMCP/blob/main/CHANGELOG.md).
+
 ---
 
-_The v1 dataset (1,350 runs) and evaluation harness are available on [GitHub](https://github.com/cameroncooke/mcp_evals); the v2 preview adds 225 runs in the same repo._
+_The v1 dataset (1,350 runs) and evaluation harness are available on [GitHub](https://github.com/getsentry/xcodebuildmcp_eval); the v2 preview adds 225 runs in the same repo._
