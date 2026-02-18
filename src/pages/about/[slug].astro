@@ -1,0 +1,26 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import AuthorProfile from '../../components/AuthorProfile.astro'
+import { getAuthorCountsFromPosts, getAuthorBySlug, getPostsByAuthor } from '../../lib/content.js'
+
+export async function getStaticPaths() {
+  const authorCounts = await getAuthorCountsFromPosts()
+  return Object.keys(authorCounts).map((slug) => ({
+    params: { slug },
+  }))
+}
+
+const slug = Astro.params.slug
+const author = await getAuthorBySlug(slug)
+
+if (!author) {
+  throw new Error(`Author not found: ${slug}`)
+}
+
+const posts = await getPostsByAuthor(slug)
+const { Content } = await author.entry.render()
+---
+
+<BaseLayout title={`About - ${author.name}`} description={`About ${author.name}`} image={author.avatar}>
+  <AuthorProfile author={author} Content={Content} posts={posts} />
+</BaseLayout>

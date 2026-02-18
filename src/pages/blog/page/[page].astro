@@ -1,0 +1,40 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro'
+import PostList from '../../../components/PostList.astro'
+import { getAllPosts } from '../../../lib/content.js'
+import siteMetadata from '../../../data/siteMetadata.js'
+
+const POSTS_PER_PAGE = 40
+const allPosts = await getAllPosts()
+const totalPages = Math.ceil(allPosts.length / POSTS_PER_PAGE)
+
+export async function getStaticPaths() {
+  const POSTS_PER_PAGE = 40
+  const totalPosts = await getAllPosts()
+  const totalPages = Math.ceil(totalPosts.length / POSTS_PER_PAGE)
+  if (totalPages <= 1) {
+    return []
+  }
+
+  return Array.from({ length: totalPages - 1 }, (_, index) => ({
+    params: { page: String(index + 2) },
+  }))
+}
+
+const pageNumber = Number(Astro.params.page)
+const start = POSTS_PER_PAGE * (pageNumber - 1)
+const posts = allPosts.slice(start, start + POSTS_PER_PAGE)
+---
+
+<BaseLayout
+  title={`Sentry Engineering Blog - Page ${pageNumber}`}
+  description={siteMetadata.description}
+>
+  <PostList
+    title="All Posts"
+    posts={posts}
+    currentPage={pageNumber}
+    totalPages={totalPages}
+    showPagination={true}
+  />
+</BaseLayout>

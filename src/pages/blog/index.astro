@@ -1,0 +1,18 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import PostList from '../../components/PostList.astro'
+import { getAllPosts } from '../../lib/content.js'
+import siteMetadata from '../../data/siteMetadata.js'
+
+const POSTS_PER_PAGE = 40
+const allPosts = await getAllPosts()
+const posts = allPosts.slice(0, POSTS_PER_PAGE)
+const totalPages = Math.ceil(allPosts.length / POSTS_PER_PAGE)
+---
+
+<BaseLayout
+  title={`Sentry Engineering Blog - ${siteMetadata.author}`}
+  description={siteMetadata.description}
+>
+  <PostList title="All Posts" posts={posts} currentPage={1} totalPages={totalPages} showPagination={true} />
+</BaseLayout>
