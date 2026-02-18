@@ -1,0 +1,30 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import PostList from '../../components/PostList.astro'
+import { getAllTags, getPostsByTag } from '../../lib/content.js'
+import siteMetadata from '../../data/siteMetadata.js'
+import { titleFromTag } from '../../lib/utils.js'
+
+export async function getStaticPaths() {
+  const allTags = await getAllTags()
+  return Object.keys(allTags).map((tag) => ({
+    params: { tag },
+  }))
+}
+
+const tag = Astro.params.tag
+const posts = await getPostsByTag(tag)
+const title = titleFromTag(tag)
+---
+
+<BaseLayout title={`${tag} - ${siteMetadata.author}`} description={`${tag} posts`}>
+  <Fragment slot="head">
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={`${tag} posts - RSS feed`}
+      href={`${siteMetadata.siteUrl}/tags/${tag}/feed.xml`}
+    />
+  </Fragment>
+  <PostList title={title} posts={posts} />
+</BaseLayout>

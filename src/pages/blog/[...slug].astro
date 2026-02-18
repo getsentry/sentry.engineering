@@ -1,0 +1,109 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import { render } from 'astro:content'
+import { getAllPosts, getAuthorBySlug, getPostBySlug } from '../../lib/content.js'
+import siteMetadata from '../../data/siteMetadata.js'
+import { formatDate, toTagSlug } from '../../lib/utils.js'
+
+export async function getStaticPaths() {
+  const allPosts = await getAllPosts()
+  return allPosts.map((post) => ({
+    params: { slug: post.slug },
+  }))
+}
+
+const slug = Astro.params.slug
+const post = await getPostBySlug(slug)
+
+if (!post) {
+  throw new Error(`Post not found: ${slug}`)
+}
+
+const { Content } = await render(post.entry)
+const authorSlugs = Array.isArray(post.authors) && post.authors.length > 0 ? post.authors : ['default']
+const authorDetails = (
+  await Promise.all(authorSlugs.map((authorSlug) => getAuthorBySlug(authorSlug)))
+).filter(Boolean)
+
+const canonicalUrl = post.canonicalUrl
+  ? post.canonicalUrl.startsWith('http')
+    ? post.canonicalUrl
+    : `${siteMetadata.siteUrl}/blog/${post.canonicalUrl}`
+  : undefined
+
+const locale = siteMetadata.locale ?? 'en-US'
+const authorLabel = authorDetails.length === 1 ? 'Author' : 'Authors'
+---
+
+<BaseLayout
+  title={`${post.title} - ${siteMetadata.title}`}
+  description={post.summary}
+  image={Array.isArray(post.images) && post.images.length > 0 ? post.images[0] : siteMetadata.socialBanner}
+  canonicalUrl={canonicalUrl}
+>
+  <Fragment slot="head">
+    <meta property="article:published_time" content={post.date} />
+    {post.lastmod && <meta property="article:modified_time" content={new Date(post.lastmod).toISOString()} />}
+  </Fragment>
+
+  <article class="pb-10 pt-8">
+    <header class="mb-6 rounded border border-[#d9dbe6] bg-white px-6 py-6 dark:border-[#222222] dark:bg-[#111111] max-sm:px-4">
+      <div class="mb-2 text-xs text-[#8c92a0] dark:text-[#5f5f5f]">
+        <time datetime={post.date}>{formatDate(post.date, locale)}</time>
+      </div>
+      <h1 class="text-xl font-semibold leading-tight text-[#1f2430] dark:text-[#e0e0e0]">
+        {post.title}
+      </h1>
+      {authorDetails.length > 0 && (
+        <div class="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-[#8c92a0] dark:text-[#5f5f5f]">
+          <span>{authorLabel}:</span>
+          <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+            {
+              authorDetails.map((author, index) => (
+                <>
+                  <a
+                    class="text-[#6a5fc1] no-underline transition-opacity hover:opacity-85"
+                    href={`/about/${encodeURIComponent(author.slug)}`}
+                  >
+                    {author.name}
+                  </a>
+                  {index < authorDetails.length - 1 && <span>,</span>}
+                </>
+              ))
+            }
+          </div>
+        </div>
+      )}
+    </header>
+
+    <section>
+      <div class="rounded border border-[#d9dbe6] bg-white px-6 py-8 dark:border-[#222222] dark:bg-[#111111] max-sm:px-4">
+        <div
+          class="prose max-w-none prose-headings:text-[#1f2430] prose-p:text-[#5b6270] prose-strong:text-[#1f2430] prose-a:text-[#6a5fc1] prose-code:text-[#5f54b2] dark:prose-headings:text-[#e0e0e0] dark:prose-p:text-[#8a8a8a] dark:prose-strong:text-[#e0e0e0] dark:prose-a:text-[#8f84d9] dark:prose-code:text-[#b7aff0] dark:prose-pre:bg-[#161616]"
+        >
+          <Content />
+        </div>
+
+        {Array.isArray(post.tags) && post.tags.length > 0 && (
+          <footer class="mt-8 border-t border-[#d9dbe6] pt-5 dark:border-[#222222]">
+            <div class="mb-2 text-xs uppercase tracking-widest text-[#8c92a0] dark:text-[#5f5f5f]">
+              tags
+            </div>
+            <div class="flex flex-wrap gap-2">
+              {
+                post.tags.map((tag) => (
+                  <a
+                    href={`/tags/${toTagSlug(tag)}`}
+                    class="text-xs text-[#6a5fc1] no-underline transition-opacity hover:opacity-85"
+                  >
+                    #{toTagSlug(tag)}
+                  </a>
+                ))
+              }
+            </div>
+          </footer>
+        )}
+      </div>
+    </section>
+  </article>
+</BaseLayout>

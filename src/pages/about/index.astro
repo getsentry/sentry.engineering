@@ -1,0 +1,98 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import { getAllAuthors, getAuthorCountsFromPosts } from '../../lib/content.js'
+
+function socialLinks(entry) {
+  return [
+    { label: 'X', href: entry.twitter },
+    { label: 'GitHub', href: entry.github },
+    { label: 'LinkedIn', href: entry.linkedin },
+    { label: 'Website', href: entry.url },
+  ].filter((link) => Boolean(link.href))
+}
+
+const allAuthors = await getAllAuthors()
+const authorCounts = await getAuthorCountsFromPosts()
+
+const authors = allAuthors
+  .filter((author) => Boolean(authorCounts[author.slug]))
+  .map((author) => ({
+    ...author,
+    postCount: authorCounts[author.slug]?.count ?? 0,
+  }))
+  .sort((a, b) => b.postCount - a.postCount || String(a.name).localeCompare(String(b.name)))
+---
+
+<BaseLayout title="Authors | Sentry Engineering" description="Meet the engineers writing on Sentry Engineering.">
+  <section class="border-b border-[#dde0ea] pb-12 pt-16 dark:border-[#222222] max-sm:pb-8 max-sm:pt-10">
+    <div class="overflow-hidden rounded-md border border-[#d9dbe6] bg-white dark:border-[#222222] dark:bg-[#111111]">
+      <div class="px-6 py-6 max-sm:px-4 max-sm:py-4">
+        <h1 class="mb-1 text-base font-medium text-[#1f2430] dark:text-[#e0e0e0] max-sm:text-sm">From the engineers building Sentry.</h1>
+        <p class="text-sm text-[#5b6270] dark:text-[#8a8a8a] max-sm:text-xs">People behind the posts, systems, and SDK deep dives.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-12">
+    <div class="mb-8 flex items-center justify-between">
+      <h2 class="text-xs font-normal uppercase tracking-widest text-[#8c92a0] dark:text-[#5f5f5f]">
+        <span class="text-[#6a5fc1]">#</span> authors
+      </h2>
+      <span class="text-xs text-[#8c92a0] dark:text-[#5f5f5f]">
+        {authors.length} {authors.length === 1 ? 'author' : 'authors'}
+      </span>
+    </div>
+
+    <div class="flex flex-col gap-px">
+      {authors.length === 0 && <p class="text-sm text-[#5b6270] dark:text-[#8a8a8a]">No authors found.</p>}
+      {
+        authors.map((author) => (
+          <a
+            href={`/about/${author.slug}`}
+            class="group mb-3 block cursor-pointer rounded border border-[#d9dbe6] bg-white px-6 py-5 text-inherit no-underline transition-colors hover:border-[#c4c9d8] hover:bg-[rgba(106,95,193,0.08)] dark:border-[#222222] dark:bg-[#111111] dark:hover:border-[#333333] dark:hover:bg-[rgba(106,95,193,0.12)] max-sm:px-[1.15rem] max-sm:py-4"
+            aria-label={`View ${author.name}`}
+          >
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div class="flex items-center gap-4">
+                {author.avatar && (
+                  <img
+                    src={typeof author.avatar === 'string' ? author.avatar : author.avatar.src}
+                    alt={`${author.name} avatar`}
+                    width="44"
+                    height="44"
+                    class="h-11 w-11 rounded-full border border-[#d9dbe6] object-cover dark:border-[#222222]"
+                  />
+                )}
+                <div>
+                  <div class="text-sm font-medium leading-[1.7] text-[#1f2430] transition-colors group-hover:text-[#6a5fc1] dark:text-[#e0e0e0] max-sm:text-xs">
+                    {author.name}
+                  </div>
+                  {author.occupation && <p class="text-xs text-[#5b6270] dark:text-[#8a8a8a]">{author.occupation}</p>}
+                </div>
+              </div>
+
+              <div class="flex items-center gap-3">
+                <span class="text-xs text-[#8c92a0] dark:text-[#5f5f5f]">
+                  {author.postCount} {author.postCount === 1 ? 'post' : 'posts'}
+                </span>
+                {socialLinks(author).length > 0 && (
+                  <div class="hidden items-center gap-2 min-[520px]:flex">
+                    {
+                      socialLinks(author)
+                        .slice(0, 2)
+                        .map((link) => (
+                          <span class="rounded border border-[#d9dbe6] px-2 py-0.5 text-xs text-[#5b6270] dark:border-[#222222] dark:text-[#8a8a8a]">
+                            {link.label}
+                          </span>
+                        ))
+                    }
+                  </div>
+                )}
+              </div>
+            </div>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>

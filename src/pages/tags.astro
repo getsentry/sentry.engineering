@@ -1,0 +1,106 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import { getAllAuthors, getAllTags, getAuthorCountsFromPosts } from '../lib/content.js'
+import siteMetadata from '../data/siteMetadata.js'
+
+const tags = await getAllTags()
+const authors = await getAuthorCountsFromPosts()
+const allAuthors = await getAllAuthors()
+const authorMap = new Map(allAuthors.map((author) => [author.slug, author]))
+
+const sortedTags = Object.keys(tags).sort((a, b) => tags[b] - tags[a])
+const sortedAuthors = Object.keys(authors).sort((a, b) => authors[b].count - authors[a].count)
+---
+
+<BaseLayout title={`Tags | ${siteMetadata.title}`} description="Browse topics and authors on Sentry Engineering.">
+  <section class="border-b border-[#dde0ea] pb-12 pt-16 dark:border-[#222222] max-sm:pb-8 max-sm:pt-10">
+    <div class="overflow-hidden rounded-md border border-[#d9dbe6] bg-white dark:border-[#222222] dark:bg-[#111111]">
+      <div class="px-6 py-6 max-sm:px-4 max-sm:py-4">
+        <h1 class="mb-1 text-base font-medium text-[#1f2430] dark:text-[#e0e0e0] max-sm:text-sm">From the engineers building Sentry.</h1>
+        <p class="text-sm text-[#5b6270] dark:text-[#8a8a8a] max-sm:text-xs">Browse by topic or jump directly to an author.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="pt-12">
+    <div class="mb-8 flex items-center justify-between">
+      <h2 class="text-xs font-normal uppercase tracking-widest text-[#8c92a0] dark:text-[#5f5f5f]">
+        <span class="text-[#6a5fc1]">#</span> tags
+      </h2>
+      <span class="text-xs text-[#8c92a0] dark:text-[#5f5f5f]">
+        {sortedTags.length} {sortedTags.length === 1 ? 'tag' : 'tags'}
+      </span>
+    </div>
+
+    <div class="flex flex-col gap-px">
+      {sortedTags.length === 0 && <p class="text-sm text-[#5b6270] dark:text-[#8a8a8a]">No tags found.</p>}
+      {
+        sortedTags.map((tag) => (
+          <a
+            href={`/tags/${tag}`}
+            class="group mb-3 block cursor-pointer rounded border border-[#d9dbe6] bg-white px-6 py-5 text-inherit no-underline transition-colors hover:border-[#c4c9d8] hover:bg-[rgba(106,95,193,0.08)] dark:border-[#222222] dark:bg-[#111111] dark:hover:border-[#333333] dark:hover:bg-[rgba(106,95,193,0.12)] max-sm:px-[1.15rem] max-sm:py-4"
+            aria-label={`View posts tagged ${tag}`}
+          >
+            <div class="flex items-center justify-between gap-4">
+              <span class="text-sm font-medium leading-[1.7] text-[#1f2430] transition-colors group-hover:text-[#6a5fc1] dark:text-[#e0e0e0] max-sm:text-xs">
+                {tag}
+              </span>
+              <span class="text-xs text-[#8c92a0] dark:text-[#5f5f5f]">
+                {tags[tag]} {tags[tag] === 1 ? 'post' : 'posts'}
+              </span>
+            </div>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="pb-4 pt-8">
+    <div class="mb-8 flex items-center justify-between">
+      <h2 class="text-xs font-normal uppercase tracking-widest text-[#8c92a0] dark:text-[#5f5f5f]">
+        <span class="text-[#6a5fc1]">#</span> authors
+      </h2>
+      <span class="text-xs text-[#8c92a0] dark:text-[#5f5f5f]">
+        {sortedAuthors.length} {sortedAuthors.length === 1 ? 'author' : 'authors'}
+      </span>
+    </div>
+
+    <div class="flex flex-col gap-px">
+      {sortedAuthors.length === 0 && <p class="text-sm text-[#5b6270] dark:text-[#8a8a8a]">No authors found.</p>}
+      {
+        sortedAuthors.map((authorSlug) => {
+          const author = authorMap.get(authorSlug)
+          const label = author?.name ?? authors[authorSlug].name
+
+          return (
+            <a
+              href={`/about/${authorSlug}`}
+              class="group mb-3 block cursor-pointer rounded border border-[#d9dbe6] bg-white px-6 py-5 text-inherit no-underline transition-colors hover:border-[#c4c9d8] hover:bg-[rgba(106,95,193,0.08)] dark:border-[#222222] dark:bg-[#111111] dark:hover:border-[#333333] dark:hover:bg-[rgba(106,95,193,0.12)] max-sm:px-[1.15rem] max-sm:py-4"
+              aria-label={`View ${label}`}
+            >
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-4">
+                  {author?.avatar && (
+                    <img
+                      src={typeof author.avatar === 'string' ? author.avatar : author.avatar.src}
+                      alt={`${label} avatar`}
+                      width="44"
+                      height="44"
+                      class="h-11 w-11 rounded-full border border-[#d9dbe6] object-cover dark:border-[#222222]"
+                    />
+                  )}
+                  <span class="text-sm font-medium leading-[1.7] text-[#1f2430] transition-colors group-hover:text-[#6a5fc1] dark:text-[#e0e0e0] max-sm:text-xs">
+                    {label}
+                  </span>
+                </div>
+                <span class="text-xs text-[#8c92a0] dark:text-[#5f5f5f]">
+                  {authors[authorSlug].count} {authors[authorSlug].count === 1 ? 'post' : 'posts'}
+                </span>
+              </div>
+            </a>
+          )
+        })
+      }
+    </div>
+  </section>
+</BaseLayout>
