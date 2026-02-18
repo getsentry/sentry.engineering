@@ -6,6 +6,9 @@ import rehypeSlug from "rehype-slug";
 export default defineConfig({
   site: "https://sentry.engineering",
   output: "static",
+  experimental: {
+    csp: true,
+  },
   integrations: [sitemap()],
   image: {
     service: {
