@@ -1,9 +1,9 @@
 ---
-title: 'Do you need an MCP to build your native app?'
-date: '2026-02-18'
-tags: ['ios', 'ai', 'mcp']
+title: "Do you need an MCP to build your native app?"
+date: "2026-02-18"
+tags: ["ios", "ai", "mcp"]
 draft: false
-summary: 'Do you need an MCP to build your native app? Surprisingly, modern agents succeed either way. The real difference is how much time, cost, and context you waste along the way.'
+summary: "Do you need an MCP to build your native app? Surprisingly, modern agents succeed either way. The real difference is how much time, cost, and context you waste along the way."
 images: [../../assets/images/do-you-really-need-an-mcp-to-build-your-app/hero.png]
 canonicalUrl:
 authors: [cameroncooke]
