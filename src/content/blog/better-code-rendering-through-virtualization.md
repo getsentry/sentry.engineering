@@ -5,7 +5,9 @@ tags: [javascript, codecov, virtualization, react]
 draft: false
 summary: How we rebuilt Codecov's code renderer from the ground up to be faster and more efficient, utilizing virtualization.
 images:
-  [../../assets/images/better-code-rendering-through-virtualization/understanding-root-cause-flamegraph-3.png]
+  [
+    ../../assets/images/better-code-rendering-through-virtualization/understanding-root-cause-flamegraph-3.png,
+  ]
 postLayout: PostLayout
 canonicalUrl:
 authors: [nicholasdeschenes]

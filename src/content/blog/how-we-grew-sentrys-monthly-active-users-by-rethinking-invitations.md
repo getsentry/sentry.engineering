@@ -4,7 +4,8 @@ date: "2020-02-12"
 tags: ["building sentry", "growth"]
 draft: false
 summary: "At its core, Sentry is a tool that alerts you to defects in your production software. But it does more than blast stack traces into your inbox: Sentry provides powerful workflows to help your team determine root cause, triage issues to your team, and keep tabs on ongoing concerns with comments and notifications. At the end of 2019, the Growth team made it our mission to make it easier for our users to invite their teammates to join them on Sentry. Our theory: improving the user experience of inviting users, as well as democratizing the process to include all team members would lead to a significant increase in team-wide adoption. (Narrator: it did.)"
-images: [../../assets/images/how-we-grew-sentrys-monthly-active-users-by-rethinking-invitations/hero.jpg]
+images:
+  [../../assets/images/how-we-grew-sentrys-monthly-active-users-by-rethinking-invitations/hero.jpg]
 postLayout: PostLayout
 canonicalUrl: https://blog.sentry.io/2020/02/12/how-we-grew-sentrys-monthly-active-users-by-rethinking-invitations/
 authors: ["benvinegar", "evanpurkhiser"]
