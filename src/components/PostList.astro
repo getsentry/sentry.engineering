@@ -32,10 +32,10 @@ const postsWithMeta = posts.map((post) => {
 <div id={listId}>
   <div class="space-y-4 pb-8 pt-10">
     <div class="flex items-center justify-between">
-      <h1 class="text-xs font-normal uppercase tracking-widest text-[#8c92a0] dark:text-[#5f5f5f]">
+      <h1 class="text-xs font-normal uppercase tracking-widest text-gray-400 dark:text-gray-500">
         <span class="text-[#6a5fc1]">#</span> {title}
       </h1>
-      <span class="text-xs text-[#8c92a0] dark:text-[#5f5f5f]">
+      <span class="text-xs text-gray-400 dark:text-gray-500">
         {postsWithMeta.length} {postsWithMeta.length === 1 ? 'post' : 'posts'}
       </span>
     </div>
@@ -45,11 +45,11 @@ const postsWithMeta = posts.map((post) => {
         aria-label="Search articles"
         type="text"
         placeholder="Search articles"
-        class="block w-full rounded border border-[#d9dbe6] bg-white px-4 py-2.5 text-sm text-[#1f2430] placeholder:text-[#8c92a0] outline-none transition-colors focus:border-[#c4c9d8] dark:border-[#222222] dark:bg-[#111111] dark:text-[#e0e0e0] dark:placeholder:text-[#5f5f5f] dark:focus:border-[#333333]"
+        class="block w-full rounded border border-[#d9dbe6] bg-white px-4 py-2.5 text-sm text-[#1f2430] placeholder:text-gray-400 outline-none transition-colors focus:border-[#c4c9d8] dark:border-[#222222] dark:bg-[#111111] dark:text-[#e0e0e0] dark:placeholder:text-[#5f5f5f] dark:focus:border-[#333333]"
         data-search-input
       />
       <svg
-        class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8c92a0] dark:text-[#5f5f5f]"
+        class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-gray-500"
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 24 24"
@@ -84,15 +84,15 @@ const postsWithMeta = posts.map((post) => {
                 {post.title}
               </span>
             </div>
-            <div class="mb-0.5 flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-[#8c92a0] dark:text-[#5f5f5f] max-sm:flex-col max-sm:items-start max-sm:gap-y-1">
+            <div class="mb-0.5 flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-gray-400 dark:text-gray-500 max-sm:flex-col max-sm:items-start max-sm:gap-y-1">
               <span class="flex items-center gap-1.5">
-                <span class="text-[#8c92a0] dark:text-[#5f5f5f]">date:</span>
+                <span class="text-gray-400 dark:text-gray-500">date:</span>
                 <span class="text-[#5b6270] dark:text-[#8a8a8a]">
                   <time datetime={post.date}>{formatDate(post.date, locale)}</time>
                 </span>
               </span>
               <span class="flex items-center gap-1.5">
-                <span class="text-[#8c92a0] dark:text-[#5f5f5f]">author:</span>
+                <span class="text-gray-400 dark:text-gray-500">author:</span>
                 <span class="text-[#5b6270] dark:text-[#8a8a8a]">{post.authorName}</span>
               </span>
             </div>
@@ -108,7 +108,7 @@ const postsWithMeta = posts.map((post) => {
 
 {showPagination && totalPages > 1 && (
   <div class="my-4" data-pagination={listId}>
-    <nav class="flex items-center justify-between text-xs text-[#8c92a0] dark:text-[#5f5f5f]">
+    <nav class="flex items-center justify-between text-xs text-gray-400 dark:text-gray-500">
       {prevPage ? (
         <a
           href={currentPage - 1 === 1 ? '/blog/' : `/blog/page/${currentPage - 1}`}
