@@ -17,7 +17,7 @@ SwiftUI view performance is often determined by the speed and frequency of calls
 
 When you use Sentry to measure the performance of a UIKit app, every view controller and UIView will automatically be traced. Without any setup you can spot view controllers that are slow to load or to layout their views.
 
-|                                              ![](../../assets/images/swizzling-swift/ui-view-controller-transaction.jpeg)                                              |
+|                                        ![](../../assets/images/swizzling-swift/ui-view-controller-transaction.jpeg)                                        |
 | :--------------------------------------------------------------------------------------------------------------------------------------------------------: |
 | [_UIKit automatic tracing_](https://docs.sentry.io/platforms/apple/guides/ios/tracing/instrumentation/automatic-instrumentation/#uiviewcontroller-tracing) |
 
@@ -90,7 +90,7 @@ So far this is all the same as generating order files, but unlike with order fil
 
 _I glossed over a lot of the low level details of using mach exceptions and setting breakpoints in favor of highlighting the core idea, but the interested reader can check out the [source code](https://github.com/getsentry/SwiftUI-ViewPerformance/blob/c7aba929385c9d2a1996accfdcf07de7c2840b7c/Sources/ViewPerformanceObjC/Hook.mm#L26)._
 
-|                             ![](../../assets/images/swizzling-swift/view_xray.png)                              |
+|                       ![](../../assets/images/swizzling-swift/view_xray.png)                        |
 | :-------------------------------------------------------------------------------------------------: |
 | [_The SDK tracking SwiftUI view performance_](https://github.com/getsentry/SwiftUI-ViewPerformance) |
 
