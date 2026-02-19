@@ -21,6 +21,8 @@ const footerLinks = [
   { href: siteMetadata.github, title: 'GitHub' },
   { href: siteMetadata.discord, title: 'Discord' },
 ].filter((link) => typeof link.href === 'string' && link.href.length > 0)
+
+const plausibleScriptSrc = import.meta.env.PUBLIC_PLAUSIBLE_SCRIPT_SRC
 ---
 
 <!doctype html>
@@ -42,12 +44,6 @@ const footerLinks = [
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicons/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicons/favicon-16x16.png" />
     <link rel="icon" type="image/png" href="/static/favicons/favicon-dark.png" media="(prefers-color-scheme: dark)" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap"
-      rel="stylesheet"
-    />
     <script is:inline>
       (() => {
         try {
@@ -61,6 +57,22 @@ const footerLinks = [
         }
       })()
     </script>
+    {
+      plausibleScriptSrc && (
+        <>
+          <script async src={plausibleScriptSrc}></script>
+          <script is:inline>
+            window.plausible = window.plausible || function () {
+              ;(plausible.q = plausible.q || []).push(arguments)
+            }
+            plausible.init = plausible.init || function (options) {
+              plausible.o = options || {}
+            }
+            plausible.init()
+          </script>
+        </>
+      )
+    }
     <slot name="head" />
   </head>
   <body class="m-0 bg-[#f8f8fb] text-[#1f2430] antialiased font-['JetBrains_Mono',monospace] leading-[1.7] selection:bg-[#6a5fc1] selection:text-white dark:bg-[#0a0a0a] dark:text-[#e0e0e0]">

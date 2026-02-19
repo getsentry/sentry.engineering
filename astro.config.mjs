@@ -7,7 +7,12 @@ export default defineConfig({
   site: "https://sentry.engineering",
   output: "static",
   experimental: {
-    csp: true,
+    csp: {
+      scriptDirective: {
+        resources: ["'self'", "https://plausible.io"],
+      },
+      directives: ["connect-src 'self' https://plausible.io"],
+    },
   },
   integrations: [sitemap()],
   image: {
