@@ -4,7 +4,10 @@ date: "2023-02-23"
 tags: ["react", "web", "react testing library", "enzyme"]
 draft: false
 summary: With over 700 pull requests a month, making sure Sentry's test suite runs quicky is extremely important. This post will talk about our journey converting our component tests from Enzyme to React Testing Library that took almost 18 months, 17 engineers and almost 5000 tests.
-images: [../../assets/images/sentrys-frontend-tests-migrating-from-enzyme-to-react-testing-library/hero.jpg]
+images:
+  [
+    ../../assets/images/sentrys-frontend-tests-migrating-from-enzyme-to-react-testing-library/hero.jpg,
+  ]
 postLayout: PostLayout
 canonicalUrl: https://blog.sentry.io/2023/02/23/sentrys-frontend-tests-migrating-from-enzyme-to-react-testing-library/
 authors: ["priscilaoliveira", "scottcooper"]
