@@ -103,7 +103,7 @@ const footerLinks = [
           <div class="flex flex-wrap items-center justify-between gap-4 max-sm:flex-col max-sm:items-start">
             <div class="flex flex-wrap items-center gap-6">
               <a
-                class="text-xs text-[#777f8f] no-underline transition-colors hover:text-[#6a5fc1] dark:text-[#5f5f5f]"
+                class="text-xs text-gray-500 no-underline transition-colors hover:text-[#6a5fc1] dark:text-gray-400"
                 href="https://sentry.io/careers/"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -115,7 +115,7 @@ const footerLinks = [
               {
                 footerLinks.map((link) => (
                   <a
-                    class="text-xs text-[#777f8f] no-underline transition-colors hover:text-[#6a5fc1] dark:text-[#5f5f5f]"
+                    class="text-xs text-gray-500 no-underline transition-colors hover:text-[#6a5fc1] dark:text-gray-400"
                     href={link.href}
                     target={isExternalLink(link.href) ? '_blank' : undefined}
                     rel={isExternalLink(link.href) ? 'noopener noreferrer' : undefined}

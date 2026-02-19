@@ -35,10 +35,10 @@ const authors = allAuthors
 
   <section class="py-12">
     <div class="mb-8 flex items-center justify-between">
-      <h2 class="text-xs font-normal uppercase tracking-widest text-[#8c92a0] dark:text-[#5f5f5f]">
+      <h2 class="text-xs font-normal uppercase tracking-widest text-gray-400 dark:text-gray-500">
         <span class="text-[#6a5fc1]">#</span> authors
       </h2>
-      <span class="text-xs text-[#8c92a0] dark:text-[#5f5f5f]">
+      <span class="text-xs text-gray-400 dark:text-gray-500">
         {authors.length} {authors.length === 1 ? 'author' : 'authors'}
       </span>
     </div>
@@ -72,7 +72,7 @@ const authors = allAuthors
               </div>
 
               <div class="flex items-center gap-3">
-                <span class="text-xs text-[#8c92a0] dark:text-[#5f5f5f]">
+                <span class="text-xs text-gray-400 dark:text-gray-500">
                   {author.postCount} {author.postCount === 1 ? 'post' : 'posts'}
                 </span>
                 {socialLinks(author).length > 0 && (

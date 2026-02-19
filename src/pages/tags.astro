@@ -24,10 +24,10 @@ const sortedAuthors = Object.keys(authors).sort((a, b) => authors[b].count - aut
 
   <section class="pt-12">
     <div class="mb-8 flex items-center justify-between">
-      <h2 class="text-xs font-normal uppercase tracking-widest text-[#8c92a0] dark:text-[#5f5f5f]">
+      <h2 class="text-xs font-normal uppercase tracking-widest text-gray-400 dark:text-gray-500">
         <span class="text-[#6a5fc1]">#</span> tags
       </h2>
-      <span class="text-xs text-[#8c92a0] dark:text-[#5f5f5f]">
+      <span class="text-xs text-gray-400 dark:text-gray-500">
         {sortedTags.length} {sortedTags.length === 1 ? 'tag' : 'tags'}
       </span>
     </div>
@@ -45,7 +45,7 @@ const sortedAuthors = Object.keys(authors).sort((a, b) => authors[b].count - aut
               <span class="text-sm font-medium leading-[1.7] text-[#1f2430] transition-colors group-hover:text-[#6a5fc1] dark:text-[#e0e0e0] max-sm:text-xs">
                 {tag}
               </span>
-              <span class="text-xs text-[#8c92a0] dark:text-[#5f5f5f]">
+              <span class="text-xs text-gray-400 dark:text-gray-500">
                 {tags[tag]} {tags[tag] === 1 ? 'post' : 'posts'}
               </span>
             </div>
@@ -57,10 +57,10 @@ const sortedAuthors = Object.keys(authors).sort((a, b) => authors[b].count - aut
 
   <section class="pb-4 pt-8">
     <div class="mb-8 flex items-center justify-between">
-      <h2 class="text-xs font-normal uppercase tracking-widest text-[#8c92a0] dark:text-[#5f5f5f]">
+      <h2 class="text-xs font-normal uppercase tracking-widest text-gray-400 dark:text-gray-500">
         <span class="text-[#6a5fc1]">#</span> authors
       </h2>
-      <span class="text-xs text-[#8c92a0] dark:text-[#5f5f5f]">
+      <span class="text-xs text-gray-400 dark:text-gray-500">
         {sortedAuthors.length} {sortedAuthors.length === 1 ? 'author' : 'authors'}
       </span>
     </div>
@@ -93,7 +93,7 @@ const sortedAuthors = Object.keys(authors).sort((a, b) => authors[b].count - aut
                     {label}
                   </span>
                 </div>
-                <span class="text-xs text-[#8c92a0] dark:text-[#5f5f5f]">
+                <span class="text-xs text-gray-400 dark:text-gray-500">
                   {authors[authorSlug].count} {authors[authorSlug].count === 1 ? 'post' : 'posts'}
                 </span>
               </div>
