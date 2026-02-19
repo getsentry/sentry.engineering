@@ -22,9 +22,7 @@ export default defineConfig({
     shikiConfig: {
       theme: "night-owl",
     },
-    rehypePlugins: [
-      rehypeSlug,
-    ],
+    rehypePlugins: [rehypeSlug],
   },
   vite: {
     plugins: [tailwindcss()],

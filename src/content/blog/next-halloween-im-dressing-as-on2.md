@@ -19,7 +19,7 @@ Recently one of [our](https://www.emergetools.com/blog/posts/emerge-tools-is-joi
 
 We’ve been hard at work [shipping a Beta of Size Analysis](https://blog.sentry.io/monitor-reduce-mobile-app-size-analysis-early-access), binary analysis for mobile apps. Size Analysis is critical for Sentry’s future Twitter game but we also have a side line in helping customers analyze, reduce and maintain their app size. No one likes having to download 100s of megabytes over a spotty connection just to check in for a flight or [brush your teeth](https://x.com/emergetools/status/1828490449881047401).
 
-|                 ![](../../assets/images/next-halloween-im-dressing-as-on2/twitter.png)                 |
+|           ![](../../assets/images/next-halloween-im-dressing-as-on2/twitter.png)           |
 | :----------------------------------------------------------------------------------------: |
 | [_Future Twitter Game, visualized._](https://x.com/emergetools/status/1989379066605310341) |
 
