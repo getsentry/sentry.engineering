@@ -62,9 +62,9 @@ const footerLinks = [
       })()
     </script>
     {
-      process.env.PLAUSIBLE_SCRIPT_SRC && (
+      import.meta.env.PUBLIC_PLAUSIBLE_SCRIPT_SRC && (
         <>
-          <script async src={process.env.PLAUSIBLE_SCRIPT_SRC}></script>
+          <script async src={import.meta.env.PUBLIC_PLAUSIBLE_SCRIPT_SRC}></script>
           <script is:inline>
             window.plausible = window.plausible || function () {
               ;(plausible.q = plausible.q || []).push(arguments)
