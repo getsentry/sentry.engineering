@@ -22,7 +22,6 @@ const footerLinks = [
   { href: siteMetadata.discord, title: 'Discord' },
 ].filter((link) => typeof link.href === 'string' && link.href.length > 0)
 
-const plausibleScriptSrc = import.meta.env.PUBLIC_PLAUSIBLE_SCRIPT_SRC
 ---
 
 <!doctype html>
@@ -59,9 +58,9 @@ const plausibleScriptSrc = import.meta.env.PUBLIC_PLAUSIBLE_SCRIPT_SRC
       })()
     </script>
     {
-      plausibleScriptSrc && (
+      import.meta.env.PUBLIC_PLAUSIBLE_SCRIPT_SRC && (
         <>
-          <script async src={plausibleScriptSrc}></script>
+          <script async src={import.meta.env.PUBLIC_PLAUSIBLE_SCRIPT_SRC}></script>
           <script is:inline>
             window.plausible = window.plausible || function () {
               ;(plausible.q = plausible.q || []).push(arguments)
@@ -116,7 +115,7 @@ const plausibleScriptSrc = import.meta.env.PUBLIC_PLAUSIBLE_SCRIPT_SRC
           <div class="flex flex-wrap items-center justify-between gap-4 max-sm:flex-col max-sm:items-start">
             <div class="flex flex-wrap items-center gap-6">
               <a
-                class="text-xs text-[#777f8f] no-underline transition-colors hover:text-[#6a5fc1] dark:text-[#5f5f5f]"
+                class="text-xs text-gray-500 no-underline transition-colors hover:text-[#6a5fc1] dark:text-gray-400"
                 href="https://sentry.io/careers/"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -128,7 +127,7 @@ const plausibleScriptSrc = import.meta.env.PUBLIC_PLAUSIBLE_SCRIPT_SRC
               {
                 footerLinks.map((link) => (
                   <a
-                    class="text-xs text-[#777f8f] no-underline transition-colors hover:text-[#6a5fc1] dark:text-[#5f5f5f]"
+                    class="text-xs text-gray-500 no-underline transition-colors hover:text-[#6a5fc1] dark:text-gray-400"
                     href={link.href}
                     target={isExternalLink(link.href) ? '_blank' : undefined}
                     rel={isExternalLink(link.href) ? 'noopener noreferrer' : undefined}
