@@ -48,14 +48,14 @@ const authorLabel = authorDetails.length === 1 ? 'Author' : 'Authors'
 
   <article class="pb-10 pt-8">
     <header class="mb-6 rounded border border-[#d9dbe6] bg-white px-6 py-6 dark:border-[#222222] dark:bg-[#111111] max-sm:px-4">
-      <div class="mb-2 text-xs text-[#8c92a0] dark:text-[#5f5f5f]">
+      <div class="mb-2 text-xs text-gray-400 dark:text-gray-500">
         <time datetime={post.date}>{formatDate(post.date, locale)}</time>
       </div>
       <h1 class="text-xl font-semibold leading-tight text-[#1f2430] dark:text-[#e0e0e0]">
         {post.title}
       </h1>
       {authorDetails.length > 0 && (
-        <div class="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-[#8c92a0] dark:text-[#5f5f5f]">
+        <div class="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-400 dark:text-gray-500">
           <span>{authorLabel}:</span>
           <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
             {
@@ -79,14 +79,14 @@ const authorLabel = authorDetails.length === 1 ? 'Author' : 'Authors'
     <section>
       <div class="rounded border border-[#d9dbe6] bg-white px-6 py-8 dark:border-[#222222] dark:bg-[#111111] max-sm:px-4">
         <div
-          class="prose max-w-none prose-headings:text-[#1f2430] prose-p:text-[#5b6270] prose-strong:text-[#1f2430] prose-a:text-[#6a5fc1] prose-code:text-[#5f54b2] dark:prose-headings:text-[#e0e0e0] dark:prose-p:text-[#8a8a8a] dark:prose-strong:text-[#e0e0e0] dark:prose-a:text-[#8f84d9] dark:prose-code:text-[#b7aff0] dark:prose-pre:bg-[#161616]"
+          class="prose max-w-none dark:prose-invert"
         >
           <Content />
         </div>
 
         {Array.isArray(post.tags) && post.tags.length > 0 && (
           <footer class="mt-8 border-t border-[#d9dbe6] pt-5 dark:border-[#222222]">
-            <div class="mb-2 text-xs uppercase tracking-widest text-[#8c92a0] dark:text-[#5f5f5f]">
+            <div class="mb-2 text-xs uppercase tracking-widest text-gray-400 dark:text-gray-500">
               tags
             </div>
             <div class="flex flex-wrap gap-2">
