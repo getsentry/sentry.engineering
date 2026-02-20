@@ -10,6 +10,7 @@ export default defineConfig({
     csp: {
       scriptDirective: {
         resources: ["'self'", "https://plausible.io"],
+        hashes: ["sha256-t7UDmDY4iklZOU6hhoaa4oMgQfLaBBT9DlTNiRW7xE0="],
       },
       directives: ["connect-src 'self' https://plausible.io"],
     },
