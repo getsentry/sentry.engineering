@@ -20,10 +20,7 @@ export default defineConfig({
       styleDirective: {
         resources: ["'self'", "'unsafe-inline'"],
       },
-      directives: [
-        "connect-src 'self' https://plausible.io",
-        "img-src 'self'",
-      ],
+      directives: ["connect-src 'self' https://plausible.io"],
     },
   },
   integrations: [sitemap()],
