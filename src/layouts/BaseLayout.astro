@@ -44,7 +44,7 @@ const footerLinks = [
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicons/favicon-16x16.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/static/favicons/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
-    <script is:inline>
+    <script>
       (() => {
         try {
           const storedTheme = localStorage.getItem('theme')
@@ -61,7 +61,7 @@ const footerLinks = [
       import.meta.env.PUBLIC_PLAUSIBLE_SCRIPT_SRC && (
         <>
           <script async src={import.meta.env.PUBLIC_PLAUSIBLE_SCRIPT_SRC}></script>
-          <script is:inline>
+          <script>
             window.plausible = window.plausible || function () {
               ;(plausible.q = plausible.q || []).push(arguments)
             }
