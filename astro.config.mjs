@@ -14,6 +14,7 @@ export default defineConfig({
           "sha256-t7UDmDY4iklZOU6hhoaa4oMgQfLaBBT9DlTNiRW7xE0=", // Theme init
           "sha256-p7WGvXPfCjOpbo9APNa4AJgj/jO9xZr9aBlEFVcuKUM=", // Plausible init
           "sha256-sVlNBziRgfCssLPd9yhI6q2CTDvIhhkPyoUn5B+G1HI=", // Theme toggle
+          "sha256-m+TqEPNJoIsN5pFYeHFt2az1Myng7rZ6Y/9yJIokBrk=", // Post list search
         ],
       },
       directives: ["connect-src 'self' https://plausible.io"],
