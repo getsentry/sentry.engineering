@@ -61,7 +61,7 @@ const footerLinks = [
       import.meta.env.PUBLIC_PLAUSIBLE_SCRIPT_SRC && (
         <>
           <script async src={import.meta.env.PUBLIC_PLAUSIBLE_SCRIPT_SRC}></script>
-          <script>
+          <script is:inline>
             window.plausible = window.plausible || function () {
               ;(plausible.q = plausible.q || []).push(arguments)
             }
@@ -141,7 +141,7 @@ const footerLinks = [
         </footer>
       </div>
     </div>
-    <script>
+    <script is:inline>
       (() => {
         const root = document.documentElement
         const toggle = document.querySelector('[data-theme-toggle]')

@@ -10,7 +10,11 @@ export default defineConfig({
     csp: {
       scriptDirective: {
         resources: ["'self'", "https://plausible.io"],
-        hashes: ["sha256-t7UDmDY4iklZOU6hhoaa4oMgQfLaBBT9DlTNiRW7xE0="],
+        hashes: [
+          "sha256-t7UDmDY4iklZOU6hhoaa4oMgQfLaBBT9DlTNiRW7xE0=", // Theme init
+          "sha256-p7WGvXPfCjOpbo9APNa4AJgj/jO9xZr9aBlEFVcuKUM=", // Plausible init
+          "sha256-sVlNBziRgfCssLPd9yhI6q2CTDvIhhkPyoUn5B+G1HI=", // Theme toggle
+        ],
       },
       directives: ["connect-src 'self' https://plausible.io"],
     },
