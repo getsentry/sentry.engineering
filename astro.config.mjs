@@ -17,7 +17,13 @@ export default defineConfig({
           "sha256-m+TqEPNJoIsN5pFYeHFt2az1Myng7rZ6Y/9yJIokBrk=", // Post list search
         ],
       },
-      directives: ["connect-src 'self' https://plausible.io"],
+      styleDirective: {
+        resources: ["'self'", "'unsafe-inline'"],
+      },
+      directives: [
+        "connect-src 'self' https://plausible.io",
+        "img-src 'self'",
+      ],
     },
   },
   integrations: [sitemap()],
