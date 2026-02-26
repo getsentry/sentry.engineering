@@ -29,7 +29,7 @@ const postsWithMeta = posts.map((post) => {
 })
 ---
 
-<div id={listId}>
+<div id={listId} data-post-list-id={listId}>
   <div class="space-y-4 pb-8 pt-10">
     <div class="flex items-center justify-between">
       <h1 class="text-xs font-normal uppercase tracking-widest text-gray-400 dark:text-gray-500">
@@ -66,7 +66,7 @@ const postsWithMeta = posts.map((post) => {
   </div>
 
   <ul class="flex flex-col gap-px" data-post-list>
-    <li class="text-sm text-[#5b6270] dark:text-[#8a8a8a]" data-empty style={postsWithMeta.length === 0 ? '' : 'display: none;'}>
+    <li class:list={['text-sm text-[#5b6270] dark:text-[#8a8a8a]', { hidden: postsWithMeta.length > 0 }]} data-empty>
       No posts found.
     </li>
     {
@@ -136,9 +136,9 @@ const postsWithMeta = posts.map((post) => {
   </div>
 )}
 
-<script define:vars={{ listId }}>
-  const root = document.getElementById(listId)
-  if (root) {
+<script is:inline>
+  document.querySelectorAll('[data-post-list-id]').forEach((root) => {
+    const listId = root.getAttribute('data-post-list-id')
     const input = root.querySelector('[data-search-input]')
     const items = Array.from(root.querySelectorAll('[data-post-item]'))
     const emptyState = root.querySelector('[data-empty]')
@@ -152,23 +152,23 @@ const postsWithMeta = posts.map((post) => {
         for (const item of items) {
           const haystack = item.getAttribute('data-search-content') ?? ''
           const isMatch = query.length === 0 || haystack.includes(query)
-          item.style.display = isMatch ? '' : 'none'
+          item.classList.toggle('hidden', !isMatch)
           if (isMatch) {
             visible += 1
           }
         }
 
         if (emptyState) {
-          emptyState.style.display = visible === 0 ? '' : 'none'
+          emptyState.classList.toggle('hidden', visible > 0)
         }
 
         if (pagination) {
-          pagination.style.display = query.length === 0 ? '' : 'none'
+          pagination.classList.toggle('hidden', query.length > 0)
         }
       }
 
       input.addEventListener('input', update)
       update()
     }
-  }
+  })
 </script>
