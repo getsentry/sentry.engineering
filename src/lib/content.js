@@ -28,7 +28,7 @@ function toPostRecord(entry) {
     entry,
     ...entry.data,
     id: entry.id,
-    slug: entry.slug,
+    slug: entry.id,
     authors,
     date: entry.data.date instanceof Date ? entry.data.date.toISOString() : null,
     lastmod: entry.data.lastmod instanceof Date ? entry.data.lastmod.toISOString() : null,
@@ -40,7 +40,7 @@ function toAuthorRecord(entry) {
     entry,
     ...entry.data,
     id: entry.id,
-    slug: entry.slug,
+    slug: entry.id,
   };
 }
 
