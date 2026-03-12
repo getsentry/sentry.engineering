@@ -1,7 +1,9 @@
-import { defineCollection, reference, z } from "astro:content";
+import { defineCollection, reference } from "astro:content";
+import { z } from "astro/zod";
+import { glob } from "astro/loaders";
 
 const blog = defineCollection({
-  type: "content",
+  loader: glob({ pattern: "**/[^_]*.md", base: "./src/content/blog" }),
   schema: ({ image }) =>
     z
       .object({
@@ -20,20 +22,20 @@ const blog = defineCollection({
 });
 
 const authors = defineCollection({
-  type: "content",
+  loader: glob({ pattern: "**/[^_]*.md", base: "./src/content/authors" }),
   schema: ({ image }) =>
     z
       .object({
         name: z.string(),
-        avatar: z.union([image(), z.string().url()]).optional(),
+        avatar: z.union([image(), z.url()]).optional(),
         occupation: z.string().optional(),
         company: z.string().optional(),
-        email: z.string().email().optional(),
-        twitter: z.string().url().optional(),
-        linkedin: z.string().url().optional(),
-        github: z.string().url().optional(),
-        stackoverflow: z.string().url().optional(),
-        url: z.string().url().optional(),
+        email: z.email().optional(),
+        twitter: z.url().optional(),
+        linkedin: z.url().optional(),
+        github: z.url().optional(),
+        stackoverflow: z.url().optional(),
+        url: z.url().optional(),
       })
       .passthrough(),
 });

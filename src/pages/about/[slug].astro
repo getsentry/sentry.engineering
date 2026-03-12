@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro'
 import AuthorProfile from '../../components/AuthorProfile.astro'
+import { render } from 'astro:content'
 import { getAuthorCountsFromPosts, getAuthorBySlug, getPostsByAuthor } from '../../lib/content.js'
 
 export async function getStaticPaths() {
@@ -18,7 +19,7 @@ if (!author) {
 }
 
 const posts = await getPostsByAuthor(slug)
-const { Content } = await author.entry.render()
+const { Content } = await render(author.entry)
 ---
 
 <BaseLayout title={`About - ${author.name}`} description={`About ${author.name}`} image={author.avatar}>
