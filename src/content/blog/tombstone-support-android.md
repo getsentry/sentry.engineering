@@ -113,7 +113,7 @@ If you have never used the Native SDK interfaces in your native code directly, y
 the NDK integration. If enough users of an app moved on to Android 12+, there is no further use in running both 
 integrations.
 
-If, howeve,r the Native SDK interface is still in direct use, both integrations should work together without any visible
+If, however, the Native SDK interface is still in direct use, both integrations work together without any visible
 degradation in UX.
 
 !!!code to enable it!!!
