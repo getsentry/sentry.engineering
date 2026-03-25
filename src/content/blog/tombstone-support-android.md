@@ -216,7 +216,7 @@ the common Java SDK core did not see any behavioral changes.
 
 ## Wrap-up
 
-Tombstone support closes a gap that has existed since Sentry first shipped native crash reporting on Android: the gap 
+Tombstone support closes a gap that has existed since Sentry first shipped native crash reporting on Android: the difference 
 between what the platform knows about a crash and what the SDK could tell you. While that gap might seem arbitrary since 
 we could replicate parts of the platform's own crash infrastructure inside the app, it only happened by paying the cost 
 of binary size, maintenance burden, and still incomplete results. With `ApplicationExitInfo` providing programmatic
