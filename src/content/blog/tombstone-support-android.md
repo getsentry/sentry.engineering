@@ -197,7 +197,7 @@ subsequent launch.
 
 ### The Protobuf Dependency Problem
 
-Android tombstones use a protobuf format defined in AOSP (`tombstone.proto`). The initial implementation used 
+Android tombstones use a protobuf format defined in AOSP ([tombstone.proto](https://cs.android.com/android/platform/superproject/main/+/main:system/core/debuggerd/proto/tombstone.proto)). The initial implementation used 
 `protobuf-javalite` for decoding, which immediately caused version conflicts for SDK consumers already using protobuf 
 (usually via Firebase). Within a month of the initial release, we replaced it with `epitaph`, a handwritten decoder for
 the tombstone protobuf encoding, free of transitive dependencies and weighing around 30KiB. We also added a scheduled CI
