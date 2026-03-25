@@ -12,7 +12,7 @@ authors: ["supervacuus"]
 
 Let’s start with what a tombstone is beyond the graveyard: it's a native-code crash-dump format specific to Android. App 
 developers usually retrieve it from the resulting ZIP when they issue `adb bugreport`, and it is typically serialized to text 
-and protobuf encodings. In fact, tombstones have existed in Android since the very beginning (the 
+and protobuf encodings. In fact, tombstones have existed in Android since the very beginning, 17 years ago by now. (the 
 [“Initial Contribution” commit](https://android.googlesource.com/platform/system/core/+/4f6e8d7a00cbeda1e70cc15be9c4af1018bdad53) 
 with the [first `debuggerd` implementation](https://android.googlesource.com/platform/system/core/+/4f6e8d7a00cbeda1e70cc15be9c4af1018bdad53%5E!/#F46), 
 which also already contained the same target directory `/data/tombstones` and the still existing maximum rotation limit 
