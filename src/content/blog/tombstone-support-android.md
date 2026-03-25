@@ -225,6 +225,6 @@ moving parts.
 
 Of course, the limitation is real: this only works on Android 12 and above. For older devices and apps that need 
 instrumentation of their native code beyond error reporting, the NDK integration remains available, and the two coexist 
-cleanly. But with Android 12+ now representing [X%] of [Sentry's incoming Android events / the active device population], 
+cleanly. But with Android 12+ now representing 75% (according to apilevels.com) of cumulative usage distribution, 
 the balance has tipped. For most apps, tombstone support is the primary native crash reporting path today, and 
 `sentry-native-ndk` is the fallback.
