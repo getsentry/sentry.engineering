@@ -104,10 +104,10 @@ replicating the platform crash infrastructure that already exists on the device.
 
 ## How to use it
 
-It is enabled by default since version `8.30.0` of `sentry-android-core`. So if your app runs on Android 12+, you will
-automatically get Tombstone events delivered for all native crashes that affect your app. If you used Native SDK/NDK
-integration, you will automatically get better stack traces for all your threads and still see the context you created
-on the native side.
+It is available since version `8.30.0` of `sentry-android-core`. So if your app runs on Android 12+, and you enable 
+tombstones you will automatically get more complete reports delivered for all native crashes that affect your app. If 
+you used Native SDK/NDK integration, you will automatically get better stack traces for all your threads and still see 
+the context you created on the native side.
 
 If you have never used the Native SDK interfaces in your native code directly, you can evaluate your options for disabling
 the NDK integration. If enough users of an app moved on to Android 12+, there is no further use in running both 
@@ -116,7 +116,19 @@ integrations.
 If, however, the Native SDK interface is still in direct use, both integrations work together without any visible
 degradation in UX.
 
-!!!code to enable it!!!
+If you want to turn on the feature, you can do so programmatically via `SentryAndroidOptions`:
+
+```kotlin
+SentryAndroid.init(context) { options ->
+    options.isTombstoneEnabled = true
+}
+```
+
+Or declaratively in your `AndroidManifest.xml`:
+
+```xml
+<meta-data android:name="io.sentry.tombstone.enable" android:value="true" />
+```
 
 !!!Screenshots!!!
 
