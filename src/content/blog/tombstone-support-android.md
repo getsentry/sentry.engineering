@@ -209,12 +209,13 @@ subsequent launch.
 
 ### The Protobuf Dependency Problem
 
-Android tombstones use a protobuf format defined in AOSP ([tombstone.proto](https://cs.android.com/android/platform/superproject/main/+/main:system/core/debuggerd/proto/tombstone.proto)). The initial implementation used 
-`protobuf-javalite` for decoding, which immediately caused version conflicts for SDK consumers already using protobuf 
-(usually via Firebase). Within a month of the initial release, we replaced it with `epitaph`, a handwritten decoder for
-the tombstone protobuf encoding, free of transitive dependencies and weighing around 30KiB. We also added a scheduled CI
-workflow to monitor AOSP for changes to the tombstone protobuf schema, so we know early if any consequential format 
-changes land in the platform.
+Android tombstones use a protobuf format defined in AOSP 
+([tombstone.proto](https://cs.android.com/android/platform/superproject/main/+/main:system/core/debuggerd/proto/tombstone.proto)). 
+The initial implementation used`protobuf-javalite` for decoding, which immediately caused version conflicts for SDK 
+consumers already using protobuf (usually via Firebase). Within a month of the initial release, we replaced it with 
+`epitaph`, a handwritten decoder for the tombstone protobuf encoding, free of transitive dependencies and weighing 
+around 30KiB. We also added a scheduled CI workflow to monitor AOSP for changes to the tombstone protobuf schema, so we 
+know early if any consequential format changes land in the platform.
 
 The unifying theme across these challenges is that native crash reporting is not a self-contained feature. It sits at 
 the intersection of the SDK's event pipeline, session lifecycle, disk caching, and the existing NDK integration, each of
@@ -237,6 +238,6 @@ moving parts.
 
 Of course, the limitation is real: this only works on Android 12 and above. For older devices and apps that need 
 instrumentation of their native code beyond error reporting, the NDK integration remains available, and the two coexist 
-cleanly. But with Android 12+ now representing 75% (according to apilevels.com) of cumulative usage distribution, 
-the balance has tipped. For most apps, tombstone support is the primary native crash reporting path today, and 
-`sentry-native-ndk` is the fallback.
+cleanly. But with Android 12+ now representing 75% (according to [apilevels.com](https://apilevels.com/), 03/2026) of 
+cumulative usage distribution, the balance has tipped. For most apps, tombstone support is the primary native crash 
+reporting path today, and `sentry-native-ndk` is the fallback.
