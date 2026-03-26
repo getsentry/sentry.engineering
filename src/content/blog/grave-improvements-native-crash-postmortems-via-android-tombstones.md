@@ -78,8 +78,10 @@ It also introduced a couple of challenges:
 
 So while all of these are fixable, the effort required is significant and would also lead to a long-term commitment to 
 maintain against the moving target that is AOSP. Introducing tombstone support allows us to fix all the issues mentioned,
-for users who run on Android 12+, which is a significantly growing portion of the incoming events and user-base (add 
-charts here). At the same time, it opens the door to work on better solutions for edge cases.
+for users who run on Android 12+, which is a significantly growing portion of the incoming events and user-base. At the 
+same time, it opens the door to work on better solutions for edge cases.
+
+(!!!Sentry editorial: add comparative android version event ingest charts here!!!)
 
 ## What tombstones give us
 
@@ -130,7 +132,20 @@ Or declaratively in your `AndroidManifest.xml`:
 <meta-data android:name="io.sentry.tombstone.enable" android:value="true" />
 ```
 
-!!!Screenshots!!!
+Since tombstones capture every thread at the moment of the crash, you can inspect any of them directly in the issue 
+detail view:
+
+![Thread selector showing all threads captured by the tombstone, including the crashed main thread, Signal Catcher, binder threads, and runtime internals](../../assets/images/grave-improvements-native-crash-postmortems-via-android-tombstones/tombstone_thread_selection.png)
+
+The "Most Relevant" view strips the trace down to the actionable frames, the ones that drive issue grouping and naming, 
+isolating `inApp` JNI frames, but excluding Jetpack Compose layers :
+
+![Most Relevant stack trace view showing the SIGSEGV with mechanism Tombstone, the in-app crash frame, and its Compose call site](../../assets/images/grave-improvements-native-crash-postmortems-via-android-tombstones/tombstone_stack_trace_most_relevant.png)
+
+Expanding the collapsed frames reveals the complete picture: from `__libc_init` through process startup, the Android 
+message loop, the native/Java runtime boundary crossings, and up through the view layer to the crash site:
+
+![Bottom of the full stack trace showing the complete Android process lifecycle: __libc_init, app_process64, AndroidRuntime::start, ZygoteInit, ActivityThread.main, Looper, MessageQueue, native input event handling, and the ViewRootImpl input pipeline](../../assets/images/grave-improvements-native-crash-postmortems-via-android-tombstones/tombstone_bottom_of_stack.png)
 
 ## Implementation Challenges
 
@@ -239,6 +254,6 @@ moving parts.
 
 Of course, the limitation is real: this only works on Android 12 and above. For older devices and apps that need 
 instrumentation of their native code beyond error reporting, the NDK integration remains available, and the two coexist 
-cleanly. But with Android 12+ now representing 75% (according to [apilevels.com](https://apilevels.com/), 03/2026) of 
-cumulative usage distribution, the balance has tipped. For most apps, tombstone support is the primary native crash 
-reporting path today, and `sentry-native-ndk` is the fallback.
+cleanly. But with Android 12+ now representing 75% (according to [apilevels.com](https://apilevels.com/), as of 
+03/2026) of cumulative usage distribution, the balance has tipped. For most apps, tombstone support is the primary 
+native crash reporting path today, and `sentry-native-ndk` is the fallback.
