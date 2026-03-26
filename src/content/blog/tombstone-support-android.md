@@ -1,12 +1,12 @@
 ---
-title: "Tombstone support in the Android SDK"
-date: "2026-03-23"
+title: "Grave Improvements: Native Crash Postmortems via Android Tombstones"
+date: "2026-03-26"
 tags: ["mobile", "kotlin", "java", "android", "native", "sdk"]
 draft: true
 summary: Tombstones on Android provide complete context into native crashes. Starting with Android 12, these are available programmatically.
 images: []
 postLayout: PostLayout
-canonicalUrl: https://blog.sentry.io/2026/03/23/tombstone-support-in-android/
+canonicalUrl: https://blog.sentry.io/2026/03/26/grave-improvements/
 authors: ["supervacuus"]
 ---
 
