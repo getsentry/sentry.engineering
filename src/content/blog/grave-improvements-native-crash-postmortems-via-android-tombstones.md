@@ -72,13 +72,13 @@ It also introduced a couple of challenges:
   build: there is currently no DEX/OAT symbolication (meaning none of the Java frames are symbolicated), and there is 
   incomplete support for locating DWARF CFI in OAT frames, which often leads to dramatically shortened stack traces in 
   release builds.
-* since the `inproc` backend, which handles the crashes on Android, doesn't stop any threads by design, besides the 
-  crashing one, it also only provides the stack trace of the crashed thread, which, in particular, on Android is often
-  way too little context to uncover the root-cause of a crash
+* since the `inproc` backend, which handles the crashes on Android, doesn't stop any threads by design, it also only
+  provides the stack trace of the crashed thread, which, in particular on Android, is often way too little context to
+  uncover the root-cause of a crash
 
 So while all of these are fixable, the effort required is significant and would also lead to a long-term commitment to 
 maintain against the moving target that is AOSP. Introducing tombstone support allows us to fix all the issues mentioned,
-for users who run on Android 12+, which is a significantly growing portion of the incoming events and user-base. At the 
+for users who run on Android 12+, which is a significantly growing portion of the incoming events and user base. At the 
 same time, it opens the door to work on better solutions for edge cases.
 
 ![Android OS distribution chart showing error events ingested by Android version over the past 30 days](../../assets/images/grave-improvements-native-crash-postmortems-via-android-tombstones/android_os_distribution.png)
