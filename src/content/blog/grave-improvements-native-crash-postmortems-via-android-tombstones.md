@@ -1,12 +1,12 @@
 ---
 title: "Grave Improvements: Native Crash Postmortems via Android Tombstones"
-date: "2026-03-26"
+date: "2026-03-27"
 tags: ["mobile", "kotlin", "java", "android", "native", "sdk"]
 draft: true
 summary: Tombstones on Android provide complete context into native crashes. Starting with Android 12, these are available programmatically.
 images: []
 postLayout: PostLayout
-canonicalUrl: https://blog.sentry.io/2026/03/26/grave-improvements/
+canonicalUrl: https://blog.sentry.io/2026/03/27/grave-improvements/
 authors: ["supervacuus"]
 ---
 
@@ -81,7 +81,9 @@ maintain against the moving target that is AOSP. Introducing tombstone support a
 for users who run on Android 12+, which is a significantly growing portion of the incoming events and user-base. At the 
 same time, it opens the door to work on better solutions for edge cases.
 
-(!!!Sentry editorial: add comparative android version event ingest charts here!!!)
+![Android OS distribution chart showing error events ingested by Android version over the past 30 days](../../assets/images/grave-improvements-native-crash-postmortems-via-android-tombstones/android_os_distribution.png)
+
+Android 12+ accounts for ~69% of 2B+ Android error events ingested over the past 30 days.
 
 ## What tombstones give us
 
