@@ -17,9 +17,9 @@
     "@sentry/astro": "^10.47.0",
     "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.2.2",
-    "astro": "^6.1.3",
-    "oxfmt": "^0.43.0",
-    "oxlint": "^1.58.0",
+    "astro": "^6.1.4",
+    "oxfmt": "^0.44.0",
+    "oxlint": "^1.59.0",
     "rehype-slug": "^5.1.0",
     "tailwindcss": "^4.2.2"
   }
