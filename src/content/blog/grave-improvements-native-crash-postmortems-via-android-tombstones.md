@@ -2,7 +2,7 @@
 title: "Grave Improvements: Native Crash Postmortems via Android Tombstones"
 date: "2026-03-27"
 tags: ["mobile", "kotlin", "java", "android", "native", "sdk"]
-draft: true
+draft: false
 summary: Tombstones on Android provide complete context into native crashes. Starting with Android 12, these are available programmatically.
 images: []
 postLayout: PostLayout
