@@ -51,7 +51,7 @@ a workaround.
 Both monkey-patching in CJS and Module Customization Hooks in ESM share the same fundamental flaw: they apply
 instrumentation “_from the outside”._ The library itself is passive. The question worth asking is: **what if libraries
 were active participants in their own observability and emit telemetry data themselves?** This would be possible through
-diagnostics API like Tracing Channels.
+diagnostics APIs like Tracing Channels.
 
 ## Libraries Should Emit Their Own Telemetry
 
