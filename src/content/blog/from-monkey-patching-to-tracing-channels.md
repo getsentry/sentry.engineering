@@ -157,8 +157,8 @@ and `pg` / `pg-pool` are actively working on it. Redis clients aren't far behind
 Channels in `ioredis` ([PR](https://github.com/redis/ioredis/pull/2089)) and
 `node-redis` ([PR](https://github.com/redis/node-redis/pull/3195)).
 
-None of this happens without the people willing to do the work. A massive shoutout to Sentry engineer **Abdelrahman Awad
-** ([@logaretm](https://github.com/logaretm)) for driving Tracing Channel implementations across multiple libraries. And
+None of this happens without the people willing to do the work. A massive shoutout to Sentry engineer **Abdelrahman Awad** ([@logaretm](https://github.com/logaretm))
+for driving Tracing Channel implementations across multiple libraries. And
 a special thanks to **Pooya Parsa** ([@pi0](https://github.com/pi0)), his openness to collaborate in `h3` was
 instrumental in formalizing this approach and showing the ecosystem what it could look like.
 
