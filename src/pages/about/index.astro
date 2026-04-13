@@ -27,8 +27,8 @@ const authors = allAuthors
   <section class="border-b border-[#dde0ea] pb-12 pt-16 dark:border-[#222222] max-sm:pb-8 max-sm:pt-10">
     <div class="overflow-hidden rounded-md border border-[#d9dbe6] bg-white dark:border-[#222222] dark:bg-[#111111]">
       <div class="px-6 py-6 max-sm:px-4 max-sm:py-4">
-        <h1 class="mb-1 text-base font-medium text-[#1f2430] dark:text-[#e0e0e0] max-sm:text-sm">From the engineers building Sentry.</h1>
-        <p class="text-sm text-[#5b6270] dark:text-[#8a8a8a] max-sm:text-xs">People behind the posts, systems, and SDK deep dives.</p>
+        <h1 class="mb-1 text-base font-medium text-[#1f2430] dark:text-[#e8e8ec] max-sm:text-sm">From the engineers building Sentry.</h1>
+        <p class="text-sm text-[#5b6270] dark:text-[#9a9a9a] max-sm:text-xs">People behind the posts, systems, and SDK deep dives.</p>
       </div>
     </div>
   </section>
@@ -44,7 +44,7 @@ const authors = allAuthors
     </div>
 
     <div class="flex flex-col gap-px">
-      {authors.length === 0 && <p class="text-sm text-[#5b6270] dark:text-[#8a8a8a]">No authors found.</p>}
+      {authors.length === 0 && <p class="text-sm text-[#5b6270] dark:text-[#9a9a9a]">No authors found.</p>}
       {
         authors.map((author) => (
           <a
@@ -64,10 +64,10 @@ const authors = allAuthors
                   />
                 )}
                 <div>
-                  <div class="text-sm font-medium leading-[1.7] text-[#1f2430] transition-colors group-hover:text-[#6a5fc1] dark:text-[#e0e0e0] max-sm:text-xs">
+                  <div class="text-sm font-medium leading-[1.7] text-[#1f2430] transition-colors group-hover:text-[#6a5fc1] dark:text-[#e8e8ec] max-sm:text-xs">
                     {author.name}
                   </div>
-                  {author.occupation && <p class="text-xs text-[#5b6270] dark:text-[#8a8a8a]">{author.occupation}</p>}
+                  {author.occupation && <p class="text-xs text-[#5b6270] dark:text-[#9a9a9a]">{author.occupation}</p>}
                 </div>
               </div>
 
@@ -81,7 +81,7 @@ const authors = allAuthors
                       socialLinks(author)
                         .slice(0, 2)
                         .map((link) => (
-                          <span class="rounded border border-[#d9dbe6] px-2 py-0.5 text-xs text-[#5b6270] dark:border-[#222222] dark:text-[#8a8a8a]">
+                          <span class="rounded border border-[#d9dbe6] px-2 py-0.5 text-xs text-[#5b6270] dark:border-[#222222] dark:text-[#9a9a9a]">
                             {link.label}
                           </span>
                         ))

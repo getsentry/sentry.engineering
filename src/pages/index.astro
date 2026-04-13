@@ -30,10 +30,10 @@ const posts = allPosts.slice(0, POSTS_PER_PAGE).map((post) => {
         <span class="ml-3 text-xs text-gray-400 dark:text-gray-500 max-[420px]:hidden">~/sentry.engineering</span>
       </div>
       <div class="px-6 py-6 max-sm:px-4 max-sm:py-4">
-        <div class="mb-1 text-base font-medium text-[#1f2430] dark:text-[#e0e0e0] max-sm:text-xs">
+        <div class="mb-1 text-base font-medium text-[#1f2430] dark:text-[#e8e8ec] max-sm:text-xs">
           From the engineers building Sentry.
         </div>
-        <div class="mb-1 text-sm text-[#5b6270] dark:text-[#8a8a8a] max-sm:text-xs">
+        <div class="mb-1 text-sm text-[#5b6270] dark:text-[#9a9a9a] max-sm:text-xs">
           Deep dives into the systems, SDKs, and infrastructure behind Sentry, and the engineering problems that keep us up at night
         </div>
       </div>
@@ -47,7 +47,7 @@ const posts = allPosts.slice(0, POSTS_PER_PAGE).map((post) => {
     </div>
 
     <div class="flex flex-col gap-px">
-      {posts.length === 0 && <p class="text-sm text-[#5b6270] dark:text-[#8a8a8a]">No posts found.</p>}
+      {posts.length === 0 && <p class="text-sm text-[#5b6270] dark:text-[#9a9a9a]">No posts found.</p>}
       {
         posts.map((post) => (
           <a
@@ -55,22 +55,22 @@ const posts = allPosts.slice(0, POSTS_PER_PAGE).map((post) => {
             class="group mb-3 block cursor-pointer rounded border border-[#d9dbe6] bg-white px-6 py-5 text-inherit no-underline transition-colors hover:border-[#c4c9d8] hover:bg-[rgba(106,95,193,0.08)] dark:border-[#222222] dark:bg-[#111111] dark:hover:border-[#333333] dark:hover:bg-[rgba(106,95,193,0.12)] max-sm:px-[1.15rem] max-sm:py-4"
           >
             <div class="mb-3 block">
-              <span class="text-sm font-medium leading-[1.7] text-[#1f2430] transition-colors group-hover:text-[#6a5fc1] dark:text-[#e0e0e0] max-sm:text-xs">
+              <span class="text-sm font-medium leading-[1.7] text-[#1f2430] transition-colors group-hover:text-[#6a5fc1] dark:text-[#e8e8ec] max-sm:text-xs">
                 {post.title}
               </span>
             </div>
             <div class="mb-0.5 flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-gray-400 dark:text-gray-500 max-sm:flex-col max-sm:items-start max-sm:gap-y-1">
               <span class="flex items-center gap-1.5">
                 <span class="text-gray-400 dark:text-gray-500">date:</span>
-                <span class="text-[#5b6270] dark:text-[#8a8a8a]">{formatDate(post.date, siteMetadata.locale)}</span>
+                <span class="text-[#5b6270] dark:text-[#9a9a9a]">{formatDate(post.date, siteMetadata.locale)}</span>
               </span>
               <span class="flex items-center gap-1.5">
                 <span class="text-gray-400 dark:text-gray-500">author:</span>
-                <span class="text-[#5b6270] dark:text-[#8a8a8a]">{post.authorName}</span>
+                <span class="text-[#5b6270] dark:text-[#9a9a9a]">{post.authorName}</span>
               </span>
             </div>
             {post.shortSummary && (
-              <p class="mt-2 text-sm text-[#5b6270] dark:text-[#8a8a8a]">{post.shortSummary}</p>
+              <p class="mt-2 text-sm text-[#5b6270] dark:text-[#9a9a9a]">{post.shortSummary}</p>
             )}
           </a>
         ))
