@@ -87,7 +87,7 @@ nothing. It means library authors can add tracing channels without worrying abou
 observability. The benefits are that there is no monkey-patching needed anymore and it eliminates the need for users to
 pass `--import` flags for preloading in ESM.
 
-### Naming and Consistency
+### Naming and Consistency: The Channel Is the Contract
 
 Tracing Channels should always be scoped to the library that emits them, using the npm package name as the namespace.
 Since package names are globally unique, this keeps channel names collision-free. For example, `mysql2` ships
@@ -139,7 +139,7 @@ The library and the observability tool never need to know about each other. The 
 
 ## The Ecosystem Is Already Moving
 
-In early February 2026, we (Andrei, Jan and Sigrid) from Sentry
+In early February 2026, we ([Andrei](https://github.com/andreiborza), [Jan](https://github.com/JPeer264) and [Sigrid](https://github.com/s1gr1d)) from Sentry
 attended [OTel Unplugged EU](https://opentelemetry.io/blog/2025/otel-unplugged-fosdem/) and brought up the topic
 “Prepare for better JS ESM Support”, which was voted on the list of top priorities for the OpenTelemetry ecosystem.
 
