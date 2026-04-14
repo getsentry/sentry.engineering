@@ -1,5 +1,5 @@
 ---
-title: "There’s Better Ways Than Monkey-Patching: A Path to Node.js Observability With Tracing Channels"
+title: "There Are Better Ways Than Monkey-Patching: A Path to Node.js Observability With Tracing Channels"
 date: "2026-04-13"
 tags: ["javascript", "sdk", "opentelemetry"]
 draft: false
