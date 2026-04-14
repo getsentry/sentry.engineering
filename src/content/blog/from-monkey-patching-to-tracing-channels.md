@@ -1,5 +1,5 @@
 ---
-title: "There's better ways than Monkey-Patching: A Path to Node.js Observability with Tracing Channels"
+title: "There’s Better Ways Than Monkey-Patching: A Path to Node.js Observability With Tracing Channels"
 date: "2026-04-13"
 tags: ["javascript", "sdk", "opentelemetry"]
 draft: false
@@ -19,9 +19,10 @@ their behalf.
 
 ## What Is Instrumentation?
 
-each of its components and used libraries. Instrumentation is the process of adding code to a program to monitor and
-analyze its internal operations and generate diagnostic data. It’s exactly what the Sentry SDKs and OpenTelemetry
-instrumentation are doing under the hood.
+The most fundamental requirement to make an application observable is the ability to instrument each of its components
+and used libraries. Instrumentation is the process of adding code to a program to monitor and analyze its internal
+operations and generate diagnostic data. It’s exactly what the Sentry SDKs and OpenTelemetry instrumentation are doing
+under the hood.
 
 Consider a typical HTTP client library. Application developers want to know when a request starts and completes, along
 with some metadata like URL, status code and headers. Today, libraries handle this inconsistently: some provide custom
@@ -150,16 +151,16 @@ Diagnostics Channel and Tracing Channel support.
 
 On the framework and HTTP side, `undici` (Node.js's built-in HTTP client)
 has [shipped Diagnostics Channels](https://undici-docs.vramana.dev/docs/api/DiagnosticsChannel) since Node 20.12, and
-both `fastify` ([docs](https://fastify.dev/docs/latest/Reference/Hooks/#diagnostics-channel-hooks)) and
-`h3` ([PR](https://github.com/h3js/h3/pull/1251)) have native support as well. On the database side,
-`mysql2` [already uses Tracing Channels](https://sidorares.github.io/node-mysql2/docs/documentation/tracing-channels),
+also `fastify` ([docs](https://fastify.dev/docs/latest/Reference/Hooks/#diagnostics-channel-hooks)), `nitro` ([PR](https://github.com/nitrojs/nitro/pull/4001)) and
+`h3` ([PR](https://github.com/h3js/h3/pull/1251)) have native support. On the database side,
+`unstorage` ([PR](https://github.com/unjs/unstorage/pull/707)) and `mysql2` ([Docs](https://sidorares.github.io/node-mysql2/docs/documentation/tracing-channels)) already use Tracing Channels,
 and `pg` / `pg-pool` are actively working on it. Redis clients aren't far behind either and already support Tracing
 Channels in `ioredis` ([PR](https://github.com/redis/ioredis/pull/2089)) and
 `node-redis` ([PR](https://github.com/redis/node-redis/pull/3195)).
 
 None of this happens without the people willing to do the work. A massive shoutout to Sentry engineer **Abdelrahman Awad** ([@logaretm](https://github.com/logaretm))
 for driving Tracing Channel implementations across multiple libraries. And
-a special thanks to **Pooya Parsa** ([@pi0](https://github.com/pi0)), his openness to collaborate in `h3` was
+a special thanks to **Pooya Parsa** ([@pi0](https://github.com/pi0)), his openness to collaborate in `h3` and `nitro` was
 instrumental in formalizing this approach and showing the ecosystem what it could look like.
 
 ## The Vision Ahead
