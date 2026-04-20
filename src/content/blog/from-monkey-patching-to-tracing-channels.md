@@ -60,8 +60,8 @@ Rather than waiting for APM tools to reach in and grab data, libraries can proac
 using tools built directly into the runtime. The right tool for this is **Diagnostics Channels**, and more specifically,
 **Tracing Channels**. Those features are being developed by the [Node.js Diagnostics Working Group](https://github.com/nodejs/diagnostics).
 
-A huge shoutout to [Stephen Belanger](https://github.com/qard), the creator of the `diagnostics_channel` API in Node.js, 
-who founded the working group and has been instrumental in pushing this topic forward. He's been providing feedback on 
+A huge shoutout to [Stephen Belanger](https://github.com/qard), the creator of the `diagnostics_channel` API in Node.js,
+who founded the working group and has been instrumental in pushing this topic forward. He's been providing feedback on
 proposals and acting as a voice of authority, which is sometimes exactly what's needed to convince library maintainers to get on board.
 
 ### Diagnostics Channels
