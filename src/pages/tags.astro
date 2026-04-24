@@ -16,8 +16,8 @@ const sortedAuthors = Object.keys(authors).sort((a, b) => authors[b].count - aut
   <section class="border-b border-[#dde0ea] pb-12 pt-16 dark:border-[#222222] max-sm:pb-8 max-sm:pt-10">
     <div class="overflow-hidden rounded-md border border-[#d9dbe6] bg-white dark:border-[#222222] dark:bg-[#111111]">
       <div class="px-6 py-6 max-sm:px-4 max-sm:py-4">
-        <h1 class="mb-1 text-base font-medium text-[#1f2430] dark:text-[#e0e0e0] max-sm:text-sm">From the engineers building Sentry.</h1>
-        <p class="text-sm text-[#5b6270] dark:text-[#8a8a8a] max-sm:text-xs">Browse by topic or jump directly to an author.</p>
+        <h1 class="mb-1 text-base font-medium text-[#1f2430] dark:text-[#e8e8ec] max-sm:text-sm">From the engineers building Sentry.</h1>
+        <p class="text-sm text-[#5b6270] dark:text-[#9a9a9a] max-sm:text-xs">Browse by topic or jump directly to an author.</p>
       </div>
     </div>
   </section>
@@ -33,7 +33,7 @@ const sortedAuthors = Object.keys(authors).sort((a, b) => authors[b].count - aut
     </div>
 
     <div class="flex flex-col gap-px">
-      {sortedTags.length === 0 && <p class="text-sm text-[#5b6270] dark:text-[#8a8a8a]">No tags found.</p>}
+      {sortedTags.length === 0 && <p class="text-sm text-[#5b6270] dark:text-[#9a9a9a]">No tags found.</p>}
       {
         sortedTags.map((tag) => (
           <a
@@ -42,7 +42,7 @@ const sortedAuthors = Object.keys(authors).sort((a, b) => authors[b].count - aut
             aria-label={`View posts tagged ${tag}`}
           >
             <div class="flex items-center justify-between gap-4">
-              <span class="text-sm font-medium leading-[1.7] text-[#1f2430] transition-colors group-hover:text-[#6a5fc1] dark:text-[#e0e0e0] max-sm:text-xs">
+              <span class="text-sm font-medium leading-[1.7] text-[#1f2430] transition-colors group-hover:text-[#6a5fc1] dark:text-[#e8e8ec] max-sm:text-xs">
                 {tag}
               </span>
               <span class="text-xs text-gray-400 dark:text-gray-500">
@@ -66,7 +66,7 @@ const sortedAuthors = Object.keys(authors).sort((a, b) => authors[b].count - aut
     </div>
 
     <div class="flex flex-col gap-px">
-      {sortedAuthors.length === 0 && <p class="text-sm text-[#5b6270] dark:text-[#8a8a8a]">No authors found.</p>}
+      {sortedAuthors.length === 0 && <p class="text-sm text-[#5b6270] dark:text-[#9a9a9a]">No authors found.</p>}
       {
         sortedAuthors.map((authorSlug) => {
           const author = authorMap.get(authorSlug)
@@ -89,7 +89,7 @@ const sortedAuthors = Object.keys(authors).sort((a, b) => authors[b].count - aut
                       class="h-11 w-11 rounded-full border border-[#d9dbe6] object-cover dark:border-[#222222]"
                     />
                   )}
-                  <span class="text-sm font-medium leading-[1.7] text-[#1f2430] transition-colors group-hover:text-[#6a5fc1] dark:text-[#e0e0e0] max-sm:text-xs">
+                  <span class="text-sm font-medium leading-[1.7] text-[#1f2430] transition-colors group-hover:text-[#6a5fc1] dark:text-[#e8e8ec] max-sm:text-xs">
                     {label}
                   </span>
                 </div>

@@ -31,8 +31,8 @@ function socialLinks(entry) {
             />
           )}
           <div>
-            <h1 class="text-sm font-semibold text-[#1f2430] dark:text-[#e0e0e0]">{author.name}</h1>
-            {author.occupation && <p class="text-xs text-[#5b6270] dark:text-[#8a8a8a]">{author.occupation}</p>}
+            <h1 class="text-sm font-semibold text-[#1f2430] dark:text-[#e8e8ec]">{author.name}</h1>
+            {author.occupation && <p class="text-xs text-[#5b6270] dark:text-[#9a9a9a]">{author.occupation}</p>}
             <p class="text-xs text-gray-400 dark:text-gray-500">
               {posts.length} {posts.length === 1 ? 'post' : 'posts'}
             </p>
@@ -47,7 +47,7 @@ function socialLinks(entry) {
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="rounded border border-[#d9dbe6] bg-white px-2.5 py-1 text-[#5b6270] no-underline transition-colors hover:border-[#6a5fc1] hover:text-[#6a5fc1] dark:border-[#222222] dark:bg-[#111111] dark:text-[#8a8a8a] dark:hover:border-[#6a5fc1] dark:hover:text-[#d0ccff]"
+                  class="rounded border border-[#d9dbe6] bg-white px-2.5 py-1 text-[#5b6270] no-underline transition-colors hover:border-[#6a5fc1] hover:text-[#6a5fc1] dark:border-[#222222] dark:bg-[#111111] dark:text-[#9a9a9a] dark:hover:border-[#6a5fc1] dark:hover:text-[#d0ccff]"
                 >
                   {link.label}
                 </a>
@@ -80,7 +80,7 @@ function socialLinks(entry) {
   </div>
 
   <div class="flex flex-col gap-px">
-    {posts.length === 0 && <p class="text-sm text-[#5b6270] dark:text-[#8a8a8a]">No posts found.</p>}
+    {posts.length === 0 && <p class="text-sm text-[#5b6270] dark:text-[#9a9a9a]">No posts found.</p>}
     {
       posts.map((post) => (
         <a
@@ -89,20 +89,20 @@ function socialLinks(entry) {
           aria-label={`Read "${post.title}"`}
         >
           <div class="mb-3 block">
-            <span class="text-sm font-medium leading-[1.7] text-[#1f2430] transition-colors group-hover:text-[#6a5fc1] dark:text-[#e0e0e0] max-sm:text-xs">
+            <span class="text-sm font-medium leading-[1.7] text-[#1f2430] transition-colors group-hover:text-[#6a5fc1] dark:text-[#e8e8ec] max-sm:text-xs">
               {post.title}
             </span>
           </div>
           <div class="mb-0.5 flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-gray-400 dark:text-gray-500 max-sm:flex-col max-sm:items-start max-sm:gap-y-1">
             <span class="flex items-center gap-1.5">
               <span class="text-gray-400 dark:text-gray-500">date:</span>
-              <span class="text-[#5b6270] dark:text-[#8a8a8a]">
+              <span class="text-[#5b6270] dark:text-[#9a9a9a]">
                 <time datetime={post.date}>{formatDate(post.date, locale)}</time>
               </span>
             </span>
           </div>
           {post.summary && (
-            <p class="mt-2 text-sm text-[#5b6270] dark:text-[#8a8a8a]">{trimString(post.summary, 220)}</p>
+            <p class="mt-2 text-sm text-[#5b6270] dark:text-[#9a9a9a]">{trimString(post.summary, 220)}</p>
           )}
         </a>
       ))

@@ -2,3 +2,15 @@
 @plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:where(.dark, .dark *));
+@custom-variant hidpi (@media (min-resolution: 1.5dppx));
+
+@layer base {
+  html {
+    text-rendering: optimizeLegibility;
+    -webkit-text-size-adjust: 100%;
+    font-optical-sizing: auto;
+    font-feature-settings:
+      "liga" 1,
+      "calt" 1;
+  }
+}
