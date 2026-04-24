@@ -2,6 +2,7 @@
 @plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:where(.dark, .dark *));
+@custom-variant hidpi (@media (min-resolution: 1.5dppx));
 
 @layer base {
   html {
@@ -11,25 +12,5 @@
     font-feature-settings:
       "liga" 1,
       "calt" 1;
-  }
-
-  /*
-   * Standard-DPI screens: let the browser use subpixel antialiasing,
-   * which leverages RGB subpixels for visually sharper text at 1x.
-   * High-DPI screens (≥1.5x): use grayscale antialiasing for cleaner,
-   * thinner strokes where pixel density already provides enough detail.
-   */
-  @media (max-resolution: 1.5dppx) {
-    body {
-      -webkit-font-smoothing: auto;
-      -moz-osx-font-smoothing: auto;
-    }
-  }
-
-  @media (min-resolution: 1.5dppx) {
-    body {
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
   }
 }
