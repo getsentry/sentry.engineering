@@ -6,7 +6,7 @@ draft: false
 summary: "What if libraries were active participants in their own observability and emit telemetry data themselves? Here's how Node's diagnostics API can make that a reality."
 images: ["../../assets/images/from-monkey-patching-to-tracing-channels/hero.png"]
 postLayout: PostLayout
-canonicalUrl: from-monkey-patching-to-tracing-channels
+canonicalUrl: https://blog.sentry.io/observability-with-tracing-channels/
 authors: ["sigridhuemer"]
 ---
 
