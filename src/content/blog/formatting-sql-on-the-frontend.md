@@ -10,6 +10,10 @@ canonicalUrl:
 authors: ["georgegritsouk"]
 ---
 
+**UPDATE:** Our SQLish formatter is now available as a [standalone package](https://github.com/getsentry/sqlish)!
+
+---
+
 Sentry's Performance team (a team I'm on, the team that works on features like [Insights](https://docs.sentry.io/product/insights/), [Dashboards](https://docs.sentry.io/product/dashboards/), [Explore](https://docs.sentry.io/product/explore/), and others) spent a big chunk of 2023 working on a database monitoring feature called ["Queries"](https://docs.sentry.io/product/insights/backend/queries/). "Queries" is a UI that shows information about SQL queries and their performance. SQL code is a central focus, so it became important to have good SQL formatting. None of the existing SQL formatters fit our needs, so we wrote our own! Our formatter has a few interesting features, so in this post I'll explain what those features are, why they are interesting, and how we wrote our implementation.
 
 ## Interesting Feature 1: Support for Invalid SQL
