@@ -11,9 +11,6 @@
     "format": "oxfmt",
     "format:check": "oxfmt --check"
   },
-  "overrides": {
-    "vite": "$vite"
-  },
   "dependencies": {
     "@astrojs/rss": "^4.0.18",
     "@astrojs/sitemap": "^3.7.2",
@@ -21,10 +18,13 @@
     "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.2.4",
     "astro": "^6.2.2",
-    "vite": "^7.3.2",
     "oxfmt": "^0.47.0",
     "oxlint": "^1.62.0",
     "rehype-slug": "^5.1.0",
-    "tailwindcss": "^4.2.4"
+    "tailwindcss": "^4.2.4",
+    "vite": "^7.3.2"
+  },
+  "overrides": {
+    "vite": "$vite"
   }
 }
