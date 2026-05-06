@@ -1,0 +1,15 @@
+{
+  "buildCommand": "",
+  "redirects": [
+    {
+      "source": "/blog/:slug",
+      "destination": "https://blog.sentry.io/:slug",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "destination": "https://blog.sentry.io/engineering/",
+      "permanent": true
+    }
+  ]
+}
