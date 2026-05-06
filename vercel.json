@@ -6,6 +6,26 @@
       "permanent": true
     },
     {
+      "source": "/blog/building-a-performant-ios-profiler",
+      "destination": "https://blog.sentry.io/building-an-ios-profiler",
+      "permanent": true
+    },
+    {
+      "source": "/blog/building-sentry-symbolicator",
+      "destination": "https://blog.sentry.io/building-a-sentry-symbolicator",
+      "permanent": true
+    },
+    {
+      "source": "/blog/sentry-points-of-presence-how-we-built-a-distributed-ingestion-infrastructure",
+      "destination": "https://blog.sentry.io/sentry-points-of-presence-how-we-built-a-distributed-ingestion",
+      "permanent": true
+    },
+    {
+      "source": "/blog/understanding-the-performance-impact-of-generated-javascript",
+      "destination": "https://blog.sentry.io/performance-impact-of-generated-javascript",
+      "permanent": true
+    },
+    {
       "source": "/blog/:slug",
       "destination": "https://blog.sentry.io/:slug",
       "permanent": true
