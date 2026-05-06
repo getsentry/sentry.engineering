@@ -1,5 +1,4 @@
 {
-  "buildCommand": "",
   "redirects": [
     {
       "source": "/blog/from-monkey-patching-to-tracing-channels",
@@ -9,6 +8,11 @@
     {
       "source": "/blog/:slug",
       "destination": "https://blog.sentry.io/:slug",
+      "permanent": true
+    },
+    {
+      "source": "/",
+      "destination": "https://blog.sentry.io/engineering/",
       "permanent": true
     },
     {
