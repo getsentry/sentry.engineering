@@ -2,6 +2,11 @@
   "buildCommand": "",
   "redirects": [
     {
+      "source": "/blog/from-monkey-patching-to-tracing-channels",
+      "destination": "https://blog.sentry.io/observability-with-tracing-channels",
+      "permanent": true
+    },
+    {
       "source": "/blog/:slug",
       "destination": "https://blog.sentry.io/:slug",
       "permanent": true
